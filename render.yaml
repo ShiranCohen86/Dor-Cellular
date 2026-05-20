@@ -24,3 +24,5 @@ services:
         value: "10"
       - key: LOG_LEVEL
         value: info
+      - key: ANTHROPIC_API_KEY
+        sync: false          # Set this in the Render dashboard
