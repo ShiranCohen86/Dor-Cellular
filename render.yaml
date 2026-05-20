@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: dor-store
+    env: node
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install --omit=dev
+    startCommand: node backend/server.js
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false          # Set this in the Render dashboard (MongoDB Atlas URI)
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false          # Set to your Render service URL after first deploy
+      - key: AUTO_SEED_IF_EMPTY
+        value: "false"
+      - key: BCRYPT_SALT_ROUNDS
+        value: "10"
+      - key: LOG_LEVEL
+        value: info
