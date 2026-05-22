@@ -3,7 +3,10 @@
 * { box-sizing: border-box; }
 
 html, body, #root { height: 100%; margin: 0; overflow-x: hidden; }
-html { overflow-x: clip; } /* clip (not just hidden) prevents fixed elements painted beyond the right viewport edge from creating scroll during React Router navigations */
+/* contain:paint makes #root the containing block for position:fixed children,
+   so the RTL sidebar (fixed + translateX(100%)) is clipped at the #root border
+   instead of creating scrollable overflow in Chrome DevTools mobile emulation. */
+#root { contain: paint; }
 
 body {
   font-family: $font-sans;
@@ -30,6 +33,15 @@ button {
   &.btn-danger    { background: var(--danger); &:hover { background: var(--danger-dark); } }
   &.btn-ghost     { background: transparent; color: var(--text-muted); box-shadow: none; &:hover { background: var(--surface-3); color: var(--text); } }
   &:disabled { opacity: .38; cursor: not-allowed; transform: none; box-shadow: none; }
+}
+
+/* btn-ghost on <a> / <Link> — same visual as button.btn-ghost */
+a.btn-ghost {
+  display: inline-flex; align-items: center;
+  padding: 8px 16px; border-radius: $radius;
+  background: transparent; color: var(--text-muted);
+  font-size: 13px;
+  &:hover { background: var(--surface-3); color: var(--text); text-decoration: none; }
 }
 
 input, select, textarea {
@@ -516,8 +528,16 @@ table {
 
   [dir='rtl'] .sidebar {
     transform: translateX(100%);
+    visibility: hidden;
     box-shadow: -6px 0 32px rgba(0,0,0,.6);
-    &.sidebar--open { transform: translateX(0); }
+    /* delay visibility:hidden until the slide-out animation finishes */
+    transition: transform .25s cubic-bezier(.25, .46, .45, .94), visibility 0s .25s;
+    &.sidebar--open {
+      transform: translateX(0);
+      visibility: visible;
+      /* show immediately when opening, then animate slide-in */
+      transition: transform .25s cubic-bezier(.25, .46, .45, .94), visibility 0s 0s;
+    }
   }
 
   .sidebar-overlay {
@@ -535,7 +555,9 @@ table {
     }
   }
 
-  .navbar-hamburger { display: inline-flex; align-items: center; font-size: 20px; padding: 6px 10px; }
+  .navbar-hamburger { display: inline-flex; align-items: center; font-size: 18px; padding: 7px 10px; }
+  /* Normalize all navbar interactive elements to the same height */
+  .navbar .btn-ghost, .navbar-hamburger, .navbar-user { height: 36px; box-sizing: border-box; }
 
   .main { padding: 12px; }
 
