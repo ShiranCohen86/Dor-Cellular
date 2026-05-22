@@ -88,7 +88,7 @@ export default function Repairs() {
   };
 
   return (
-    <div>
+    <div className="page">
       <div className="toolbar">
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
           <option value="">{t('common.status')}: —</option>
@@ -214,7 +214,8 @@ export default function Repairs() {
                       href={buildRepairWaLink(repair)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ background: '#25d366', color: '#fff', borderRadius: 6, padding: '5px 10px', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
+                      className="wa-btn"
+                      style={{ fontSize: 12, padding: '5px 10px' }}
                     >
                       📱 שלח הודעה ללקוח
                     </a>

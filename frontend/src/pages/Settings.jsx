@@ -64,7 +64,7 @@ export default function SettingsPage() {
   });
 
   return (
-    <div style={{ maxWidth: 760 }}>
+    <div className="page">
       <h2 style={{ marginTop: 0, marginBottom: 4 }}>{t('settings.title')}</h2>
       <p style={{ color: 'var(--text-muted)', marginTop: 0, marginBottom: 20, fontSize: 13 }}>
         {t('settings.subtitle')}

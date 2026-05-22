@@ -142,7 +142,7 @@ export default function UsersPage() {
   const visible = filterRole ? users.filter((u) => u.role === filterRole) : users;
 
   return (
-    <div>
+    <div className="page">
       <div className="toolbar" style={{ marginBottom: 16 }}>
         <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} style={{ minWidth: 140 }}>
           <option value="">כל התפקידים</option>

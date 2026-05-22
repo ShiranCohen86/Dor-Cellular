@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadOrdersIfStale, selectAllOrders } from '../store/slices/ordersSlice.js';
+import { buildWaLink } from '../utils/whatsapp.js';
+import EmptyState from '../components/ui/EmptyState.jsx';
 
 const HANDLED_KEY = 'dor_handled_orders';
 
@@ -13,15 +15,6 @@ function saveHandled(set) {
   localStorage.setItem(HANDLED_KEY, JSON.stringify([...set]));
 }
 
-function buildWaLink(phone, order) {
-  if (!phone) return null;
-  const clean = phone.replace(/\D/g, '');
-  const intl = clean.startsWith('0') ? '972' + clean.slice(1) : clean;
-  const items = (order.items || []).map((i) => `• ${i.name} ×${i.quantity ?? i.qty ?? 1}`).join('\n');
-  const text = encodeURIComponent(`שלום! קיבלנו את הזמנתך 🙏\n${items}\nניצור קשר לתיאום תשלום ומשלוח/איסוף.\nדור הסלולר`);
-  return `https://wa.me/${intl}?text=${text}`;
-}
-
 const FILTERS = [
   { key: 'new',     label: 'חדשות' },
   { key: 'handled', label: 'טופלו' },
@@ -30,9 +23,9 @@ const FILTERS = [
 
 export default function Orders() {
   const dispatch = useDispatch();
-  const orders = useSelector(selectAllOrders);
-  const [filter, setFilter]     = useState('new');
-  const [handled, setHandled]   = useState(loadHandled);
+  const orders   = useSelector(selectAllOrders);
+  const [filter,  setFilter]  = useState('new');
+  const [handled, setHandled] = useState(loadHandled);
 
   useEffect(() => { dispatch(loadOrdersIfStale()); }, [dispatch]);
 
@@ -50,14 +43,22 @@ export default function Orders() {
 
   const visible = useMemo(() => {
     if (filter === 'new')     return orders.filter((o) => !isHandled(o));
-    if (filter === 'handled') return orders.filter((o) => isHandled(o));
+    if (filter === 'handled') return orders.filter((o) =>  isHandled(o));
     return orders;
-  }, [orders, handled, filter]);
+  }, [orders, handled, filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const emptyMsg = filter === 'new' ? 'אין הזמנות חדשות 🎉' : 'אין הזמנות להציג';
 
   return (
-    <div>
+    <div className="page">
+      <div className="page-header">
+        <div className="page-header__left">
+          <h2 className="page-header__title">הזמנות</h2>
+        </div>
+      </div>
+
       {/* Filter chips */}
-      <div className="toolbar" style={{ marginBottom: 18 }}>
+      <div className="toolbar">
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -67,40 +68,40 @@ export default function Orders() {
           >
             {f.label}
             {f.key === 'new' && newCount > 0 && (
-              <span className="badge" style={{ marginInlineStart: 6, background: 'var(--brand-primary)', color: '#fff' }}>{newCount}</span>
+              <span className="badge" style={{ marginInlineStart: 6, background: 'var(--brand-primary)', color: '#fff' }}>
+                {newCount}
+              </span>
             )}
           </button>
         ))}
       </div>
 
       {visible.length === 0 ? (
-        <div className="card muted" style={{ textAlign: 'center', padding: 40, fontSize: 15 }}>
-          {filter === 'new' ? 'אין הזמנות חדשות 🎉' : 'אין הזמנות להציג'}
-        </div>
+        <EmptyState icon="🎉" title={emptyMsg} />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {visible.map((order) => {
-            const phone   = order.customerPhone || order.customer?.phone;
-            const name    = order.customerName  || order.customer?.name || 'לקוח';
-            const date    = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
-            const waLink  = buildWaLink(phone, order);
-            const done    = isHandled(order);
+            const phone  = order.customerPhone || order.customer?.phone;
+            const name   = order.customerName  || order.customer?.name || 'לקוח';
+            const date   = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
+            const waLink = buildWaLink(phone, order);
+            const done   = isHandled(order);
 
             return (
-              <div key={order._id} className="card" style={{ padding: '16px 20px', opacity: done ? 0.6 : 1 }}>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <div key={order._id} className={`order-card${done ? ' order-card--done' : ''}`}>
+                <div className="order-card__row">
                   {/* Info */}
-                  <div style={{ flex: 1, minWidth: 160 }}>
+                  <div className="order-card__info">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                      <strong style={{ fontSize: 16 }}>{name}</strong>
+                      <strong className="order-card__name">{name}</strong>
                       <span className={`badge ${done ? 'success' : 'warning'}`}>{done ? 'טופל' : 'חדש'}</span>
                     </div>
-                    <div className="muted" style={{ fontSize: 13 }}>{date}</div>
+                    <div className="order-card__meta">{date}</div>
                     {phone && <div style={{ fontSize: 13, marginTop: 3 }}>📞 {phone}</div>}
                   </div>
 
                   {/* Items */}
-                  <div style={{ flex: 2, minWidth: 160 }}>
+                  <div className="order-card__items">
                     {(order.items || []).map((item, i) => (
                       <div key={i} style={{ fontSize: 13, color: 'var(--text-muted)' }}>
                         {item.name} ×{item.quantity ?? item.qty ?? 1}
@@ -113,10 +114,9 @@ export default function Orders() {
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div className="order-card__actions">
                     {waLink && (
-                      <a href={waLink} target="_blank" rel="noopener noreferrer"
-                        style={{ background: '#25d366', color: '#fff', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                      <a href={waLink} target="_blank" rel="noopener noreferrer" className="wa-btn">
                         WhatsApp ↗
                       </a>
                     )}

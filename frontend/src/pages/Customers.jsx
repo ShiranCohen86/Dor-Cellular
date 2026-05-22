@@ -48,7 +48,7 @@ export default function Customers() {
   );
 
   return (
-    <div>
+    <div className="page">
       <div className="toolbar">
         <input
           value={searchQuery}

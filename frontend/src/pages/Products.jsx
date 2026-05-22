@@ -351,7 +351,7 @@ export default function Products() {
   );
 
   return (
-    <div>
+    <div className="page">
       <div className="toolbar">
         <input
           placeholder={t('common.search')}

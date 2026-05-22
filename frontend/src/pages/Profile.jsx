@@ -73,7 +73,7 @@ export default function Profile() {
   if (!currentUser) return <div>{t('common.loading')}</div>;
 
   return (
-    <div style={{ maxWidth: 720 }}>
+    <div className="page">
       <div className="card">
         <h2 style={{ marginTop: 0 }}>{t('profile.title')}</h2>
         <div className="kpi-grid">
