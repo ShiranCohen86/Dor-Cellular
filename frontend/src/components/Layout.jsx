@@ -57,34 +57,6 @@ function useInstallPrompt() {
   return prompt;
 }
 
-function UpdateBanner() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const handler = () => setShow(true);
-    window.addEventListener('pwa-update-ready', handler);
-    return () => window.removeEventListener('pwa-update-ready', handler);
-  }, []);
-  if (!show) return null;
-  return (
-    <div style={{
-      position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-      background: 'var(--brand-primary)', color: '#fff',
-      borderRadius: 12, padding: '12px 18px',
-      display: 'flex', alignItems: 'center', gap: 12,
-      zIndex: 1100, boxShadow: '0 4px 24px rgba(0,0,0,.5)',
-      fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap',
-    }}>
-      <span>🔄 גרסה חדשה זמינה</span>
-      <button
-        onClick={() => window.__updateServiceWorker?.(true)}
-        style={{ background: '#fff', color: 'var(--brand-primary)', border: 'none', borderRadius: 8, padding: '6px 14px', fontWeight: 700, cursor: 'pointer', fontSize: 13 }}
-      >
-        עדכן עכשיו
-      </button>
-      <button onClick={() => setShow(false)} style={{ background: 'transparent', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: 0 }}>✕</button>
-    </div>
-  );
-}
 
 const NAVIGATION_ITEMS = [
   { path: '/dashboard',  translationKey: 'dashboard', icon: '⊞', hiddenRoles: ['customer'] },
@@ -226,7 +198,6 @@ export default function Layout() {
       <main className="main">
         <Outlet />
 
-        <UpdateBanner />
         {showInstall && <InstallModal onClose={() => setShowInstall(false)} nativePrompt={nativePrompt} />}
 
         {/* Toast stack — bottom-right corner */}

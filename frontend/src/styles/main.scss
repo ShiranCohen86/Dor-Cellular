@@ -486,6 +486,8 @@ table {
     grid-template-rows: $navbar-h 1fr;
     grid-template-areas: 'navbar' 'main';
   }
+  // Override the higher-specificity RTL rule from the ≤800px breakpoint
+  [dir='rtl'] .layout { grid-template-columns: 1fr; }
 
   .sidebar {
     position: fixed;

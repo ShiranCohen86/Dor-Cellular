@@ -9,24 +9,14 @@ import { logInfo, logWarn } from './api/logger.js';
 
 /** Registers the generated service worker (production only — Vite dev SW is disabled). */
 export function registerServiceWorker() {
-  // The virtual module is only available when built with vite-plugin-pwa.
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
-  // Lazy import so dev builds without the plugin don't fail to start.
   import('virtual:pwa-register')
     .then(({ registerSW }) => {
-      const updateServiceWorker = registerSW({
-        onNeedRefresh() {
-          logInfo('pwa', 'new version available');
-          window.dispatchEvent(new CustomEvent('pwa-update-ready'));
-        },
+      registerSW({
         onOfflineReady() { logInfo('pwa', 'app is ready for offline use'); },
         onRegisterError(error) { logWarn('pwa', 'register failed', error); },
       });
-      // Expose for any custom "click here to update" UI you may want to add later.
-      window.__updateServiceWorker = updateServiceWorker;
     })
-    .catch(() => {
-      // Plugin not present (e.g. running with the bare Vite config). Harmless.
-    });
+    .catch(() => {});
 }
