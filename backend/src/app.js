@@ -20,7 +20,19 @@ const app = express();
 // so req.ip returns the real client IP instead of the proxy's IP.
 app.set('trust proxy', 1);
 
-app.use(express.static(DIST));
+// sw.js and the PWA manifest must never be HTTP-cached so the browser
+// always fetches the latest version and detects new deploys immediately.
+app.use(express.static(DIST, {
+  setHeaders(res, filePath) {
+    if (
+      filePath.endsWith('sw.js') ||
+      filePath.endsWith('manifest.webmanifest') ||
+      filePath.includes('workbox-')
+    ) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  },
+}));
 
 app.use(helmet());
 const allowedOrigins = [
