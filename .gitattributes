@@ -1,0 +1,8 @@
+# Normalize all text files to LF on commit and checkout.
+# This eliminates the CRLF/LF discrepancy between git-cli and VS Code's
+# internal git (which diverge when core.autocrlf=true is set globally).
+* text=auto eol=lf
+
+# Windows batch/cmd files must keep CRLF to run correctly.
+*.bat text eol=crlf
+*.cmd text eol=crlf
