@@ -6,6 +6,22 @@ import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
 import { selectLanguage, toggleLanguage, pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
 import { selectTheme, selectCustomColors } from '../store/slices/settingsSlice.js';
 
+function useInstallPrompt() {
+  const [prompt, setPrompt] = useState(null);
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setPrompt(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+  const install = async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    await prompt.userChoice;
+    setPrompt(null);
+  };
+  return { canInstall: !!prompt, install };
+}
+
 function UpdateBanner() {
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -96,6 +112,7 @@ export default function Layout() {
   const activePageKey = NAVIGATION_ITEMS.find((item) => item.path === location.pathname)?.translationKey || 'dashboard';
   const handleLogoutClick = () => dispatch(logoutUser());
 
+  const { canInstall, install } = useInstallPrompt();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -152,6 +169,11 @@ export default function Layout() {
           <Link to="/" className="btn-ghost" style={{ fontSize: 13 }}>{t('nav.shop')}</Link>
         </div>
         <div className="navbar-end">
+          {canInstall && (
+            <button onClick={install} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px', color: 'var(--brand-primary)', fontWeight: 700 }}>
+              ⬇ התקן
+            </button>
+          )}
           <button className="btn-ghost" onClick={() => dispatch(toggleLanguage())} style={{ fontSize: 13, padding: '6px 10px' }}>
             {currentLanguage === 'he' ? 'EN' : 'עב'}
           </button>

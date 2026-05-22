@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         includeAssets: ['favicon.svg', 'pwa-192.png', 'pwa-512.png'],
         manifest: {
           name: 'דור הסלולר',
@@ -38,6 +38,8 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
+          skipWaiting: true,
+          clientsClaim: true,
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
           // Cache the public storefront API + categories so the shop renders offline
           // after the first visit. Admin endpoints are NOT cached.
