@@ -1,11 +1,6 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
-
-function StaffOnlyRoute({ children }) {
-  const { user } = useAuth();
-  if (user?.role === 'customer') return <Navigate to="/orders" replace />;
-  return children;
-}
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Storefront from './pages/Storefront.jsx';
@@ -21,11 +16,25 @@ import Profile from './pages/Profile.jsx';
 import SettingsPage from './pages/Settings.jsx';
 import RepairTracker from './pages/RepairTracker.jsx';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
+function StaffOnlyRoute({ children }) {
+  const { user } = useAuth();
+  if (user?.role === 'customer') return <Navigate to="/orders" replace />;
+  return children;
+}
+
 export default function App() {
   const { loading } = useAuth();
   if (loading) return <div className="login-shell"><div className="login-card">טוען…</div></div>;
 
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       {/* Public */}
       <Route path="/" element={<Storefront />} />
@@ -47,5 +56,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

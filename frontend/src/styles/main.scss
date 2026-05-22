@@ -3,6 +3,7 @@
 * { box-sizing: border-box; }
 
 html, body, #root { height: 100%; margin: 0; overflow-x: hidden; }
+html { overflow-x: clip; } /* clip (not just hidden) prevents fixed elements painted beyond the right viewport edge from creating scroll during React Router navigations */
 
 body {
   font-family: $font-sans;
@@ -489,6 +490,7 @@ table {
 
   .sidebar {
     position: fixed;
+    grid-area: unset;
     inset-block: 0;
     inset-inline-start: 0;
     width: 240px;
