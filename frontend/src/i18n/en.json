@@ -25,7 +25,7 @@
     "password": "Password",
     "signIn": "Sign In",
     "wrongCredentials": "Invalid email or password",
-    "demoHint": "Try: admin@dor-cellular.test / admin1234",
+
     "backToShop": "← Back to shop",
     "orEmail": "or with email"
   },

@@ -32,8 +32,8 @@ export default function Login() {
   const currentUser   = useSelector(selectCurrentUser);
   const currentLanguage = useSelector(selectLanguage);
 
-  const [emailInput,    setEmailInput]    = useState('admin@dor-cellular.test');
-  const [passwordInput, setPasswordInput] = useState('admin1234');
+  const [emailInput,    setEmailInput]    = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError,   setGoogleError]   = useState('');
 
@@ -189,7 +189,7 @@ export default function Login() {
           {isSubmitting ? t('common.loading') : t('auth.signIn')}
         </button>
 
-        <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>{t('auth.demoHint')}</p>
+
         <p style={{ fontSize: 13, marginTop: 8, textAlign: 'center' }}>
           <Link to="/">{t('auth.backToShop')}</Link>
         </p>
