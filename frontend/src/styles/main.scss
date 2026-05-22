@@ -489,6 +489,8 @@ table {
 
 .navbar-hamburger { display: none; }
 .sidebar-overlay  { display: none; }
+/* On desktop the host is transparent — sidebar participates in the grid directly */
+.sidebar-host { display: contents; }
 
 // ── Phones (≤ 640 px) ─────────────────────────────────────────────────────
 
@@ -500,16 +502,30 @@ table {
     grid-template-areas: 'navbar' 'main';
   }
 
-  .sidebar {
+  // The host is a viewport-sized fixed layer with overflow:hidden.
+  // The sidebar (position:absolute inside) is clipped here — it can never
+  // paint or contribute to scrollWidth beyond the viewport boundary.
+  .sidebar-host {
+    display: block;
     position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 499;
+    &.sidebar-host--open { pointer-events: auto; }
+  }
+
+  .sidebar {
+    position: absolute;
     grid-area: unset;
     inset-block: 0;
     inset-inline-start: 0;
     width: 240px;
-    z-index: 500;
+    z-index: 1;
     transform: translateX(-100%);
     transition: transform .25s cubic-bezier(.25, .46, .45, .94);
     box-shadow: 6px 0 32px rgba(0,0,0,.6);
+    pointer-events: auto;
 
     &.sidebar--open { transform: translateX(0); }
 
@@ -528,23 +544,16 @@ table {
 
   [dir='rtl'] .sidebar {
     transform: translateX(100%);
-    visibility: hidden;
     box-shadow: -6px 0 32px rgba(0,0,0,.6);
-    /* delay visibility:hidden until the slide-out animation finishes */
-    transition: transform .25s cubic-bezier(.25, .46, .45, .94), visibility 0s .25s;
-    &.sidebar--open {
-      transform: translateX(0);
-      visibility: visible;
-      /* show immediately when opening, then animate slide-in */
-      transition: transform .25s cubic-bezier(.25, .46, .45, .94), visibility 0s 0s;
-    }
+    transition: transform .25s cubic-bezier(.25, .46, .45, .94);
+    &.sidebar--open { transform: translateX(0); }
   }
 
   .sidebar-overlay {
     display: block;
-    position: fixed; inset: 0;
+    position: absolute; inset: 0;
     background: rgba(0,0,0,.55);
-    z-index: 499;
+    z-index: 0;
     opacity: 0;
     pointer-events: none;
     transition: opacity .25s ease;

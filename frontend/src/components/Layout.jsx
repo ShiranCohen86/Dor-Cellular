@@ -83,40 +83,41 @@ export default function Layout() {
 
   return (
     <div className="layout">
-      <aside className={`sidebar${sidebarOpen ? ' sidebar--open' : ''}`}>
-        <Link to="/dashboard" className="brand" style={{ textDecoration: 'none' }}>{t('app.name')}</Link>
-        <nav>
-          {visibleNavItems.map((navItem) => (
-            <NavLink key={navItem.path} to={navItem.path} onClick={closeSidebar}>
-              <span className="nav-icon">{navItem.icon}</span>
-              <span className="label">{t(`nav.${navItem.translationKey}`)}</span>
-            </NavLink>
-          ))}
-        </nav>
+      <div className={`sidebar-host${sidebarOpen ? ' sidebar-host--open' : ''}`}>
+        <div
+          className={`sidebar-overlay${sidebarOpen ? ' sidebar-overlay--visible' : ''}`}
+          onClick={closeSidebar}
+        />
+        <aside className={`sidebar${sidebarOpen ? ' sidebar--open' : ''}`}>
+          <Link to="/dashboard" className="brand" style={{ textDecoration: 'none' }}>{t('app.name')}</Link>
+          <nav>
+            {visibleNavItems.map((navItem) => (
+              <NavLink key={navItem.path} to={navItem.path} onClick={closeSidebar}>
+                <span className="nav-icon">{navItem.icon}</span>
+                <span className="label">{t(`nav.${navItem.translationKey}`)}</span>
+              </NavLink>
+            ))}
+          </nav>
 
-        <div className="sidebar-user">
-          <div className="sidebar-user__info">
-            <div
-              className="sidebar-user__avatar"
-              style={{ background: userAvatarColor }}
-            >
-              {userInitials}
+          <div className="sidebar-user">
+            <div className="sidebar-user__info">
+              <div
+                className="sidebar-user__avatar"
+                style={{ background: userAvatarColor }}
+              >
+                {userInitials}
+              </div>
+              <div>
+                <div className="sidebar-user__name">{currentUser?.name}</div>
+                <div className="sidebar-user__role">{t(`roles.${currentUser?.role}`)}</div>
+              </div>
             </div>
-            <div>
-              <div className="sidebar-user__name">{currentUser?.name}</div>
-              <div className="sidebar-user__role">{t(`roles.${currentUser?.role}`)}</div>
-            </div>
+            <button className="btn-secondary" onClick={handleLogoutClick} style={{ width: '100%', fontSize: 12 }}>
+              {t('nav.logout')}
+            </button>
           </div>
-          <button className="btn-secondary" onClick={handleLogoutClick} style={{ width: '100%', fontSize: 12 }}>
-            {t('nav.logout')}
-          </button>
-        </div>
-      </aside>
-
-      <div
-        className={`sidebar-overlay${sidebarOpen ? ' sidebar-overlay--visible' : ''}`}
-        onClick={closeSidebar}
-      />
+        </aside>
+      </div>
 
       <header className="navbar">
         <div className="navbar-start">
