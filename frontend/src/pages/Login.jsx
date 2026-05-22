@@ -41,10 +41,12 @@ export default function Login() {
 
   useEffect(() => { if (currentUser) navigate('/dashboard'); }, [currentUser, navigate]);
   useEffect(() => { if (authError) dispatch(clearAuthError()); }, [emailInput, passwordInput]); // eslint-disable-line
-  // Clean up any GIS One Tap elements from <body> when Login unmounts (navigation away)
+  // Clean up ALL GIS-injected elements when Login unmounts (fallback for any navigation path)
   useEffect(() => () => {
     window.google?.accounts?.id?.cancel?.();
-    document.getElementById('credential_prompt_parent')?.remove();
+    document.querySelectorAll(
+      '[id^="credential_"],[id^="g_id_"],[id^="g_a11y"],[id^="gsi_"]'
+    ).forEach(el => el.remove());
   }, []);
 
   // ── Google credential callback ──────────────────────────────────────────
@@ -54,10 +56,14 @@ export default function Login() {
     try {
       const result = await dispatch(googleLoginUser(credential));
       if (!result.error) {
-        // Dismiss One Tap and remove its injected fixed-position DOM elements before
-        // navigating — leftover GIS elements can cause horizontal overflow on mobile RTL.
+        // Dismiss One Tap and remove ALL GIS-injected DOM elements before navigating.
+        // These position:fixed elements can cause horizontal scroll extent on mobile RTL.
         window.google?.accounts?.id?.cancel?.();
-        document.getElementById('credential_prompt_parent')?.remove();
+        document.querySelectorAll(
+          '[id^="credential_"],[id^="g_id_"],[id^="g_a11y"],[id^="gsi_"]'
+        ).forEach(el => el.remove());
+        // Force scroll to natural RTL origin before React Router pushes the new route.
+        window.scrollTo(0, 0);
         navigate('/dashboard', { replace: true });
       } else setGoogleError(result.payload || 'שגיאה בהתחברות עם Google');
     } finally {

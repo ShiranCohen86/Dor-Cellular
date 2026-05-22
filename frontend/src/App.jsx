@@ -18,8 +18,14 @@ import RepairTracker from './pages/RepairTracker.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  // useLayoutEffect fires before the browser paints — prevents a flash of wrong scroll position
-  useLayoutEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  useLayoutEffect(() => {
+    // Primary reset — fires before the browser paints.
+    window.scrollTo(0, 0);
+    // Backup reset one animation frame later — catches any post-render scroll manipulation
+    // by external scripts (e.g. Google GIS closing its One Tap overlay).
+    const raf = requestAnimationFrame(() => window.scrollTo(0, 0));
+    return () => cancelAnimationFrame(raf);
+  }, [pathname]);
   return null;
 }
 

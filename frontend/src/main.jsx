@@ -10,6 +10,9 @@ import './i18n';
 import './styles/main.scss';
 import { registerServiceWorker } from './pwa.js';
 
+// Tell the browser not to restore scroll positions automatically on navigation — we do it.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
 // Apply persisted theme + direction before first paint to prevent flash
 const savedTheme = localStorage.getItem('app-theme') || 'light';
 const savedLang  = localStorage.getItem('lang') || 'he';
