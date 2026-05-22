@@ -11,6 +11,13 @@ import { logInfo, logWarn } from './api/logger.js';
 export function registerServiceWorker() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
 
+  // When a new SW takes over, reload so the page gets fresh CSS/JS.
+  // This fires at most once per deploy — after reload the new SW is in control
+  // and controllerchange won't fire again until another new version is deployed.
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+
   import('virtual:pwa-register')
     .then(({ registerSW }) => {
       registerSW({
