@@ -2,7 +2,7 @@
 
 * { box-sizing: border-box; }
 
-html, body, #root { height: 100%; margin: 0; }
+html, body, #root { height: 100%; margin: 0; overflow-x: hidden; }
 
 body {
   font-family: $font-sans;
@@ -461,7 +461,7 @@ table {
 // ── Responsive ────────────────────────────────────────────────────────────
 
 @media (max-width: 800px) {
-  .layout { grid-template-columns: 60px 1fr; [dir='rtl'] & { grid-template-columns: 1fr 60px; } }
+  .layout { grid-template-columns: 60px 1fr; }
   .sidebar nav a { padding: 10px; justify-content: center; gap: 0; }
   .sidebar nav a span.label { display: none; }
   .sidebar nav a .nav-icon { width: auto; font-size: 18px; opacity: .8; }
@@ -486,8 +486,6 @@ table {
     grid-template-rows: $navbar-h 1fr;
     grid-template-areas: 'navbar' 'main';
   }
-  // Override the higher-specificity RTL rule from the ≤800px breakpoint
-  [dir='rtl'] .layout { grid-template-columns: 1fr; }
 
   .sidebar {
     position: fixed;
