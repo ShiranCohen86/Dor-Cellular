@@ -56,20 +56,17 @@ export default function Login() {
     try {
       const result = await dispatch(googleLoginUser(credential));
       if (!result.error) {
-        // Dismiss One Tap and remove ALL GIS-injected DOM elements before navigating.
-        // These position:fixed elements can cause horizontal scroll extent on mobile RTL.
+        // Google One Tap on mobile modifies the browser's viewport/DOM state in ways
+        // that break SPA navigation (horizontal scroll, wrong layout width).
+        // Full page navigation resets all browser state cleanly — the token is already
+        // in localStorage so the app bootstraps straight to the dashboard.
         window.google?.accounts?.id?.cancel?.();
-        document.querySelectorAll(
-          '[id^="credential_"],[id^="g_id_"],[id^="g_a11y"],[id^="gsi_"]'
-        ).forEach(el => el.remove());
-        // Force scroll to natural RTL origin before React Router pushes the new route.
-        window.scrollTo(0, 0);
-        navigate('/dashboard', { replace: true });
+        window.location.replace('/dashboard');
       } else setGoogleError(result.payload || 'שגיאה בהתחברות עם Google');
     } finally {
       setGoogleLoading(false);
     }
-  }, [dispatch, navigate]);
+  }, [dispatch]);
 
   // ── Initialize GIS when script is ready ────────────────────────────────
   const initGoogle = useCallback(() => {
