@@ -1,7 +1,10 @@
 // ── SCSS layout constants (compile-time, not theme-specific) ─────────────
 $sidebar-w: 240px;
 $navbar-h:   56px;
-$radius:     8px;
+$radius:     10px;
+$radius-sm:  6px;
+$radius-lg:  14px;
+$radius-full: 999px;
 $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
 
 // ── Dark Violet — default ─────────────────────────────────────────────────
@@ -9,79 +12,160 @@ $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
 [data-theme="dark"] {
   --brand-primary:           #8b5cf6;
   --brand-primary-dark:      #7c3aed;
+  --brand-primary-light:     #a78bfa;
   --brand-accent:            #f59e0b;
   --danger:                  #f87171;
+  --success:                 #34d399;
   --warning:                 #fbbf24;
-  --bg:                      #0c0c1e;
-  --surface:                 #14142a;
-  --sidebar-bg:              #090915;
-  --surface-1:               #14142a;
-  --surface-2:               #1c1c38;
-  --surface-3:               #262650;
-  --border:                  #2e2e58;
-  --text:                    #eaeaff;
-  --text-muted:              #7878aa;
-  --shadow:                  0 4px 20px rgba(0, 0, 0, 0.55);
-  --surface-3-hover:         #32326a;
+
+  // Backgrounds — layered depth system
+  --bg:                      #07071a;
+  --surface:                 #0d0d26;
+  --surface-1:               #0d0d26;
+  --surface-2:               #131330;
+  --surface-3:               #1a1a40;
+  --surface-3-hover:         #21214e;
+  --surface-4:               #22225a;
+
+  // Sidebar always dark
+  --sidebar-bg:              #080816;
+
+  // Borders
+  --border:                  #1e1e48;
+  --border-subtle:           rgba(139, 92, 246, 0.12);
+  --border-strong:           #2a2a5a;
+
+  // Text hierarchy
+  --text:                    #eeeeff;
+  --text-muted:              #6060a0;
+  --text-subtle:             #38385a;
+
+  // Shadows — multi-layer premium depth
+  --shadow-sm:               0 1px 2px rgba(0,0,0,0.6), 0 1px 6px rgba(0,0,0,0.3);
+  --shadow:                  0 4px 16px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-lg:               0 12px 40px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-brand:            0 4px 24px rgba(139,92,246,0.28);
+  --shadow-accent:           0 4px 20px rgba(245,158,11,0.25);
+
+  // Glass morphism
+  --glass-bg:                rgba(13,13,38,0.88);
+  --glass-border:            rgba(139,92,246,0.18);
+
+  // State colors
   --danger-dark:             #ef4444;
   --nav-active-color:        #c4b5fd;
-  --sidebar-text:            #a8a8d0;
-  --sidebar-text-muted:      #5c5c88;
+  --sidebar-text:            #9090c8;
+  --sidebar-text-muted:      #48487a;
+
+  // Alpha tokens
+  --brand-primary-alpha-10:  rgba(139, 92, 246, 0.10);
+  --brand-primary-alpha-20:  rgba(139, 92, 246, 0.18);
   --brand-primary-alpha-25:  rgba(139, 92, 246, 0.22);
-  --brand-accent-alpha-40:   rgba(245, 158, 11, 0.35);
-  --login-bg:                linear-gradient(135deg, #0c0c1e 0%, #1c0f44 50%, #0c0c1e 100%);
+  --brand-accent-alpha-40:   rgba(245, 158, 11, 0.32);
+
+  // Login
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.35) 0%, transparent 60%),
+                             linear-gradient(180deg, #07071a 0%, #0d0728 100%);
 }
 
 // ── Light Pearl ───────────────────────────────────────────────────────────
 [data-theme="light"] {
   --brand-primary:           #7c3aed;
   --brand-primary-dark:      #6d28d9;
-  --brand-accent:            #f59e0b;
+  --brand-primary-light:     #a78bfa;
+  --brand-accent:            #d97706;
   --danger:                  #ef4444;
+  --success:                 #10b981;
   --warning:                 #f59e0b;
-  --bg:                      #f2f1ff;
+
+  --bg:                      #f5f4ff;
   --surface:                 #ffffff;
-  --sidebar-bg:              #1a0f40;
   --surface-1:               #ffffff;
-  --surface-2:               #f8f7ff;
-  --surface-3:               #ece8ff;
-  --border:                  #dcd8ff;
-  --text:                    #1c1544;
-  --text-muted:              #7060a0;
-  --shadow:                  0 4px 20px rgba(124, 58, 237, 0.09);
-  --surface-3-hover:         #e2dcff;
+  --surface-2:               #faf9ff;
+  --surface-3:               #f0eeff;
+  --surface-3-hover:         #e8e4ff;
+  --surface-4:               #e2dcff;
+
+  --sidebar-bg:              #12093a;
+
+  --border:                  #e2dcff;
+  --border-subtle:           rgba(124,58,237,0.08);
+  --border-strong:           #cec6ff;
+
+  --text:                    #1a1440;
+  --text-muted:              #6050a0;
+  --text-subtle:             #b0a8d8;
+
+  --shadow-sm:               0 1px 2px rgba(100,80,200,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow:                  0 4px 16px rgba(100,80,200,0.1), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg:               0 12px 40px rgba(100,80,200,0.16), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-brand:            0 4px 20px rgba(124,58,237,0.22);
+  --shadow-accent:           0 4px 16px rgba(217,119,6,0.2);
+
+  --glass-bg:                rgba(255,255,255,0.9);
+  --glass-border:            rgba(124,58,237,0.14);
+
   --danger-dark:             #dc2626;
   --nav-active-color:        #c4b5fd;
-  --sidebar-text:            #b8a8e8;
-  --sidebar-text-muted:      #7868b0;
-  --brand-primary-alpha-25:  rgba(124, 58, 237, 0.14);
-  --brand-accent-alpha-40:   rgba(245, 158, 11, 0.25);
-  --login-bg:                linear-gradient(135deg, #1a0f40 0%, #7c3aed 60%, #f59e0b 100%);
+  --sidebar-text:            #b0a0e0;
+  --sidebar-text-muted:      #7060b0;
+
+  --brand-primary-alpha-10:  rgba(124, 58, 237, 0.08);
+  --brand-primary-alpha-20:  rgba(124, 58, 237, 0.14);
+  --brand-primary-alpha-25:  rgba(124, 58, 237, 0.16);
+  --brand-accent-alpha-40:   rgba(245, 158, 11, 0.22);
+
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.4) 0%, transparent 60%),
+                             linear-gradient(180deg, #12093a 0%, #2d1b8a 50%, #7c3aed 100%);
 }
 
 // ── Deep Blue ─────────────────────────────────────────────────────────────
 [data-theme="deep-blue"] {
   --brand-primary:           #3b82f6;
   --brand-primary-dark:      #2563eb;
+  --brand-primary-light:     #60a5fa;
   --brand-accent:            #22d3ee;
   --danger:                  #f87171;
+  --success:                 #34d399;
   --warning:                 #fbbf24;
-  --bg:                      #030d1f;
-  --surface:                 #071230;
+
+  --bg:                      #020b1e;
+  --surface:                 #060f28;
+  --surface-1:               #060f28;
+  --surface-2:               #0a1835;
+  --surface-3:               #0e2048;
+  --surface-3-hover:         #122460;
+  --surface-4:               #172a75;
+
   --sidebar-bg:              #020810;
-  --surface-1:               #071230;
-  --surface-2:               #0c1c48;
-  --surface-3:               #102562;
-  --border:                  #1a3a8a;
-  --text:                    #cce4ff;
-  --text-muted:              #6090c0;
-  --shadow:                  0 4px 20px rgba(0, 0, 0, 0.65);
-  --surface-3-hover:         #163080;
+
+  --border:                  #122052;
+  --border-subtle:           rgba(59,130,246,0.12);
+  --border-strong:           #1a3068;
+
+  --text:                    #d0e8ff;
+  --text-muted:              #4878a8;
+  --text-subtle:             #1e3858;
+
+  --shadow-sm:               0 1px 2px rgba(0,0,0,0.7), 0 1px 6px rgba(0,0,0,0.4);
+  --shadow:                  0 4px 16px rgba(0,0,0,0.65), 0 1px 4px rgba(0,0,0,0.4);
+  --shadow-lg:               0 12px 40px rgba(0,0,0,0.8), 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-brand:            0 4px 24px rgba(59,130,246,0.3);
+  --shadow-accent:           0 4px 20px rgba(34,211,238,0.25);
+
+  --glass-bg:                rgba(6,15,40,0.88);
+  --glass-border:            rgba(59,130,246,0.18);
+
   --danger-dark:             #ef4444;
   --nav-active-color:        #93c5fd;
-  --sidebar-text:            #80a8d0;
-  --sidebar-text-muted:      #4a6888;
+  --sidebar-text:            #6090c8;
+  --sidebar-text-muted:      #304878;
+
+  --brand-primary-alpha-10:  rgba(59, 130, 246, 0.10);
+  --brand-primary-alpha-20:  rgba(59, 130, 246, 0.18);
   --brand-primary-alpha-25:  rgba(59, 130, 246, 0.25);
-  --brand-accent-alpha-40:   rgba(34, 211, 238, 0.35);
-  --login-bg:                linear-gradient(135deg, #030d1f 0%, #071230 50%, #020810 100%);
+  --brand-accent-alpha-40:   rgba(34, 211, 238, 0.32);
+
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.4) 0%, transparent 60%),
+                             linear-gradient(180deg, #020b1e 0%, #060f28 100%);
 }
