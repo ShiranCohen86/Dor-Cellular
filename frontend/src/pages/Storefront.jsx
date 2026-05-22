@@ -206,11 +206,11 @@ export default function Storefront() {
           {currentUser ? (
             <>
               <Link to="/profile" className="btn-ghost shop-nav__link">{t('nav.profile')}</Link>
-              <Link to="/dashboard"><button>{t('nav.dashboard')}</button></Link>
+              <Link to="/dashboard" className="btn-ghost">{t('nav.dashboard')}</Link>
               <button className="btn-secondary" onClick={handleLogout}>{t('nav.logout')}</button>
             </>
           ) : (
-            <Link to="/login"><button>{t('auth.login')}</button></Link>
+            <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
           )}
         </div>
       </header>
