@@ -41,6 +41,11 @@ export default function Login() {
 
   useEffect(() => { if (currentUser) navigate('/dashboard'); }, [currentUser, navigate]);
   useEffect(() => { if (authError) dispatch(clearAuthError()); }, [emailInput, passwordInput]); // eslint-disable-line
+  // Clean up any GIS One Tap elements from <body> when Login unmounts (navigation away)
+  useEffect(() => () => {
+    window.google?.accounts?.id?.cancel?.();
+    document.getElementById('credential_prompt_parent')?.remove();
+  }, []);
 
   // ── Google credential callback ──────────────────────────────────────────
   const handleGoogleCredential = useCallback(async ({ credential }) => {
@@ -48,8 +53,13 @@ export default function Login() {
     setGoogleError('');
     try {
       const result = await dispatch(googleLoginUser(credential));
-      if (!result.error) navigate('/dashboard');
-      else setGoogleError(result.payload || 'שגיאה בהתחברות עם Google');
+      if (!result.error) {
+        // Dismiss One Tap and remove its injected fixed-position DOM elements before
+        // navigating — leftover GIS elements can cause horizontal overflow on mobile RTL.
+        window.google?.accounts?.id?.cancel?.();
+        document.getElementById('credential_prompt_parent')?.remove();
+        navigate('/dashboard', { replace: true });
+      } else setGoogleError(result.payload || 'שגיאה בהתחברות עם Google');
     } finally {
       setGoogleLoading(false);
     }

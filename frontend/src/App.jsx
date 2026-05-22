@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -18,7 +18,8 @@ import RepairTracker from './pages/RepairTracker.jsx';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  // useLayoutEffect fires before the browser paints — prevents a flash of wrong scroll position
+  useLayoutEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 }
 
