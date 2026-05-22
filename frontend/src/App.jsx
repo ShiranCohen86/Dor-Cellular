@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -22,6 +22,33 @@ function ScrollToTop() {
   return null;
 }
 
+function UpdateBanner() {
+  const [show, setShow] = useState(() => {
+    if (localStorage.getItem('app-just-updated')) {
+      localStorage.removeItem('app-just-updated');
+      return true;
+    }
+    return false;
+  });
+  useEffect(() => {
+    if (!show) return;
+    const t = setTimeout(() => setShow(false), 4000);
+    return () => clearTimeout(t);
+  }, [show]);
+  if (!show) return null;
+  return (
+    <div style={{
+      position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)',
+      background: '#8b5cf6', color: '#fff', padding: '10px 22px',
+      borderRadius: 10, fontWeight: 600, fontSize: 14, zIndex: 9999,
+      boxShadow: '0 4px 20px rgba(0,0,0,.35)', animation: 'fade-up .3s ease',
+      whiteSpace: 'nowrap',
+    }}>
+      ✓ האפליקציה עודכנה לגרסה חדשה
+    </div>
+  );
+}
+
 function StaffOnlyRoute({ children }) {
   const { user } = useAuth();
   if (user?.role === 'customer') return <Navigate to="/orders" replace />;
@@ -34,6 +61,7 @@ export default function App() {
 
   return (
     <>
+    <UpdateBanner />
     <ScrollToTop />
     <Routes>
       {/* Public */}

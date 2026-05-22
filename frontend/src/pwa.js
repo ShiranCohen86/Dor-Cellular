@@ -15,6 +15,7 @@ export function registerServiceWorker() {
   // This fires at most once per deploy — after reload the new SW is in control
   // and controllerchange won't fire again until another new version is deployed.
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    localStorage.setItem('app-just-updated', '1');
     window.location.reload();
   });
 
