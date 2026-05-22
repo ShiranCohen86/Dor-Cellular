@@ -201,6 +201,7 @@ export default function Repairs() {
                 <td>₪ {repair.estimatedCost || 0}</td>
                 <td style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                   <select
+                    key={`${repair._id}-${repair.status}`}
                     onChange={(event) => handleStatusChange(repair._id, event.target.value)}
                     defaultValue=""
                   >

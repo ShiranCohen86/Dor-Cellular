@@ -28,8 +28,6 @@ router.get(
         { model: new RegExp(req.query.q, 'i') },
       ];
     }
-    if (req.query.inStockOnly === 'true') filter.totalStock = { $gt: 0 };
-
     const result = await paginate(Product, filter, req.query, {
       projection: PUBLIC_FIELDS + ' totalStock',
       populate: { path: 'categoryId', select: 'name slug type' },

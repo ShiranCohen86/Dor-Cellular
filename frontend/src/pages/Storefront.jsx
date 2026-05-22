@@ -75,7 +75,6 @@ export default function Storefront() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategoryId, setActiveCategoryId] = useState('');
-  const [inStockOnly, setInStockOnly] = useState(false);
   const [quickView, setQuickView] = useState(null);
   const [cartBounce, setCartBounce] = useState(false);
   const [addedIds, setAddedIds] = useState({});
@@ -151,10 +150,9 @@ export default function Storefront() {
     dispatch(loadPublicProductsIfStale({
       q: searchQuery || undefined,
       categoryId: activeCategoryId || undefined,
-      inStockOnly: inStockOnly || undefined,
       limit: 60,
     }));
-  }, [dispatch, searchQuery, activeCategoryId, inStockOnly]);
+  }, [dispatch, searchQuery, activeCategoryId]);
 
   const flatCatalogItems = useMemo(() => {
     const groupMap = new Map();
@@ -251,9 +249,6 @@ export default function Storefront() {
             <button key={cat._id} className={`chip ${activeCategoryId === cat._id ? 'chip--active' : ''}`} onClick={() => setActiveCategoryId(cat._id)}>{cat.name}</button>
           ))}
         </div>
-        <label className="row" style={{ gap: 6 }}>
-          <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} /> {t('shop.inStockOnly')}
-        </label>
       </section>
 
       {/* ── Product grid ── */}
