@@ -142,7 +142,7 @@ export default function Layout() {
         <Outlet />
 
         {/* Toast stack — bottom-right corner */}
-        <div style={{ position: 'fixed', bottom: 20, right: 20, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 1000 }}>
+        <div style={{ position: 'fixed', bottom: 20, insetInlineEnd: 20, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 1000 }}>
           {activeToasts.map((toast) => (
             <div
               key={toast.id}

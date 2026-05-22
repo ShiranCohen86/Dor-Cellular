@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fetchAllUsers, registerEmployeeUser, updateUser } from '../api/auth.api.js';
+import { logError } from '../api/logger.js';
 
 const ROLES = ['admin', 'employee'];
 const ROLE_LABEL = { admin: 'מנהל', employee: 'עובד', manager: 'מנהל', salesperson: 'מוכר', technician: 'טכנאי' };
@@ -31,7 +32,7 @@ function AddUserModal({ onClose, onAdded }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 420, padding: 28 }}>
+      <div className="card" style={{ position: 'relative', width: 'min(420px, 92vw)', padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <strong style={{ fontSize: 17 }}>+ הוסף עובד</strong>
           <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
@@ -94,7 +95,7 @@ function EditRoleModal({ user, onClose, onUpdated }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 360, padding: 28 }}>
+      <div className="card" style={{ position: 'relative', width: 'min(360px, 92vw)', padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <strong style={{ fontSize: 17 }}>שינוי תפקיד — {user.name}</strong>
           <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
@@ -133,7 +134,7 @@ export default function UsersPage() {
       const result = await fetchAllUsers();
       setUsers(result.items || result || []);
     } catch (err) {
-      console.error('[UsersPage]', err);
+      logError('users', 'load failed', err);
     } finally { setLoading(false); }
   }
 

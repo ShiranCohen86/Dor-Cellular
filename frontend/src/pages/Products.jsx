@@ -96,7 +96,7 @@ function CsvImportModal({ onClose, onImported }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 580, maxHeight: '90vh', overflowY: 'auto', padding: 28 }}>
+      <div className="card" style={{ position: 'relative', width: 'min(580px, 92vw)', maxHeight: '90vh', overflowY: 'auto', padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <strong style={{ fontSize: 17 }}>ייבוא מוצרים מ-CSV</strong>
           <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
@@ -209,7 +209,7 @@ function ProductModal({ product, categories, onClose, onSaved }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 480, maxHeight: '92vh', overflowY: 'auto', padding: '24px 28px' }}>
+      <div className="card" style={{ position: 'relative', width: 'min(480px, 92vw)', maxHeight: '92vh', overflowY: 'auto', padding: '24px 28px' }}>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
           <strong style={{ fontSize: 17 }}>

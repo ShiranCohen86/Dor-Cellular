@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser } from '../store/slices/authSlice.js';
 import { loadOrdersIfStale, selectAllOrders } from '../store/slices/ordersSlice.js';
@@ -53,6 +53,7 @@ function OrderRow({ order }) {
 
 export default function Dashboard() {
   const dispatch    = useDispatch();
+  const navigate    = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
   const orders      = useSelector(selectAllOrders);
   const repairs     = useSelector(selectAllRepairs);
@@ -73,8 +74,8 @@ export default function Dashboard() {
           <p className="page-header__sub">הנה מה שמחכה לך היום</p>
         </div>
         <div className="page-header__actions">
-          <Link to="/products"><button style={{ fontSize: 14 }}>+ הוסף מוצר</button></Link>
-          <Link to="/repairs"><button className="btn-secondary" style={{ fontSize: 14 }}>+ תיקון חדש</button></Link>
+          <button onClick={() => navigate('/products')} style={{ fontSize: 14 }}>+ הוסף מוצר</button>
+          <button className="btn-secondary" onClick={() => navigate('/repairs')} style={{ fontSize: 14 }}>+ תיקון חדש</button>
         </div>
       </div>
 
