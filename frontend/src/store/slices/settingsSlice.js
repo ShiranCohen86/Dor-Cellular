@@ -1,13 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const ALL_NAV_KEYS = ['dashboard', 'pos', 'products', 'orders', 'repairs', 'customers', 'suppliers', 'reports', 'notifications', 'branches', 'users', 'profile', 'settings'];
-const allVisible = Object.fromEntries(ALL_NAV_KEYS.map((key) => [key, true]));
-
-export const DEFAULT_NAV_VISIBILITY = {
-  admin:       { ...allVisible },
-  manager:     { ...allVisible },
-  salesperson: { ...allVisible },
-  technician:  { ...allVisible },
+const DEFAULT_STORE_INFO = {
+  name: 'דור הסלולר',
+  phone: '052-6098000',
+  whatsapp: '9720526098000',
+  address: 'בית הכרם 30',
+  email: '',
 };
 
 function loadFromStorage(key, defaultValue) {
@@ -21,8 +19,8 @@ function loadFromStorage(key, defaultValue) {
 
 const initialState = {
   theme: loadFromStorage('app-theme', 'light'),
-  navVisibility: loadFromStorage('app-nav-visibility', DEFAULT_NAV_VISIBILITY),
   customColors: loadFromStorage('app-custom-colors', { primary: '#2563eb', accent: '#06b6d4' }),
+  storeInfo: loadFromStorage('app-store-info', DEFAULT_STORE_INFO),
 };
 
 const settingsSlice = createSlice({
@@ -34,26 +32,13 @@ const settingsSlice = createSlice({
       localStorage.setItem('app-theme', action.payload);
       document.documentElement.setAttribute('data-theme', action.payload);
     },
-    setNavItemVisible(state, action) {
-      const { role, key, visible } = action.payload;
-      if (state.navVisibility[role]) {
-        state.navVisibility[role][key] = visible;
-        localStorage.setItem('app-nav-visibility', JSON.stringify(state.navVisibility));
-      }
-    },
-    resetNavVisibility(state) {
-      state.navVisibility = DEFAULT_NAV_VISIBILITY;
-      localStorage.setItem('app-nav-visibility', JSON.stringify(DEFAULT_NAV_VISIBILITY));
-    },
     setCustomColors(state, action) {
       state.customColors = { ...state.customColors, ...action.payload };
       localStorage.setItem('app-custom-colors', JSON.stringify(state.customColors));
-      if (state.theme === 'custom') {
-        const { primary, accent } = state.customColors;
-        document.documentElement.style.setProperty('--brand-primary', primary);
-        document.documentElement.style.setProperty('--brand-primary-dark', shadeColor(primary, -15));
-        document.documentElement.style.setProperty('--brand-accent', accent);
-      }
+    },
+    setStoreInfo(state, action) {
+      state.storeInfo = { ...state.storeInfo, ...action.payload };
+      localStorage.setItem('app-store-info', JSON.stringify(state.storeInfo));
     },
   },
 });
@@ -66,10 +51,11 @@ function shadeColor(hex, percent) {
   return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
 }
 
-export const { setTheme, setNavItemVisible, resetNavVisibility, setCustomColors } = settingsSlice.actions;
+export const { setTheme, setCustomColors, setStoreInfo } = settingsSlice.actions;
 
-export const selectTheme = (state) => state.settings.theme;
-export const selectNavVisibility = (state) => state.settings.navVisibility;
+export const selectTheme        = (state) => state.settings.theme;
 export const selectCustomColors = (state) => state.settings.customColors;
+export const selectStoreInfo    = (state) => state.settings.storeInfo;
+export const selectStoreWhatsApp = (state) => state.settings.storeInfo?.whatsapp;
 
 export default settingsSlice.reducer;

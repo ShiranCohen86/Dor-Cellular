@@ -16,6 +16,10 @@ const DIST = path.join(__dirname, '../public');
 
 const app = express();
 
+// Trust the single reverse proxy in front of the app (Render, nginx, etc.)
+// so req.ip returns the real client IP instead of the proxy's IP.
+app.set('trust proxy', 1);
+
 app.use(express.static(DIST));
 
 app.use(helmet());

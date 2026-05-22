@@ -7,6 +7,7 @@
 const router = require('express').Router();
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const Repair = require('../models/Repair');
 const { paginate } = require('../utils/pagination');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -71,6 +72,18 @@ router.get(
   asyncHandler(async (_req, res) => {
     const items = await Product.distinct('brand', { isActive: true });
     res.json({ items: items.filter(Boolean).sort() });
+  }),
+);
+
+// Public repair status lookup — no auth, no PII (no customer name/phone/price)
+router.get(
+  '/repairs/:ticketId',
+  asyncHandler(async (req, res) => {
+    const repair = await Repair.findOne({ ticketNumber: req.params.ticketId })
+      .select('ticketNumber deviceBrand deviceModel status createdAt updatedAt')
+      .lean();
+    if (!repair) return res.status(404).json({ error: 'Repair not found' });
+    res.json(repair);
   }),
 );
 

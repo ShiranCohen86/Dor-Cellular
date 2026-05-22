@@ -18,8 +18,8 @@ router.get('/', ordersController.list);
 router.get('/:id', ordersController.get);
 router.get('/:id/invoice.pdf', ordersController.invoicePdf);
 
-router.post('/', authorize('admin', 'manager', 'salesperson'), validate(orderValidator.create), audit('order.create'), ordersController.create);
-router.post('/:id/payments', authorize('admin', 'manager', 'salesperson'), validate(orderValidator.addPayment), audit('order.addPayment'), ordersController.addPayment);
+router.post('/', authorize('admin', 'manager', 'salesperson', 'employee'), validate(orderValidator.create), audit('order.create'), ordersController.create);
+router.post('/:id/payments', authorize('admin', 'manager', 'salesperson', 'employee'), validate(orderValidator.addPayment), audit('order.addPayment'), ordersController.addPayment);
 router.post('/:id/refund', authorize('admin', 'manager'), validate(orderValidator.refund), audit('order.refund'), ordersController.refund);
 router.post('/:id/cancel', authorize('admin', 'manager'), audit('order.cancel'), ordersController.cancel);
 

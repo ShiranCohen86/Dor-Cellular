@@ -4,53 +4,59 @@ $navbar-h:   56px;
 $radius:     8px;
 $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
 
-// ── Dark Modern (default) ─────────────────────────────────────────────────
+// ── Dark Violet — default ─────────────────────────────────────────────────
 :root,
 [data-theme="dark"] {
-  --brand-primary:           #2563eb;
-  --brand-primary-dark:      #1d4ed8;
-  --brand-accent:            #06b6d4;
-  --danger:                  #ef4444;
-  --warning:                 #f59e0b;
-  --bg:                      #080e1a;
-  --surface:                 #0f1929;
-  --sidebar-bg:              #060c17;
-  --surface-2:               #162032;
-  --surface-3:               #1e2d42;
-  --border:                  #1e3254;
-  --text:                    #e2e8f0;
-  --text-muted:              #94a3b8;
-  --shadow:                  0 2px 8px rgba(0, 0, 0, 0.45);
-  --surface-3-hover:         #253553;
-  --danger-dark:             #dc2626;
-  --nav-active-color:        #93c5fd;
-  --brand-primary-alpha-25:  rgba(37, 99, 235, 0.25);
-  --brand-accent-alpha-40:   rgba(6, 182, 212, 0.40);
-  --login-bg:                linear-gradient(135deg, #060e1f 0%, #0a1e40 50%, #0a1525 100%);
+  --brand-primary:           #8b5cf6;
+  --brand-primary-dark:      #7c3aed;
+  --brand-accent:            #f59e0b;
+  --danger:                  #f87171;
+  --warning:                 #fbbf24;
+  --bg:                      #0c0c1e;
+  --surface:                 #14142a;
+  --sidebar-bg:              #090915;
+  --surface-1:               #14142a;
+  --surface-2:               #1c1c38;
+  --surface-3:               #262650;
+  --border:                  #2e2e58;
+  --text:                    #eaeaff;
+  --text-muted:              #7878aa;
+  --shadow:                  0 4px 20px rgba(0, 0, 0, 0.55);
+  --surface-3-hover:         #32326a;
+  --danger-dark:             #ef4444;
+  --nav-active-color:        #c4b5fd;
+  --sidebar-text:            #a8a8d0;
+  --sidebar-text-muted:      #5c5c88;
+  --brand-primary-alpha-25:  rgba(139, 92, 246, 0.22);
+  --brand-accent-alpha-40:   rgba(245, 158, 11, 0.35);
+  --login-bg:                linear-gradient(135deg, #0c0c1e 0%, #1c0f44 50%, #0c0c1e 100%);
 }
 
-// ── Light / Vivid ─────────────────────────────────────────────────────────
+// ── Light Pearl ───────────────────────────────────────────────────────────
 [data-theme="light"] {
-  --brand-primary:           #6366f1;
-  --brand-primary-dark:      #4f46e5;
-  --brand-accent:            #06b6d4;
+  --brand-primary:           #7c3aed;
+  --brand-primary-dark:      #6d28d9;
+  --brand-accent:            #f59e0b;
   --danger:                  #ef4444;
   --warning:                 #f59e0b;
-  --bg:                      #f0f2ff;
+  --bg:                      #f2f1ff;
   --surface:                 #ffffff;
-  --sidebar-bg:              #f5f6ff;
-  --surface-2:               #f8f9ff;
-  --surface-3:               #eceeff;
-  --border:                  #dde0f5;
-  --text:                    #1e1b4b;
-  --text-muted:              #6b7280;
-  --shadow:                  0 2px 12px rgba(99, 102, 241, 0.10);
-  --surface-3-hover:         #e2e4fc;
+  --sidebar-bg:              #1a0f40;
+  --surface-1:               #ffffff;
+  --surface-2:               #f8f7ff;
+  --surface-3:               #ece8ff;
+  --border:                  #dcd8ff;
+  --text:                    #1c1544;
+  --text-muted:              #7060a0;
+  --shadow:                  0 4px 20px rgba(124, 58, 237, 0.09);
+  --surface-3-hover:         #e2dcff;
   --danger-dark:             #dc2626;
-  --nav-active-color:        #6366f1;
-  --brand-primary-alpha-25:  rgba(99, 102, 241, 0.15);
-  --brand-accent-alpha-40:   rgba(6, 182, 212, 0.30);
-  --login-bg:                linear-gradient(135deg, #312e81 0%, #6366f1 60%, #06b6d4 100%);
+  --nav-active-color:        #c4b5fd;
+  --sidebar-text:            #b8a8e8;
+  --sidebar-text-muted:      #7868b0;
+  --brand-primary-alpha-25:  rgba(124, 58, 237, 0.14);
+  --brand-accent-alpha-40:   rgba(245, 158, 11, 0.25);
+  --login-bg:                linear-gradient(135deg, #1a0f40 0%, #7c3aed 60%, #f59e0b 100%);
 }
 
 // ── Deep Blue ─────────────────────────────────────────────────────────────
@@ -61,18 +67,21 @@ $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
   --danger:                  #f87171;
   --warning:                 #fbbf24;
   --bg:                      #030d1f;
-  --surface:                 #061430;
-  --sidebar-bg:              #03081f;
-  --surface-2:               #0a1f4a;
-  --surface-3:               #0f2a63;
-  --border:                  #1e3a8a;
-  --text:                    #e0f2fe;
-  --text-muted:              #7dd3fc;
-  --shadow:                  0 2px 8px rgba(0, 0, 0, 0.60);
-  --surface-3-hover:         #163880;
+  --surface:                 #071230;
+  --sidebar-bg:              #020810;
+  --surface-1:               #071230;
+  --surface-2:               #0c1c48;
+  --surface-3:               #102562;
+  --border:                  #1a3a8a;
+  --text:                    #cce4ff;
+  --text-muted:              #6090c0;
+  --shadow:                  0 4px 20px rgba(0, 0, 0, 0.65);
+  --surface-3-hover:         #163080;
   --danger-dark:             #ef4444;
-  --nav-active-color:        #bfdbfe;
+  --nav-active-color:        #93c5fd;
+  --sidebar-text:            #80a8d0;
+  --sidebar-text-muted:      #4a6888;
   --brand-primary-alpha-25:  rgba(59, 130, 246, 0.25);
-  --brand-accent-alpha-40:   rgba(34, 211, 238, 0.40);
-  --login-bg:                linear-gradient(135deg, #030d1f 0%, #061430 50%, #03081f 100%);
+  --brand-accent-alpha-40:   rgba(34, 211, 238, 0.35);
+  --login-bg:                linear-gradient(135deg, #030d1f 0%, #071230 50%, #020810 100%);
 }

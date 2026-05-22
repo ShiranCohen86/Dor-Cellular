@@ -25,8 +25,9 @@
     "password": "סיסמה",
     "signIn": "כניסה",
     "wrongCredentials": "אימייל או סיסמה שגויים",
-    "demoHint": "לדוגמה: admin@dor-store.test / admin1234",
-    "backToShop": "← חזרה לחנות"
+    "demoHint": "לדוגמה: admin@dor-cellular.test / admin1234",
+    "backToShop": "← חזרה לחנות",
+    "orEmail": "או עם אימייל"
   },
   "shop": {
     "heroTitle": "דור הסלולר",
@@ -269,7 +270,7 @@
   },
   "branches": { "title": "סניפים", "code": "קוד", "city": "עיר", "new": "סניף חדש" },
   "users": { "title": "משתמשים", "role": "תפקיד", "new": "משתמש חדש", "lastLogin": "כניסה אחרונה" },
-  "roles": { "admin": "מנהל מערכת", "manager": "מנהל", "salesperson": "מוכר", "technician": "טכנאי" },
+  "roles": { "admin": "מנהל מערכת", "employee": "עובד", "manager": "מנהל", "salesperson": "מוכר", "technician": "טכנאי", "customer": "לקוח" },
   "settings": {
     "title": "הגדרות מערכת",
     "subtitle": "ניהול עיצוב, תפריטים ואפשרויות האפליקציה",

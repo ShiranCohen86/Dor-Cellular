@@ -2,31 +2,34 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const env = require('../config/env');
 
-const ROLES = ['admin', 'manager', 'salesperson', 'technician'];
+const ROLES = ['admin', 'manager', 'salesperson', 'technician', 'employee', 'customer'];
 
 const SessionSchema = new mongoose.Schema(
   {
-    tokenId: { type: String, required: true },
+    jtiHash:   { type: String, required: true },
     userAgent: String,
-    ip: String,
-    lastSeen: { type: Date, default: Date.now },
+    ip:        String,
+    lastSeen:  { type: Date, default: Date.now },
   },
   { _id: false },
 );
 
 const UserSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
-    phone: { type: String, trim: true },
-    passwordHash: { type: String, required: true, select: false },
-    role: { type: String, enum: ROLES, default: 'salesperson', index: true },
-    branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', index: true },
-    isActive: { type: Boolean, default: true },
-    passwordResetToken: { type: String, select: false },
+    name:     { type: String, required: true, trim: true },
+    email:    { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
+    phone:    { type: String, trim: true },
+    // null for Google-only accounts that have never set a password
+    passwordHash:         { type: String, select: false },
+    googleId:             { type: String, sparse: true, index: true },
+    customerId:           { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', index: true },
+    role:                 { type: String, enum: ROLES, default: 'employee', index: true },
+    branchId:             { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', index: true },
+    isActive:             { type: Boolean, default: true },
+    passwordResetToken:   { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
     lastLogin: Date,
-    sessions: { type: [SessionSchema], default: [] },
+    sessions:  { type: [SessionSchema], default: [] },
   },
   { timestamps: true },
 );
@@ -36,6 +39,7 @@ UserSchema.methods.setPassword = async function setPassword(plain) {
 };
 
 UserSchema.methods.verifyPassword = function verifyPassword(plain) {
+  if (!this.passwordHash) return Promise.resolve(false);
   return bcrypt.compare(plain, this.passwordHash);
 };
 
@@ -44,6 +48,7 @@ UserSchema.methods.toJSON = function toJSON() {
   delete obj.passwordHash;
   delete obj.passwordResetToken;
   delete obj.passwordResetExpires;
+  delete obj.sessions;
   delete obj.__v;
   return obj;
 };

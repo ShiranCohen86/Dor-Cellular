@@ -85,3 +85,16 @@ export function fetchAuditLogs(params = {}) {
 export function registerEmployeeUser(userData) {
   return safeRequest(httpClient.post('/auth/register', userData));
 }
+
+/** PATCH /auth/users/:id — admin only — update role or other fields. */
+export function updateUser(userId, patch) {
+  return safeRequest(httpClient.patch(`/auth/users/${userId}`, patch));
+}
+
+/**
+ * POST /auth/google — exchange a Google ID token for app JWT tokens.
+ * @param {string} idToken  The credential string returned by Google Identity Services
+ */
+export function googleLogin(idToken) {
+  return safeRequest(httpClient.post('/auth/google', { idToken }));
+}

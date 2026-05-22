@@ -2,28 +2,20 @@ import { Outlet, NavLink, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { io as createSocket } from 'socket.io-client';
 import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
-import { selectLanguage, toggleLanguage, pushToast, dismissToast, selectToasts, selectActiveCustomer, clearActiveCustomer } from '../store/slices/uiSlice.js';
-import { socketNotificationReceived, selectUnreadCount, loadNotifications } from '../store/slices/notificationsSlice.js';
-import { selectTheme, selectNavVisibility, selectCustomColors } from '../store/slices/settingsSlice.js';
+import { selectLanguage, toggleLanguage, pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
+import { selectTheme, selectCustomColors } from '../store/slices/settingsSlice.js';
 
 const NAVIGATION_ITEMS = [
-  { path: '/dashboard',     translationKey: 'dashboard',     icon: '⊞' },
-  { path: '/pos',           translationKey: 'pos',           icon: '⊟', requiredRoles: ['admin', 'manager', 'salesperson'] },
-  { path: '/products',      translationKey: 'products',      icon: '◫' },
-  { path: '/orders',        translationKey: 'orders',        icon: '◈' },
-  { path: '/repairs',       translationKey: 'repairs',       icon: '⚙' },
-  { path: '/customers',     translationKey: 'customers',     icon: '◉' },
-  { path: '/suppliers',     translationKey: 'suppliers',     icon: '⊛', requiredRoles: ['admin', 'manager'] },
-  { path: '/reports',       translationKey: 'reports',       icon: '▦', requiredRoles: ['admin', 'manager'] },
-  { path: '/notifications', translationKey: 'notifications', icon: '◎' },
-  { path: '/branches',      translationKey: 'branches',      icon: '⊕', requiredRoles: ['admin', 'manager'] },
-  { path: '/users',         translationKey: 'users',         icon: '◌', requiredRoles: ['admin', 'manager'] },
-  { path: '/profile',       translationKey: 'profile',       icon: '○' },
-  { path: '/settings',      translationKey: 'settings',      icon: '⊜', requiredRoles: ['admin'] },
-  { path: '/audit-logs',    translationKey: 'auditLogs',     icon: '◧', requiredRoles: ['admin', 'manager'] },
-  { path: '/ai-assistant', translationKey: 'aiAssistant',   icon: '🤖', requiredRoles: ['admin'] },
+  { path: '/dashboard',  translationKey: 'dashboard', icon: '⊞', hiddenRoles: ['customer'] },
+  { path: '/orders',     translationKey: 'orders',    icon: '◈' },
+  { path: '/products',   translationKey: 'products',  icon: '◫', hiddenRoles: ['customer'] },
+  { path: '/repairs',    translationKey: 'repairs',   icon: '🔧', hiddenRoles: ['customer'] },
+  { path: '/customers',  translationKey: 'customers', icon: '◉', hiddenRoles: ['customer'] },
+  { path: '/suppliers',  translationKey: 'suppliers', icon: '⊛', requiredRoles: ['admin'] },
+  { path: '/users',      translationKey: 'users',     icon: '◌', requiredRoles: ['admin'] },
+  { path: '/profile',    translationKey: 'profile',   icon: '○' },
+  { path: '/settings',   translationKey: 'settings',  icon: '⊜', requiredRoles: ['admin'] },
 ];
 
 function shadeColor(hex, percent) {
@@ -51,10 +43,7 @@ export default function Layout() {
   const currentUser = useSelector(selectCurrentUser);
   const currentLanguage = useSelector(selectLanguage);
   const activeToasts = useSelector(selectToasts);
-  const activeCustomer = useSelector(selectActiveCustomer);
-  const unreadNotificationsCount = useSelector(selectUnreadCount);
   const currentTheme = useSelector(selectTheme);
-  const navVisibility = useSelector(selectNavVisibility);
   const customColors = useSelector(selectCustomColors);
 
   const hasAnyRole = (...allowedRoles) =>
@@ -75,25 +64,6 @@ export default function Layout() {
     }
   }, [currentTheme, customColors]);
 
-  useEffect(() => { dispatch(loadNotifications()); }, [dispatch]);
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem('token');
-    if (!accessToken) return undefined;
-
-    const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
-    const socket = createSocket(apiUrl, { auth: { token: accessToken }, transports: ['websocket'] });
-
-    socket.on('notification', (notification) => {
-      dispatch(socketNotificationReceived(notification));
-      const toastId = Date.now() + Math.random();
-      dispatch(pushToast({ id: toastId, title: notification.title, message: notification.message, severity: notification.severity }));
-      setTimeout(() => dispatch(dismissToast(toastId)), 4000);
-    });
-
-    return () => socket.disconnect();
-  }, [dispatch]);
-
   const activePageKey = NAVIGATION_ITEMS.find((item) => item.path === location.pathname)?.translationKey || 'dashboard';
   const handleLogoutClick = () => dispatch(logoutUser());
 
@@ -105,8 +75,7 @@ export default function Layout() {
 
   const visibleNavItems = NAVIGATION_ITEMS.filter((navItem) => {
     if (navItem.requiredRoles && !hasAnyRole(...navItem.requiredRoles)) return false;
-    const roleVis = navVisibility[currentUser?.role];
-    if (roleVis && roleVis[navItem.translationKey] === false) return false;
+    if (navItem.hiddenRoles && hasAnyRole(...navItem.hiddenRoles)) return false;
     return true;
   });
 
@@ -118,12 +87,7 @@ export default function Layout() {
           {visibleNavItems.map((navItem) => (
             <NavLink key={navItem.path} to={navItem.path} onClick={closeSidebar}>
               <span className="nav-icon">{navItem.icon}</span>
-              <span className="label">
-                {t(`nav.${navItem.translationKey}`)}
-                {navItem.translationKey === 'notifications' && unreadNotificationsCount > 0 && (
-                  <span className="badge danger" style={{ marginInlineStart: 6 }}>{unreadNotificationsCount}</span>
-                )}
-              </span>
+              <span className="label">{t(`nav.${navItem.translationKey}`)}</span>
             </NavLink>
           ))}
         </nav>
@@ -159,18 +123,6 @@ export default function Layout() {
           <Link to="/" className="btn-ghost" style={{ fontSize: 13 }}>{t('nav.shop')}</Link>
         </div>
         <div className="navbar-end">
-          {activeCustomer && (
-            <div className="navbar-customer">
-              <span>👤</span>
-              <span className="navbar-customer__name">{activeCustomer.name}</span>
-              <button
-                className="btn-ghost"
-                onClick={() => dispatch(clearActiveCustomer())}
-                style={{ padding: '1px 6px', fontSize: 15, marginInlineStart: 2 }}
-                title={t('pos.clearCustomer')}
-              >×</button>
-            </div>
-          )}
           <button className="btn-ghost" onClick={() => dispatch(toggleLanguage())} style={{ fontSize: 13, padding: '6px 10px' }}>
             {currentLanguage === 'he' ? 'EN' : 'עב'}
           </button>

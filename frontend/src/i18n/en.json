@@ -25,8 +25,9 @@
     "password": "Password",
     "signIn": "Sign In",
     "wrongCredentials": "Invalid email or password",
-    "demoHint": "Try: admin@dor-store.test / admin1234",
-    "backToShop": "← Back to shop"
+    "demoHint": "Try: admin@dor-cellular.test / admin1234",
+    "backToShop": "← Back to shop",
+    "orEmail": "or with email"
   },
   "shop": {
     "heroTitle": "דור הסלולר",
@@ -269,7 +270,7 @@
   },
   "branches": { "title": "Branches", "code": "Code", "city": "City", "new": "New branch" },
   "users": { "title": "Users", "role": "Role", "new": "New user", "lastLogin": "Last login" },
-  "roles": { "admin": "Admin", "manager": "Manager", "salesperson": "Salesperson", "technician": "Technician" },
+  "roles": { "admin": "Admin", "employee": "Employee", "manager": "Manager", "salesperson": "Salesperson", "technician": "Technician", "customer": "Customer" },
   "settings": {
     "title": "System Settings",
     "subtitle": "Manage theme, navigation menus, and app preferences",

@@ -1,60 +1,115 @@
-/**
- * Login page (`/login`).
- *
- * Uses the Redux auth slice — `loginUser` is a thunk that stores tokens in
- * localStorage on success. Any rejection surfaces via `selectAuthError`.
- */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  loginUser, clearAuthError,
+  loginUser, googleLoginUser, clearAuthError,
   selectAuthError, selectAuthStatus, selectCurrentUser,
 } from '../store/slices/authSlice.js';
 import { selectLanguage, toggleLanguage } from '../store/slices/uiSlice.js';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+// Inline Google "G" SVG logo
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48" style={{ flexShrink: 0 }}>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      <path fill="none" d="M0 0h48v48H0z"/>
+    </svg>
+  );
+}
+
 export default function Login() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const authError = useSelector(selectAuthError);
-  const authStatus = useSelector(selectAuthStatus);
-  const currentUser = useSelector(selectCurrentUser);
+  const navigate  = useNavigate();
+  const authError     = useSelector(selectAuthError);
+  const authStatus    = useSelector(selectAuthStatus);
+  const currentUser   = useSelector(selectCurrentUser);
   const currentLanguage = useSelector(selectLanguage);
 
-  // Pre-fill demo admin credentials so first-time testers can just click "Sign In".
-  const [emailInput, setEmailInput] = useState('admin@dor-store.test');
+  const [emailInput,    setEmailInput]    = useState('admin@dor-cellular.test');
   const [passwordInput, setPasswordInput] = useState('admin1234');
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError,   setGoogleError]   = useState('');
 
-  // If already logged in (e.g. user reloads /login), bounce to dashboard.
+  const googleInitialized = useRef(false);
+
   useEffect(() => { if (currentUser) navigate('/dashboard'); }, [currentUser, navigate]);
-
-  // Clear any prior error when the user edits a field.
   useEffect(() => { if (authError) dispatch(clearAuthError()); }, [emailInput, passwordInput]); // eslint-disable-line
 
-  /**
-   * Submits the login form. Catches errors locally even though the slice
-   * already records them, so we don't get an unhandled rejection warning.
-   */
-  const handleSubmit = async (formEvent) => {
-    formEvent.preventDefault();
+  // ── Google credential callback ──────────────────────────────────────────
+  const handleGoogleCredential = useCallback(async ({ credential }) => {
+    setGoogleLoading(true);
+    setGoogleError('');
     try {
-      const result = await dispatch(loginUser({ email: emailInput, password: passwordInput }));
-      if (!result.error) {
-        const role = result.payload?.role;
-        navigate(role === 'salesperson' ? '/pos' : '/dashboard');
-      }
-    } catch {
-      // Error is already in Redux state.
+      const result = await dispatch(googleLoginUser(credential));
+      if (!result.error) navigate('/dashboard');
+      else setGoogleError(result.payload || 'שגיאה בהתחברות עם Google');
+    } finally {
+      setGoogleLoading(false);
     }
+  }, [dispatch, navigate]);
+
+  // ── Initialize GIS when script is ready ────────────────────────────────
+  const initGoogle = useCallback(() => {
+    if (googleInitialized.current || !GOOGLE_CLIENT_ID || !window.google?.accounts?.id) return;
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+      ux_mode: 'popup',
+    });
+    googleInitialized.current = true;
+  }, [handleGoogleCredential]);
+
+  useEffect(() => {
+    if (window.google?.accounts?.id) {
+      initGoogle();
+      return;
+    }
+    // GIS script is async — listen for its load event
+    const script = document.querySelector('script[src*="accounts.google.com"]');
+    if (!script) return;
+    script.addEventListener('load', initGoogle, { once: true });
+    return () => script.removeEventListener('load', initGoogle);
+  }, [initGoogle]);
+
+  // ── Google button click ─────────────────────────────────────────────────
+  const handleGoogleClick = () => {
+    setGoogleError('');
+    if (!GOOGLE_CLIENT_ID) {
+      setGoogleError('Google Sign-In לא מוגדר — הגדר VITE_GOOGLE_CLIENT_ID ב-.env.local');
+      return;
+    }
+    initGoogle();
+    if (!window.google?.accounts?.id) {
+      setGoogleError('Google script לא נטען — נסה לרענן את הדף');
+      return;
+    }
+    window.google.accounts.id.prompt((notification) => {
+      // If One Tap is suppressed (e.g. no stored credentials), prompt() silently fails —
+      // in that case the user still signed in via the popup if ux_mode: 'popup' is set.
+      if (notification.isNotDisplayed()) {
+        setGoogleError('לא נמצאו חשבונות Google. בדוק שה-Client ID תקין.');
+      }
+    });
   };
 
   const isSubmitting = authStatus === 'loading';
 
   return (
     <div className="login-shell">
-      <form className="login-card" onSubmit={handleSubmit}>
+      <form className="login-card" onSubmit={async (e) => {
+        e.preventDefault();
+        try {
+          const result = await dispatch(loginUser({ email: emailInput, password: passwordInput }));
+          if (!result.error) navigate('/dashboard');
+        } catch { /* error in Redux state */ }
+      }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0 }}>{t('app.name')}</h2>
           <button type="button" className="btn-ghost" onClick={() => dispatch(toggleLanguage())}>
@@ -63,32 +118,78 @@ export default function Login() {
         </div>
         <p className="muted">{t('app.tagline')}</p>
 
+        {/* ── Google sign-in button — always visible ── */}
+        <button
+          type="button"
+          onClick={handleGoogleClick}
+          disabled={googleLoading || isSubmitting}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            padding: '10px 16px',
+            background: '#fff',
+            color: '#3c4043',
+            border: '1.5px solid #dadce0',
+            borderRadius: 8,
+            fontWeight: 500,
+            fontSize: 14,
+            cursor: 'pointer',
+            transition: 'box-shadow .15s, background .15s',
+            marginBottom: 4,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,.15)'; e.currentTarget.style.background = '#f8f8f8'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#fff'; }}
+        >
+          {googleLoading ? (
+            <span style={{ fontSize: 13, color: '#888' }}>מתחבר...</span>
+          ) : (
+            <>
+              <GoogleIcon />
+              <span>{currentLanguage === 'he' ? 'המשך עם Google' : 'Continue with Google'}</span>
+            </>
+          )}
+        </button>
+
+        {googleError && (
+          <div style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 6, padding: '4px 0' }}>
+            {googleError}
+          </div>
+        )}
+
+        {/* divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0' }}>
+          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+          <span className="muted" style={{ fontSize: 12 }}>{t('auth.orEmail')}</span>
+          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+        </div>
+
         <div className="form-group">
           <label>{t('auth.email')}</label>
           <input
             value={emailInput}
-            onChange={(event) => setEmailInput(event.target.value)}
-            type="email" required autoFocus autoComplete="email"
+            onChange={(e) => setEmailInput(e.target.value)}
+            type="email" required autoComplete="email"
           />
         </div>
         <div className="form-group">
           <label>{t('auth.password')}</label>
           <input
             value={passwordInput}
-            onChange={(event) => setPasswordInput(event.target.value)}
+            onChange={(e) => setPasswordInput(e.target.value)}
             type="password" required autoComplete="current-password"
           />
         </div>
 
         {authError && <div className="badge danger" style={{ marginBottom: 8 }}>{t('auth.wrongCredentials')}</div>}
 
-        <button type="submit" disabled={isSubmitting} style={{ width: '100%' }}>
+        <button type="submit" disabled={isSubmitting || googleLoading} style={{ width: '100%' }}>
           {isSubmitting ? t('common.loading') : t('auth.signIn')}
         </button>
 
-        <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>
-          {t('auth.demoHint')}
-        </p>
+        <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>{t('auth.demoHint')}</p>
         <p style={{ fontSize: 13, marginTop: 8, textAlign: 'center' }}>
           <Link to="/">{t('auth.backToShop')}</Link>
         </p>

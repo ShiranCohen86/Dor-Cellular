@@ -1,23 +1,29 @@
 const Joi = require('joi');
 
-const password = Joi.string().min(6).max(128);
+const password = Joi.string().min(10).max(128);
 const email = Joi.string().email({ tlds: { allow: false } }).lowercase().trim();
 
 exports.register = {
   body: Joi.object({
-    name: Joi.string().min(2).max(80).required(),
-    email: email.required(),
+    name:     Joi.string().min(2).max(80).required(),
+    email:    email.required(),
     password: password.required(),
-    phone: Joi.string().allow(''),
-    role: Joi.string().valid('admin', 'manager', 'salesperson', 'technician'),
+    phone:    Joi.string().allow(''),
+    role:     Joi.string().valid('admin', 'manager', 'salesperson', 'technician', 'employee'),
     branchId: Joi.string().hex().length(24),
   }),
 };
 
 exports.login = {
   body: Joi.object({
-    email: email.required(),
+    email:    email.required(),
     password: Joi.string().required(),
+  }),
+};
+
+exports.googleAuth = {
+  body: Joi.object({
+    idToken: Joi.string().required(),
   }),
 };
 

@@ -23,3 +23,8 @@ export function fetchPublicCategories() {
 export function fetchPublicBrands() {
   return safeRequest(httpClient.get('/public/brands'));
 }
+
+/** GET /public/repairs/:ticketId — public repair status (no auth, no PII). */
+export function fetchPublicRepairStatus(ticketId) {
+  return safeRequest(httpClient.get(`/public/repairs/${encodeURIComponent(ticketId)}`));
+}

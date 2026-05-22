@@ -130,7 +130,7 @@ input, select, textarea {
     display: flex; align-items: center; gap: 10px;
     padding: 9px 12px;
     border-radius: $radius; margin-bottom: 2px;
-    color: var(--text-muted);
+    color: var(--sidebar-text-muted, var(--text-muted));
     font-size: 13.5px;
     position: relative; overflow: hidden;
     transition: background .16s ease, color .16s ease, padding-inline-start .16s ease;
@@ -147,8 +147,8 @@ input, select, textarea {
     }
 
     &:hover {
-      background: var(--surface-3);
-      color: var(--text);
+      background: rgba(255, 255, 255, .07);
+      color: var(--sidebar-text, var(--text));
       padding-inline-start: 16px;
       text-decoration: none;
     }
@@ -192,8 +192,16 @@ input, select, textarea {
       box-shadow: 0 2px 8px rgba(0,0,0,.3);
     }
 
-    &__name  { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    &__role  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    &__name  { font-size: 13px; font-weight: 600; color: var(--sidebar-text, var(--text)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    &__role  { font-size: 11px; color: var(--sidebar-text-muted, var(--text-muted)); margin-top: 1px; }
+  }
+
+  // Logout button styled for always-dark sidebar
+  .sidebar-user button {
+    background: rgba(255, 255, 255, .08);
+    color: var(--sidebar-text, #a8a8d0);
+    border-color: rgba(255, 255, 255, .12);
+    &:hover { background: rgba(255, 255, 255, .15); box-shadow: none; }
   }
 }
 
@@ -613,7 +621,7 @@ table {
 .shop { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
 
 .shop-nav {
-  background: rgba(8, 14, 26, .96);
+  background: rgba(9, 4, 21, .96);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   padding: 12px 24px;
@@ -634,14 +642,14 @@ table {
   min-height: 560px;
   display: flex; align-items: center; justify-content: center; text-align: center;
   overflow: hidden;
-  background: linear-gradient(140deg, #071624 0%, #0a2a48 30%, #0070a0 65%, #00bcd4 100%);
+  background: linear-gradient(140deg, #090415 0%, #1e0752 30%, #5b21b6 65%, #8b5cf6 100%);
   color: #fff;
 
   &::before {
     content: ''; position: absolute; inset: 0;
     background-image:
-      linear-gradient(rgba(0,188,212,.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,188,212,.07) 1px, transparent 1px);
+      linear-gradient(rgba(139,92,246,.09) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,92,246,.09) 1px, transparent 1px);
     background-size: 44px 44px;
     pointer-events: none;
   }
@@ -649,8 +657,8 @@ table {
   &::after {
     content: ''; position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 70% 55% at 15% 60%, rgba(0,188,212,.22) 0%, transparent 55%),
-      radial-gradient(ellipse 55% 50% at 85% 35%, rgba(0,112,160,.28) 0%, transparent 55%);
+      radial-gradient(ellipse 70% 55% at 15% 60%, rgba(139,92,246,.30) 0%, transparent 55%),
+      radial-gradient(ellipse 55% 50% at 85% 35%, rgba(167,85,247,.22) 0%, transparent 55%);
     pointer-events: none;
   }
 
@@ -673,7 +681,7 @@ table {
   h1 {
     font-size: clamp(36px, 7vw, 68px); font-weight: 900; line-height: 1.05;
     margin: 0 0 10px; letter-spacing: -1px; text-shadow: 0 3px 20px rgba(0,0,0,.4);
-    background: linear-gradient(135deg, #fff 40%, #7ee8f5 100%);
+    background: linear-gradient(135deg, #fff 40%, #c4b5fd 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
 
@@ -685,7 +693,7 @@ table {
       width: 100%; padding: 16px 26px; border: 0; border-radius: 999px; font-size: 16px;
       background: rgba(255,255,255,.95); color: #0f172a; box-shadow: 0 8px 40px rgba(0,0,0,.3);
       transition: box-shadow .2s;
-      &:focus { outline: none; box-shadow: 0 8px 40px rgba(0,0,0,.3), 0 0 0 3px rgba(0,188,212,.5); }
+      &:focus { outline: none; box-shadow: 0 8px 40px rgba(0,0,0,.3), 0 0 0 3px rgba(139,92,246,.5); }
       &::placeholder { color: #94a3b8; }
     }
   }
@@ -701,14 +709,14 @@ table {
     display: inline-flex; align-items: center; gap: 5px; direction: ltr;
     color: rgba(255,255,255,.85); text-decoration: none; font-weight: 600;
     transition: color .15s;
-    &:hover { color: #7ee8f5; text-decoration: none; }
+    &:hover { color: #c4b5fd; text-decoration: none; }
   }
 
   &__stats {
     display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
     .stat {
       display: flex; flex-direction: column; align-items: center; gap: 3px;
-      strong { font-size: 28px; font-weight: 800; line-height: 1; color: #7ee8f5; }
+      strong { font-size: 28px; font-weight: 800; line-height: 1; color: #f59e0b; }
       span   { font-size: 11px; opacity: .65; text-transform: uppercase; letter-spacing: 1.5px; }
     }
   }
@@ -779,4 +787,135 @@ table {
   .shop-nav { padding: 10px 14px; }
   .product-catalog { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
   .shop-main { padding: 16px; }
+}
+
+// ── Skeleton Loaders ────────────────────────────────────────────────────────
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+  border-radius: $radius;
+  display: block;
+
+  &--text  { height: 14px; border-radius: 4px; }
+  &--title { height: 20px; border-radius: 4px; }
+  &--card  { height: 200px; border-radius: $radius; }
+  &--row   { height: 48px; border-radius: $radius; }
+  &--circle { border-radius: 50%; }
+}
+
+// ── Cart add animation ───────────────────────────────────────────────────────
+
+@keyframes cart-bounce {
+  0%, 100% { transform: scale(1); }
+  40%       { transform: scale(1.25); }
+  70%       { transform: scale(.9); }
+}
+
+.cart-bounce { animation: cart-bounce .4s ease; }
+
+@keyframes btn-added {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(.94); }
+  100% { transform: scale(1); }
+}
+
+.btn-added { animation: btn-added .25s ease; }
+
+// ── WhatsApp FAB ────────────────────────────────────────────────────────────
+
+.whatsapp-fab {
+  position: fixed;
+  bottom: 24px;
+  inset-inline-end: 24px;
+  z-index: 300;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 16px rgba(37,211,102,.45);
+  cursor: pointer;
+  border: none;
+  transition: transform .15s, box-shadow .15s;
+  text-decoration: none;
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(37,211,102,.55);
+    text-decoration: none;
+    color: #fff;
+  }
+
+  &__tooltip {
+    position: absolute;
+    inset-inline-end: calc(100% + 10px);
+    white-space: nowrap;
+    background: var(--surface-1);
+    color: var(--text);
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  &:hover &__tooltip { opacity: 1; }
+}
+
+// ── Quick View Modal ─────────────────────────────────────────────────────────
+
+.quick-view-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fade-in .15s ease;
+}
+
+.quick-view {
+  background: var(--surface-1);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,.4);
+  animation: fade-up .2s ease;
+
+  &__image {
+    width: 100%;
+    height: 240px;
+    object-fit: contain;
+    border-radius: 12px 12px 0 0;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  &__body { padding: 20px; }
+  &__brand { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  &__name  { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+  &__price { font-size: 24px; font-weight: 800; color: var(--brand-primary); margin-bottom: 14px; }
+  &__meta  { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  &__desc  { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; }
+  &__actions { display: flex; gap: 10px; flex-wrap: wrap; }
 }

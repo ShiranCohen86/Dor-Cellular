@@ -1,5 +1,11 @@
 const asyncHandler = require('../utils/asyncHandler');
 const authService = require('../services/auth.service');
+const AuditLog = require('../models/AuditLog');
+
+function clientIp(req) {
+  // With app.set('trust proxy', 1), req.ip already returns the real client IP.
+  return (req.ip || '').replace(/^::ffff:/, '');
+}
 
 exports.register = asyncHandler(async (req, res) => {
   const user = await authService.register(req.body, req.user?.role);
@@ -7,16 +13,20 @@ exports.register = asyncHandler(async (req, res) => {
 });
 
 exports.login = asyncHandler(async (req, res) => {
-  // Prefer X-Forwarded-For (set by reverse proxies/load balancers).
-  // Strip IPv4-mapped IPv6 prefix (::ffff:) so stored IPs are always clean dotted-decimal.
-  const rawIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '';
-  const ip = rawIp.replace(/^::ffff:/, '');
-
   const result = await authService.login({
     ...req.body,
     userAgent: req.headers['user-agent'] || '',
     acceptLanguage: req.headers['accept-language'] || '',
-    ip,
+    ip: clientIp(req),
+  });
+  res.json(result);
+});
+
+exports.googleAuth = asyncHandler(async (req, res) => {
+  const result = await authService.googleAuth({
+    idToken: req.body.idToken,
+    userAgent: req.headers['user-agent'] || '',
+    ip: clientIp(req),
   });
   res.json(result);
 });
@@ -59,6 +69,32 @@ exports.changePassword = asyncHandler(async (req, res) => {
 exports.listUsers = asyncHandler(async (req, res) => {
   const users = await authService.listUsers(req.query);
   res.json({ items: users });
+});
+
+exports.updateUser = asyncHandler(async (req, res) => {
+  const User = require('../models/User');
+  const allowed = ['role', 'isActive'];
+  const patch = {};
+  for (const key of allowed) { if (req.body[key] !== undefined) patch[key] = req.body[key]; }
+
+  const before = await User.findById(req.params.id);
+  if (!before) return res.status(404).json({ error: 'User not found' });
+
+  const user = await User.findByIdAndUpdate(req.params.id, patch, { new: true });
+
+  AuditLog.create({
+    userId: req.user.id,
+    action: 'auth.user.updated',
+    meta: {
+      targetUserId: req.params.id,
+      targetEmail:  before.email,
+      changes: Object.fromEntries(
+        Object.keys(patch).map((k) => [k, { from: before[k], to: patch[k] }])
+      ),
+    },
+  }).catch(() => {});
+
+  res.json(user.toJSON());
 });
 
 exports.getLoginLogs = asyncHandler(async (req, res) => {

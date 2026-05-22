@@ -14,6 +14,17 @@ import { logError } from '../api/logger.js';
 
 const REPAIR_STATUSES = ['received', 'diagnosed', 'waiting_for_parts', 'in_repair', 'ready', 'delivered', 'cancelled'];
 
+function buildRepairWaLink(repair) {
+  const phone = repair.customerId?.phone;
+  if (!phone) return null;
+  const clean = phone.replace(/\D/g, '');
+  const intl = clean.startsWith('0') ? '972' + clean.slice(1) : clean;
+  const name = repair.customerId?.name || 'לקוח';
+  const device = `${repair.deviceBrand || ''} ${repair.deviceModel || ''}`.trim();
+  const text = encodeURIComponent(`שלום ${name}! ה${device} שלך מוכן לאיסוף 📱\nנשמח לראותך — דור הסלולר`);
+  return `https://wa.me/${intl}?text=${text}`;
+}
+
 export default function Repairs() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -188,7 +199,7 @@ export default function Repairs() {
                 <td>{repair.customerId?.name || '—'}</td>
                 <td><span className="badge info">{t(`repairs.${repair.status}`)}</span></td>
                 <td>₪ {repair.estimatedCost || 0}</td>
-                <td>
+                <td style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                   <select
                     onChange={(event) => handleStatusChange(repair._id, event.target.value)}
                     defaultValue=""
@@ -198,6 +209,16 @@ export default function Repairs() {
                       <option key={status} value={status}>{t(`repairs.${status}`)}</option>
                     ))}
                   </select>
+                  {repair.status === 'ready' && buildRepairWaLink(repair) && (
+                    <a
+                      href={buildRepairWaLink(repair)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ background: '#25d366', color: '#fff', borderRadius: 6, padding: '5px 10px', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
+                    >
+                      📱 שלח הודעה ללקוח
+                    </a>
+                  )}
                 </td>
               </tr>
             ))}

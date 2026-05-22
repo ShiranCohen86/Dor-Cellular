@@ -32,6 +32,7 @@ router.use(authenticate);
 router.get('/', productsController.list);
 router.get('/low-stock', productsController.lowStock);
 router.get('/scan/:code', productsController.scan);
+router.get('/:id/qr', productsController.getQr);
 router.get('/:id', productsController.get);
 router.get('/:id/movements', productsController.movements);
 

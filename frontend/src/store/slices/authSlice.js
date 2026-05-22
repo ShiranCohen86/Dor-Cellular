@@ -5,7 +5,7 @@
  * Tokens are mirrored to localStorage for the axios interceptor to read.
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginRequest, logoutRequest, fetchCurrentUser, updateCurrentUser } from '../../api/auth.api.js';
+import { loginRequest, logoutRequest, fetchCurrentUser, updateCurrentUser, googleLogin } from '../../api/auth.api.js';
 import { logError, logInfo } from '../../api/logger.js';
 
 const initialState = {
@@ -52,6 +52,19 @@ export const logoutUser = createAsyncThunk('auth/logout', async () => {
   localStorage.removeItem('refreshToken');
 });
 
+/** Signs in / registers via Google Identity Services credential. */
+export const googleLoginUser = createAsyncThunk('auth/googleLogin', async (idToken, { rejectWithValue }) => {
+  try {
+    const result = await googleLogin(idToken);
+    localStorage.setItem('token', result.accessToken);
+    localStorage.setItem('refreshToken', result.refreshToken);
+    logInfo('auth', 'google sign-in as', result.user.email);
+    return result.user;
+  } catch (err) {
+    return rejectWithValue(err.message);
+  }
+});
+
 /** Updates the current user's profile (name, phone). */
 export const updateProfile = createAsyncThunk('auth/updateProfile', async (patch, { rejectWithValue }) => {
   try {
@@ -95,6 +108,16 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.currentUser = null;
         state.status = 'idle';
+      })
+      // googleLogin
+      .addCase(googleLoginUser.pending, (state) => { state.status = 'loading'; state.errorMessage = null; })
+      .addCase(googleLoginUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.currentUser = action.payload;
+      })
+      .addCase(googleLoginUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.errorMessage = action.payload || 'Google sign-in failed';
       })
       // updateProfile
       .addCase(updateProfile.fulfilled, (state, action) => {

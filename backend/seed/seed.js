@@ -92,11 +92,11 @@ async function runSeed({ clearFirst = true } = {}) {
   // Users
   // -----------------------------------------------------------------------
   const userSpecs = [
-    { name: 'Admin Dor',        email: 'admin@dor-store.test',   password: 'admin1234',   role: 'admin',       branchId: tlvBranch._id },
-    { name: 'Manager Maya',     email: 'manager@dor-store.test', password: 'manager1234', role: 'manager',     branchId: tlvBranch._id },
-    { name: 'Salesperson Sam',  email: 'sales@dor-store.test',   password: 'sales1234',   role: 'salesperson', branchId: tlvBranch._id },
-    { name: 'Technician Tomer', email: 'tech@dor-store.test',    password: 'tech1234',    role: 'technician',  branchId: tlvBranch._id },
-    { name: 'Salesperson Hila', email: 'hila@dor-store.test',    password: 'sales1234',   role: 'salesperson', branchId: hfaBranch._id },
+    { name: 'Admin Dor',        email: 'admin@dor-cellular.test',   password: 'admin1234',   role: 'admin',       branchId: tlvBranch._id },
+    { name: 'Manager Maya',     email: 'manager@dor-cellular.test', password: 'manager1234', role: 'manager',     branchId: tlvBranch._id },
+    { name: 'Salesperson Sam',  email: 'sales@dor-cellular.test',   password: 'sales1234',   role: 'salesperson', branchId: tlvBranch._id },
+    { name: 'Technician Tomer', email: 'tech@dor-cellular.test',    password: 'tech1234',    role: 'technician',  branchId: tlvBranch._id },
+    { name: 'Salesperson Hila', email: 'hila@dor-cellular.test',    password: 'sales1234',   role: 'salesperson', branchId: hfaBranch._id },
   ];
   const savedUsers = [];
   for (const spec of userSpecs) {
@@ -893,7 +893,7 @@ async function runSeed({ clearFirst = true } = {}) {
     { type: 'overdue_payment', title: 'חוב פתוח — משה אבוטבול', message: 'למשה אבוטבול יתרת חוב של ₪799. דרוש טיפול דחוף.', severity: 'critical', targetRole: 'manager', branchId: tlvBranch._id, isRead: false, createdAt: daysAgo(5) },
     { type: 'system', title: 'גיבוי מסד הנתונים הושלם', message: 'גיבוי אוטומטי הושלם בהצלחה ב-03:00.', severity: 'info', targetRole: 'admin', isRead: true, readAt: daysAgo(0), createdAt: daysAgo(1) },
     { type: 'system', title: 'עדכון מערכת זמין', message: 'גרסה 2.4.1 זמינה. מומלץ לעדכן בשעות הלילה.', severity: 'info', targetRole: 'admin', isRead: false, createdAt: daysAgo(3) },
-    { type: 'audit_alert', title: 'כניסה ממיקום חריג', message: 'זוהתה כניסה לחשבון admin@dor-store.test מכתובת IP חדשה (185.220.101.45 — Amsterdam).', severity: 'warning', targetRole: 'admin', isRead: false, createdAt: daysAgo(2) },
+    { type: 'audit_alert', title: 'כניסה ממיקום חריג', message: 'זוהתה כניסה לחשבון admin@dor-cellular.test מכתובת IP חדשה (185.220.101.45 — Amsterdam).', severity: 'warning', targetRole: 'admin', isRead: false, createdAt: daysAgo(2) },
   ];
   await Notification.insertMany(notifDocs);
 
@@ -902,22 +902,22 @@ async function runSeed({ clearFirst = true } = {}) {
   // -----------------------------------------------------------------------
   const auditDocs = [
     // Auth — logins
-    { userId: admin._id,    action: 'auth.login', ip: '82.80.12.45',    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0', meta: { email: 'admin@dor-store.test',   name: 'Admin Dor' },        createdAt: daysAgo(90) },
-    { userId: manager._id,  action: 'auth.login', ip: '82.80.12.46',    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) Chrome/120.0', meta: { email: 'manager@dor-store.test', name: 'Manager Maya' },  createdAt: daysAgo(88) },
-    { userId: salesSam._id, action: 'auth.login', ip: '212.143.10.22',  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/121.0',  meta: { email: 'sales@dor-store.test',   name: 'Salesperson Sam' }, createdAt: daysAgo(87) },
-    { userId: salesSam._id, action: 'auth.login', ip: '212.143.10.22',  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/122.0',  meta: { email: 'sales@dor-store.test',   name: 'Salesperson Sam' }, createdAt: daysAgo(1) },
-    { userId: techTomer._id, action: 'auth.login', ip: '77.125.55.88', userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2) AppleWebKit/605.1 Safari/604.1', meta: { email: 'tech@dor-store.test', name: 'Technician Tomer' }, createdAt: daysAgo(1) },
-    { userId: salesHila._id, action: 'auth.login', ip: '80.74.15.33',  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/120.0',       meta: { email: 'hila@dor-store.test',    name: 'Salesperson Hila' }, createdAt: daysAgo(1) },
-    { userId: admin._id,    action: 'auth.login', ip: '82.80.12.45',    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0',    meta: { email: 'admin@dor-store.test',   name: 'Admin Dor' },        createdAt: daysAgo(2) },
+    { userId: admin._id,    action: 'auth.login', ip: '82.80.12.45',    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0', meta: { email: 'admin@dor-cellular.test',   name: 'Admin Dor' },        createdAt: daysAgo(90) },
+    { userId: manager._id,  action: 'auth.login', ip: '82.80.12.46',    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) Chrome/120.0', meta: { email: 'manager@dor-cellular.test', name: 'Manager Maya' },  createdAt: daysAgo(88) },
+    { userId: salesSam._id, action: 'auth.login', ip: '212.143.10.22',  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/121.0',  meta: { email: 'sales@dor-cellular.test',   name: 'Salesperson Sam' }, createdAt: daysAgo(87) },
+    { userId: salesSam._id, action: 'auth.login', ip: '212.143.10.22',  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/122.0',  meta: { email: 'sales@dor-cellular.test',   name: 'Salesperson Sam' }, createdAt: daysAgo(1) },
+    { userId: techTomer._id, action: 'auth.login', ip: '77.125.55.88', userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2) AppleWebKit/605.1 Safari/604.1', meta: { email: 'tech@dor-cellular.test', name: 'Technician Tomer' }, createdAt: daysAgo(1) },
+    { userId: salesHila._id, action: 'auth.login', ip: '80.74.15.33',  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edg/120.0',       meta: { email: 'hila@dor-cellular.test',    name: 'Salesperson Hila' }, createdAt: daysAgo(1) },
+    { userId: admin._id,    action: 'auth.login', ip: '82.80.12.45',    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0',    meta: { email: 'admin@dor-cellular.test',   name: 'Admin Dor' },        createdAt: daysAgo(2) },
     // Auth — failed logins
-    { action: 'auth.login.failed', ip: '185.220.101.45', userAgent: 'Mozilla/5.0 (X11; Linux x86_64) Chrome/119.0', meta: { email: 'admin@dor-store.test',   reason: 'invalid_password' }, createdAt: daysAgo(2) },
-    { action: 'auth.login.failed', ip: '91.108.4.50',    userAgent: 'python-requests/2.31.0',                        meta: { email: 'manager@dor-store.test', reason: 'invalid_password' }, createdAt: daysAgo(0) },
+    { action: 'auth.login.failed', ip: '185.220.101.45', userAgent: 'Mozilla/5.0 (X11; Linux x86_64) Chrome/119.0', meta: { email: 'admin@dor-cellular.test',   reason: 'invalid_password' }, createdAt: daysAgo(2) },
+    { action: 'auth.login.failed', ip: '91.108.4.50',    userAgent: 'python-requests/2.31.0',                        meta: { email: 'manager@dor-cellular.test', reason: 'invalid_password' }, createdAt: daysAgo(0) },
     // Auth — logout
-    { userId: admin._id,    action: 'auth.logout', ip: '82.80.12.45',   meta: { email: 'admin@dor-store.test' },   createdAt: daysAgo(88) },
-    { userId: salesSam._id, action: 'auth.logout', ip: '212.143.10.22', meta: { email: 'sales@dor-store.test' },   createdAt: daysAgo(85) },
+    { userId: admin._id,    action: 'auth.logout', ip: '82.80.12.45',   meta: { email: 'admin@dor-cellular.test' },   createdAt: daysAgo(88) },
+    { userId: salesSam._id, action: 'auth.logout', ip: '212.143.10.22', meta: { email: 'sales@dor-cellular.test' },   createdAt: daysAgo(85) },
     // User management
-    { userId: admin._id, action: 'auth.user.registered', entity: 'User',     meta: { email: 'tech@dor-store.test',    name: 'Technician Tomer', role: 'technician' },  createdAt: daysAgo(95) },
-    { userId: admin._id, action: 'auth.password.changed', entity: 'User',    meta: { email: 'admin@dor-store.test',   name: 'Admin Dor' },                              createdAt: daysAgo(60) },
+    { userId: admin._id, action: 'auth.user.registered', entity: 'User',     meta: { email: 'tech@dor-cellular.test',    name: 'Technician Tomer', role: 'technician' },  createdAt: daysAgo(95) },
+    { userId: admin._id, action: 'auth.password.changed', entity: 'User',    meta: { email: 'admin@dor-cellular.test',   name: 'Admin Dor' },                              createdAt: daysAgo(60) },
     // Orders
     { userId: salesSam._id, action: 'order.created',    entity: 'Order', meta: { invoiceNumber: 'INV-202602-1001', total: 4490, items: 1 }, createdAt: daysAgo(87) },
     { userId: salesSam._id, action: 'order.created',    entity: 'Order', meta: { invoiceNumber: 'INV-202602-1002', total: 3739, items: 2 }, createdAt: daysAgo(85) },
@@ -979,11 +979,11 @@ async function cli() {
   console.log(`  Notifications:   ${stats.notifications}`);
   console.log(`  Audit Logs:      ${stats.auditLogs}`);
   console.log('\nTest users (email / password):');
-  console.log('  admin@dor-store.test    / admin1234   (admin)');
-  console.log('  manager@dor-store.test  / manager1234 (manager)');
-  console.log('  sales@dor-store.test    / sales1234   (salesperson)');
-  console.log('  tech@dor-store.test     / tech1234    (technician)');
-  console.log('  hila@dor-store.test     / sales1234   (salesperson - Haifa)');
+  console.log('  admin@dor-cellular.test    / admin1234   (admin)');
+  console.log('  manager@dor-cellular.test  / manager1234 (manager)');
+  console.log('  sales@dor-cellular.test    / sales1234   (salesperson)');
+  console.log('  tech@dor-cellular.test     / tech1234    (technician)');
+  console.log('  hila@dor-cellular.test     / sales1234   (salesperson - Haifa)');
   await mongoose.disconnect();
 }
 

@@ -1,13 +1,31 @@
 const asyncHandler = require('../utils/asyncHandler');
 const svc = require('../services/order.service');
 const pdfService = require('../services/pdf.service');
+const emailSvc = require('../services/email.service');
+const Customer = require('../models/Customer');
 
-exports.list = asyncHandler(async (req, res) => res.json(await svc.list(req.query)));
+exports.list = asyncHandler(async (req, res) => {
+  const query = { ...req.query };
+  if (req.user.role === 'customer') {
+    if (!req.user.customerId) return res.json({ items: [], total: 0, page: 1, pages: 0 });
+    query.customerId = String(req.user.customerId);
+  }
+  res.json(await svc.list(query));
+});
 exports.get = asyncHandler(async (req, res) => res.json(await svc.getById(req.params.id)));
 
 exports.create = asyncHandler(async (req, res) => {
   const order = await svc.create(req.body, req.user, req.app.get('io'));
   res.status(201).json(order);
+
+  // Fire-and-forget: email the store owner with order details
+  if (order.customerId) {
+    Customer.findById(order.customerId).select('name phone').lean()
+      .then((customer) => emailSvc.sendNewOrderEmail(order, customer?.name, customer?.phone))
+      .catch(() => {});
+  } else {
+    emailSvc.sendNewOrderEmail(order, req.user?.name, null).catch(() => {});
+  }
 });
 
 exports.addPayment = asyncHandler(async (req, res) => {

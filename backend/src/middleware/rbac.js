@@ -2,6 +2,7 @@ const ApiError = require('../utils/ApiError');
 
 const ROLES = {
   ADMIN: 'admin',
+  EMPLOYEE: 'employee',
   MANAGER: 'manager',
   SALESPERSON: 'salesperson',
   TECHNICIAN: 'technician',

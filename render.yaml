@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: dor-store
+    name: dor-cellular
     env: node
     plan: free
     buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install --omit=dev
@@ -25,4 +25,18 @@ services:
       - key: LOG_LEVEL
         value: info
       - key: ANTHROPIC_API_KEY
-        sync: false          # Set this in the Render dashboard
+        sync: false          # Set this in the Render dashboard (optional — AI assistant removed)
+      - key: GOOGLE_CLIENT_ID
+        sync: false          # Google OAuth client ID — from Google Cloud Console
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false          # Same value as GOOGLE_CLIENT_ID — exposed to frontend Vite build
+      - key: SMTP_HOST
+        sync: false          # e.g. smtp.gmail.com — for new order email notifications
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false          # your Gmail / SMTP username
+      - key: SMTP_PASS
+        sync: false          # your Gmail app password
+      - key: OWNER_EMAIL
+        sync: false          # email address to receive new order notifications

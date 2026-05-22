@@ -1,4 +1,4 @@
-# Dor-Store — Mobile Phone Retail Management
+# Dor-Cellular — Mobile Phone Retail Management
 
 Full-stack management platform for a cellular/mobile phone store. Covers inventory, POS, repair lab,
 customer CRM, suppliers & purchase orders, reports, real-time notifications, multi-branch, and
@@ -15,7 +15,7 @@ Hebrew/English UI with RTL/LTR support.
 ## Project layout
 
 ```
-dor-store/
+dor-cellular/
 ├── backend/
 │   ├── package.json
 │   ├── server.js
@@ -82,10 +82,10 @@ The Vite dev server proxies `/api` and `/socket.io` to the backend on port 5000.
 
 | Role         | Email                       | Password      |
 |--------------|-----------------------------|---------------|
-| Admin        | admin@dor-store.test        | admin1234     |
-| Manager      | manager@dor-store.test      | manager1234   |
-| Salesperson  | sales@dor-store.test        | sales1234     |
-| Technician   | tech@dor-store.test         | tech1234      |
+| Admin        | admin@dor-cellular.test        | admin1234     |
+| Manager      | manager@dor-cellular.test      | manager1234   |
+| Salesperson  | sales@dor-cellular.test        | sales1234     |
+| Technician   | tech@dor-cellular.test         | tech1234      |
 
 ## Modules
 

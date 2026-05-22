@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
-  selectTheme, selectNavVisibility, selectCustomColors,
-  setTheme, setNavItemVisible, resetNavVisibility, setCustomColors,
+  selectTheme, selectCustomColors, selectStoreInfo,
+  setTheme, setCustomColors, setStoreInfo,
 } from '../store/slices/settingsSlice.js';
 
 const PRESET_THEMES = [
@@ -24,32 +24,34 @@ const PRESET_THEMES = [
   },
 ];
 
-const ALL_NAV_ITEMS = [
-  { key: 'dashboard',     roles: ['admin', 'manager', 'salesperson', 'technician'] },
-  { key: 'pos',           roles: ['admin', 'manager', 'salesperson'] },
-  { key: 'products',      roles: ['admin', 'manager', 'salesperson', 'technician'] },
-  { key: 'orders',        roles: ['admin', 'manager', 'salesperson'] },
-  { key: 'repairs',       roles: ['admin', 'manager', 'salesperson', 'technician'] },
-  { key: 'customers',     roles: ['admin', 'manager', 'salesperson'] },
-  { key: 'suppliers',     roles: ['admin', 'manager'] },
-  { key: 'reports',       roles: ['admin', 'manager'] },
-  { key: 'notifications', roles: ['admin', 'manager', 'salesperson', 'technician'] },
-  { key: 'branches',      roles: ['admin', 'manager'] },
-  { key: 'users',         roles: ['admin', 'manager'] },
-  { key: 'profile',       roles: ['admin', 'manager', 'salesperson', 'technician'] },
-  { key: 'settings',     roles: ['admin'] },
-  { key: 'auditLogs',    roles: ['admin', 'manager'] },
-];
-
-const ROLES = ['admin', 'manager', 'salesperson', 'technician'];
+const lbl = { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
+const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit' };
 
 export default function SettingsPage() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const currentTheme = useSelector(selectTheme);
-  const navVisibility = useSelector(selectNavVisibility);
   const customColors = useSelector(selectCustomColors);
+  const storeInfo    = useSelector(selectStoreInfo);
   const [activeTab, setActiveTab] = useState('appearance');
+
+  const [storeForm, setStoreForm] = useState({
+    name:      storeInfo.name      || '',
+    phone:     storeInfo.phone     || '',
+    whatsapp:  storeInfo.whatsapp  || '',
+    address:   storeInfo.address   || '',
+    email:     storeInfo.email     || '',
+  });
+  const [storeSaved, setStoreSaved] = useState(false);
+
+  const setField = (field) => (e) => setStoreForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  function handleStoreSave(e) {
+    e.preventDefault();
+    dispatch(setStoreInfo(storeForm));
+    setStoreSaved(true);
+    setTimeout(() => setStoreSaved(false), 2500);
+  }
 
   const tabStyle = (tab) => ({
     background: 'transparent',
@@ -62,7 +64,7 @@ export default function SettingsPage() {
   });
 
   return (
-    <div style={{ maxWidth: 960 }}>
+    <div style={{ maxWidth: 760 }}>
       <h2 style={{ marginTop: 0, marginBottom: 4 }}>{t('settings.title')}</h2>
       <p style={{ color: 'var(--text-muted)', marginTop: 0, marginBottom: 20, fontSize: 13 }}>
         {t('settings.subtitle')}
@@ -71,10 +73,10 @@ export default function SettingsPage() {
       {/* Tabs */}
       <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 28 }}>
         <button style={tabStyle('appearance')} onClick={() => setActiveTab('appearance')}>
-          {t('settings.tabAppearance')}
+          🎨 מראה
         </button>
-        <button style={tabStyle('navigation')} onClick={() => setActiveTab('navigation')}>
-          {t('settings.tabNavigation')}
+        <button style={tabStyle('storeInfo')} onClick={() => setActiveTab('storeInfo')}>
+          🏪 פרטי חנות
         </button>
       </div>
 
@@ -86,8 +88,7 @@ export default function SettingsPage() {
             {t('settings.themeHint')}
           </p>
 
-          {/* Preset themes */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 16, marginBottom: 24, maxWidth: 740 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 16, marginBottom: 24, maxWidth: 680 }}>
             {PRESET_THEMES.map((theme) => {
               const isActive = currentTheme === theme.id;
               return (
@@ -97,17 +98,14 @@ export default function SettingsPage() {
                   style={{
                     background: theme.bg,
                     border: `2px solid ${isActive ? theme.primary : 'rgba(255,255,255,0.08)'}`,
-                    borderRadius: 12,
-                    padding: 0,
-                    cursor: 'pointer',
+                    borderRadius: 12, padding: 0, cursor: 'pointer',
                     outline: isActive ? `3px solid ${theme.primary}40` : 'none',
-                    outlineOffset: 2,
-                    overflow: 'hidden',
+                    outlineOffset: 2, overflow: 'hidden',
                     transition: 'transform 0.15s ease, outline 0.15s ease',
                     transform: isActive ? 'scale(1.03)' : 'scale(1)',
                   }}
                 >
-                  <div style={{ background: theme.surface, padding: '10px 12px', display: 'flex', gap: 6, alignItems: 'center', borderBottom: `1px solid rgba(255,255,255,0.06)` }}>
+                  <div style={{ background: theme.surface, padding: '10px 12px', display: 'flex', gap: 6, alignItems: 'center', borderBottom: 'rgba(255,255,255,0.06) 1px solid' }}>
                     <div style={{ width: 9, height: 9, borderRadius: '50%', background: theme.primary }} />
                     <div style={{ width: 9, height: 9, borderRadius: '50%', background: theme.accent }} />
                     <div style={{ flex: 1, height: 2, background: `${theme.text}18`, borderRadius: 1 }} />
@@ -139,12 +137,9 @@ export default function SettingsPage() {
                   style={{
                     background: 'var(--surface-2)',
                     border: `2px solid ${isActive ? 'var(--brand-primary)' : 'var(--border)'}`,
-                    borderRadius: 12,
-                    padding: 0,
-                    cursor: 'pointer',
-                    outline: isActive ? `3px solid var(--brand-primary-alpha-25)` : 'none',
-                    outlineOffset: 2,
-                    overflow: 'hidden',
+                    borderRadius: 12, padding: 0, cursor: 'pointer',
+                    outline: isActive ? '3px solid var(--brand-primary-alpha-25)' : 'none',
+                    outlineOffset: 2, overflow: 'hidden',
                     transition: 'transform 0.15s ease, outline 0.15s ease',
                     transform: isActive ? 'scale(1.03)' : 'scale(1)',
                   }}
@@ -172,15 +167,12 @@ export default function SettingsPage() {
             })()}
           </div>
 
-          {/* Custom color pickers — shown only when custom theme is active */}
           {currentTheme === 'custom' && (
             <div className="card" style={{ maxWidth: 480, marginBottom: 20 }}>
               <h3 style={{ marginBottom: 16 }}>{t('settings.customizeColors')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
-                    {t('settings.primaryColor')}
-                  </label>
+                  <label style={lbl}>{t('settings.primaryColor')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <input
                       type="color"
@@ -192,9 +184,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
-                    {t('settings.accentColor')}
-                  </label>
+                  <label style={lbl}>{t('settings.accentColor')}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <input
                       type="color"
@@ -214,91 +204,53 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* ── Navigation tab ── */}
-      {activeTab === 'navigation' && (
+      {/* ── Store Info tab ── */}
+      {activeTab === 'storeInfo' && (
         <div>
-          {/* ── For all users ── */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-            <div>
-              <h3 style={{ margin: '0 0 4px' }}>{t('settings.navManagement')}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: 0 }}>{t('settings.navHint')}</p>
-            </div>
-            <button className="btn-secondary" onClick={() => dispatch(resetNavVisibility())} style={{ flexShrink: 0, marginTop: 4 }}>
-              {t('settings.resetDefaults')}
-            </button>
-          </div>
+          <h3 style={{ marginTop: 0, marginBottom: 6 }}>פרטי החנות</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: '0 0 24px' }}>
+            פרטים אלה מופיעים בחנות האונליין ובהודעות WhatsApp ללקוחות.
+          </p>
 
-          <div className="table-wrap" style={{ marginTop: 20, marginBottom: 36 }}>
-            <table>
-              <thead>
-                <tr>
-                  <th style={{ minWidth: 140 }}>{t('common.name')}</th>
-                  {ROLES.filter((r) => r !== 'admin').map((role) => (
-                    <th key={role} style={{ textAlign: 'center', minWidth: 110 }}>
-                      {t(`roles.${role}`)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {ALL_NAV_ITEMS.map((item) => (
-                  <tr key={item.key}>
-                    <td style={{ fontWeight: 500 }}>{t(`nav.${item.key}`)}</td>
-                    {ROLES.filter((r) => r !== 'admin').map((role) => {
-                      const hasBaseAccess = item.roles.includes(role);
-                      const isVisible = navVisibility[role]?.[item.key] !== false;
-                      return (
-                        <td key={role} style={{ textAlign: 'center' }}>
-                          {hasBaseAccess ? (
-                            <input
-                              type="checkbox"
-                              checked={isVisible}
-                              onChange={(e) => dispatch(setNavItemVisible({ role, key: item.key, visible: e.target.checked }))}
-                              style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--brand-primary)' }}
-                            />
-                          ) : (
-                            <span style={{ color: 'var(--text-muted)', fontSize: 16 }}>—</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* ── Personal nav (admin only) ── */}
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 28 }}>
-            <h3 style={{ margin: '0 0 4px' }}>{t('settings.navPersonal')}</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: '0 0 20px' }}>{t('settings.navPersonalHint')}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10, maxWidth: 680 }}>
-              {ALL_NAV_ITEMS.map((item) => {
-                const isVisible = navVisibility['admin']?.[item.key] !== false;
-                return (
-                  <label
-                    key={item.key}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: 'var(--surface-3)', borderRadius: 8,
-                      padding: '10px 14px', cursor: 'pointer',
-                      border: `1.5px solid ${isVisible ? 'var(--brand-primary)' : 'var(--border)'}`,
-                      opacity: isVisible ? 1 : 0.55,
-                      transition: 'border-color .15s, opacity .15s',
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isVisible}
-                      onChange={(e) => dispatch(setNavItemVisible({ role: 'admin', key: item.key, visible: e.target.checked }))}
-                      style={{ width: 15, height: 15, accentColor: 'var(--brand-primary)', flexShrink: 0 }}
-                    />
-                    <span style={{ fontWeight: 500, fontSize: 13 }}>{t(`nav.${item.key}`)}</span>
-                  </label>
-                );
-              })}
+          <form onSubmit={handleStoreSave} style={{ maxWidth: 480 }}>
+            <div style={{ display: 'grid', gap: 18 }}>
+              <div>
+                <label style={lbl}>שם העסק</label>
+                <input value={storeForm.name} onChange={setField('name')} style={inp} placeholder="דור הסלולר" required />
+              </div>
+              <div>
+                <label style={lbl}>טלפון</label>
+                <input value={storeForm.phone} onChange={setField('phone')} style={inp} placeholder="052-6098000" type="tel" />
+              </div>
+              <div>
+                <label style={lbl}>מספר WhatsApp (בפורמט בינלאומי ללא +)</label>
+                <input value={storeForm.whatsapp} onChange={setField('whatsapp')} style={inp} placeholder="9720526098000" />
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                  לדוגמה: 052-xxx-xxxx הופך ל-972052xxxxxxx
+                </div>
+              </div>
+              <div>
+                <label style={lbl}>כתובת</label>
+                <input value={storeForm.address} onChange={setField('address')} style={inp} placeholder="בית הכרם 30, ירושלים" />
+              </div>
+              <div>
+                <label style={lbl}>מייל לקבלת הזמנות</label>
+                <input value={storeForm.email} onChange={setField('email')} style={inp} placeholder="owner@example.com" type="email" />
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                  התראות על הזמנות חדשות יישלחו לכתובת זו
+                </div>
+              </div>
             </div>
-          </div>
+
+            <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 14 }}>
+              <button type="submit" style={{ padding: '10px 28px', fontWeight: 700 }}>
+                שמור פרטים
+              </button>
+              {storeSaved && (
+                <span style={{ color: '#16a34a', fontSize: 14, fontWeight: 600 }}>✓ נשמר!</span>
+              )}
+            </div>
+          </form>
         </div>
       )}
     </div>

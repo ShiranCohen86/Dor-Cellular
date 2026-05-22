@@ -64,3 +64,9 @@ export function transferStockBetweenBranches(payload) {
 export function bulkImportProducts(rows) {
   return safeRequest(httpClient.post('/products/bulk-import', rows));
 }
+
+/** GET /products/:id/qr — returns a PNG blob of the QR code. */
+export async function fetchProductQr(productId) {
+  const response = await httpClient.get(`/products/${productId}/qr`, { responseType: 'blob' });
+  return response.data;
+}
