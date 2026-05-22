@@ -6,6 +6,47 @@ import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
 import { selectLanguage, toggleLanguage, pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
 import { selectTheme, selectCustomColors } from '../store/slices/settingsSlice.js';
 
+function isIos() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+}
+
+function InstallModal({ onClose, nativePrompt }) {
+  const ios = isIos();
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 600, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
+      <div className="card" style={{ position: 'relative', width: '100%', maxWidth: 480, borderRadius: '16px 16px 0 0', padding: '24px 20px 32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <strong style={{ fontSize: 16 }}>📲 הוסף לדף הבית</strong>
+          <button className="btn-ghost" onClick={onClose} style={{ fontSize: 20, padding: '2px 8px' }}>✕</button>
+        </div>
+        {nativePrompt ? (
+          <button style={{ width: '100%', padding: '13px 0', fontWeight: 700, fontSize: 15 }} onClick={async () => { nativePrompt.prompt(); await nativePrompt.userChoice; onClose(); }}>
+            ⬇ התקן את האפליקציה
+          </button>
+        ) : ios ? (
+          <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-muted)' }}>
+            <p style={{ margin: '0 0 10px', color: 'var(--text)', fontWeight: 600 }}>ב-Safari:</p>
+            <p style={{ margin: '0 0 6px' }}>1. לחץ על כפתור השיתוף <strong>⎙</strong> בתחתית</p>
+            <p style={{ margin: '0 0 6px' }}>2. גלול ובחר <strong>"הוסף למסך הבית"</strong></p>
+            <p style={{ margin: 0 }}>3. לחץ <strong>"הוסף"</strong></p>
+          </div>
+        ) : (
+          <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-muted)' }}>
+            <p style={{ margin: '0 0 10px', color: 'var(--text)', fontWeight: 600 }}>ב-Chrome:</p>
+            <p style={{ margin: '0 0 6px' }}>1. לחץ על <strong>⋮</strong> (שלוש נקודות) בפינה</p>
+            <p style={{ margin: '0 0 6px' }}>2. בחר <strong>"הוסף למסך הבית"</strong></p>
+            <p style={{ margin: 0 }}>3. לחץ <strong>"הוסף"</strong></p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function useInstallPrompt() {
   const [prompt, setPrompt] = useState(null);
   useEffect(() => {
@@ -13,13 +54,7 @@ function useInstallPrompt() {
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
-  const install = async () => {
-    if (!prompt) return;
-    prompt.prompt();
-    await prompt.userChoice;
-    setPrompt(null);
-  };
-  return { canInstall: !!prompt, install };
+  return prompt;
 }
 
 function UpdateBanner() {
@@ -112,7 +147,9 @@ export default function Layout() {
   const activePageKey = NAVIGATION_ITEMS.find((item) => item.path === location.pathname)?.translationKey || 'dashboard';
   const handleLogoutClick = () => dispatch(logoutUser());
 
-  const { canInstall, install } = useInstallPrompt();
+  const nativePrompt = useInstallPrompt();
+  const [showInstall, setShowInstall] = useState(false);
+  const alreadyInstalled = isStandalone();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -169,8 +206,8 @@ export default function Layout() {
           <Link to="/" className="btn-ghost" style={{ fontSize: 13 }}>{t('nav.shop')}</Link>
         </div>
         <div className="navbar-end">
-          {canInstall && (
-            <button onClick={install} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px', color: 'var(--brand-primary)', fontWeight: 700 }}>
+          {!alreadyInstalled && (
+            <button onClick={() => setShowInstall(true)} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px', color: 'var(--brand-primary)', fontWeight: 700 }}>
               ⬇ התקן
             </button>
           )}
@@ -190,6 +227,7 @@ export default function Layout() {
         <Outlet />
 
         <UpdateBanner />
+        {showInstall && <InstallModal onClose={() => setShowInstall(false)} nativePrompt={nativePrompt} />}
 
         {/* Toast stack — bottom-right corner */}
         <div style={{ position: 'fixed', bottom: 20, right: 20, display: 'flex', flexDirection: 'column', gap: 8, zIndex: 1000 }}>
