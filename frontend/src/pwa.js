@@ -17,9 +17,8 @@ export function registerServiceWorker() {
     .then(({ registerSW }) => {
       const updateServiceWorker = registerSW({
         onNeedRefresh() {
-          logInfo('pwa', 'new version available — call updateServiceWorker(true) to apply');
-          // A simple "Update available" toast could trigger the line below.
-          // updateServiceWorker(true);
+          logInfo('pwa', 'new version available');
+          window.dispatchEvent(new CustomEvent('pwa-update-ready'));
         },
         onOfflineReady() { logInfo('pwa', 'app is ready for offline use'); },
         onRegisterError(error) { logWarn('pwa', 'register failed', error); },
