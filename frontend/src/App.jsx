@@ -114,13 +114,12 @@ function StaffOnlyRoute({ children }) {
 
 export default function App() {
   const { loading } = useAuth();
-  const { needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW();
+  useRegisterSW();
 
   if (loading) return <div className="login-shell"><div className="login-card">טוען…</div></div>;
 
   return (
     <>
-    {needRefresh && <PwaUpdateModal onUpdate={() => updateServiceWorker(true)} />}
     <ScrollToTop />
     <ErrorBoundary>
     <Routes>
