@@ -76,50 +76,52 @@ export default function TopBar({
           {currentLanguage === 'he' ? 'EN' : 'עב'}
         </button>
 
-        {/* Cart — shop mode only */}
-        {!isAdmin && (
-          <button
-            onClick={onCartOpen}
-            className={cartBounce ? 'cart-bounce' : ''}
-            style={{
-              position: 'relative',
-              background: 'var(--brand-primary)', color: '#fff',
-              border: 'none', borderRadius: 8,
-              padding: '7px 14px', cursor: 'pointer',
-              fontWeight: 600, fontSize: 14,
-            }}
-          >
-            🛒 <span className="shop-nav__cart-label">עגלה</span>
-            {cartCount > 0 && (
-              <span style={{
-                position: 'absolute', top: -6, right: -6,
-                background: '#dc2626', color: '#fff',
-                borderRadius: '50%', width: 20, height: 20,
-                fontSize: 11, fontWeight: 700,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {cartCount}
-              </span>
-            )}
-          </button>
-        )}
+        {/* Admin: profile + logout are in the sidebar — keep navbar compact */}
 
-        {/* User actions */}
-        {currentUser ? (
+        {/* Shop mode only: cart + user actions */}
+        {!isAdmin && (
           <>
-            <Link to={profileTarget} className="btn-ghost">
-              {t('nav.profile')}
-            </Link>
             <button
-              className={`btn-secondary${!isAdmin ? ' shop-nav__logout' : ''}`}
-              onClick={handleLogout}
-              style={{ fontSize: 13, padding: '7px 14px' }}
+              onClick={onCartOpen}
+              className={cartBounce ? 'cart-bounce' : ''}
+              style={{
+                position: 'relative',
+                background: 'var(--brand-primary)', color: '#fff',
+                border: 'none', borderRadius: 8,
+                padding: '7px 14px', cursor: 'pointer',
+                fontWeight: 600, fontSize: 14,
+              }}
             >
-              {t('nav.logout')}
+              🛒 <span className="shop-nav__cart-label">עגלה</span>
+              {cartCount > 0 && (
+                <span style={{
+                  position: 'absolute', top: -6, right: -6,
+                  background: '#dc2626', color: '#fff',
+                  borderRadius: '50%', width: 20, height: 20,
+                  fontSize: 11, fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {cartCount}
+                </span>
+              )}
             </button>
+            {currentUser ? (
+              <>
+                <Link to={profileTarget} className="btn-ghost">
+                  {t('nav.profile')}
+                </Link>
+                <button
+                  className="shop-nav__logout btn-secondary"
+                  onClick={handleLogout}
+                  style={{ fontSize: 13, padding: '7px 14px' }}
+                >
+                  {t('nav.logout')}
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
+            )}
           </>
-        ) : (
-          <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
         )}
       </div>
     </header>
