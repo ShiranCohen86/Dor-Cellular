@@ -123,14 +123,6 @@ async function create(data, user, io) {
       await order.save({ session });
       saved = order;
 
-      // Decrement stock
-      for (const it of items) {
-        await productService.adjustStock({
-          productId: it.productId, branchId: order.branchId, delta: -it.quantity,
-          type: 'sale', refType: 'Order', refId: order._id, performedBy: user.id, io,
-        });
-      }
-
       // Customer side-effects
       if (order.customerId) {
         const points = Math.floor(order.total / 10); // 1 pt per 10
