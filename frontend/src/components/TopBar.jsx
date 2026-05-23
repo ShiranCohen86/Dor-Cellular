@@ -57,9 +57,8 @@ export default function TopBar({
 
       {/* ── Actions / End ── */}
       <div className={isAdmin ? 'navbar-end' : 'shop-nav__actions'}>
-        {/* Theme toggle — hidden on mobile in shop mode */}
         <button
-          className={`btn-ghost${!isAdmin ? ' shop-nav__hide-mobile' : ''}`}
+          className="btn-ghost"
           onClick={handleTheme}
           style={{ fontSize: 16, padding: '6px 9px' }}
           title={currentTheme === 'light' ? 'מצב לילה' : 'מצב יום'}
@@ -67,9 +66,8 @@ export default function TopBar({
           {currentTheme === 'light' ? '🌙' : '☀️'}
         </button>
 
-        {/* Language toggle — hidden on mobile in shop mode */}
         <button
-          className={`btn-ghost shop-nav__lang${!isAdmin ? ' shop-nav__hide-mobile' : ''}`}
+          className="btn-ghost"
           onClick={() => dispatch(toggleLanguage())}
           style={{ fontSize: 13, padding: '6px 10px' }}
         >
@@ -104,11 +102,11 @@ export default function TopBar({
               )}
             </button>
             {currentUser ? (
-              <Link to={profileTarget} className="btn-ghost shop-nav__cart-mobile-hide">
+              <Link to={profileTarget} className="btn-ghost">
                 {t('nav.profile')}
               </Link>
             ) : (
-              <Link to="/login" className="btn-ghost shop-nav__cart-mobile-hide">{t('auth.login')}</Link>
+              <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
             )}
           </>
         )}
