@@ -459,7 +459,7 @@ export default function Storefront() {
       {/* ── Checkout Modal ── */}
       {checkoutOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={() => !ordering && setCheckoutOpen(false)} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={() => { if (!ordering) { setCheckoutOpen(false); setOrderError(null); } }} />
           <div className="card" style={{ position: 'relative', width: 420, padding: 28 }}>
             {orderDone ? (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
@@ -472,7 +472,7 @@ export default function Storefront() {
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                   <strong style={{ fontSize: 18 }}>אישור הזמנה</strong>
-                  <button className="btn-ghost" onClick={() => setCheckoutOpen(false)} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
+                  <button className="btn-ghost" onClick={() => { setCheckoutOpen(false); setOrderError(null); }} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
                 </div>
 
                 <div style={{ marginBottom: 16 }}>

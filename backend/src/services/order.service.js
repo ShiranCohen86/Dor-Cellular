@@ -8,11 +8,19 @@ const { paginate, escapeRegex } = require('../utils/pagination');
 const productService = require('./product.service');
 
 function genInvoiceNumber() {
-  // INV-YYYYMMDD-XXXX
   const now = new Date();
   const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
   const rand = Math.floor(1000 + Math.random() * 9000);
   return `INV-${stamp}-${rand}`;
+}
+
+async function genUniqueInvoiceNumber(retries = 5) {
+  for (let i = 0; i < retries; i++) {
+    const num = genInvoiceNumber();
+    const exists = await Order.exists({ invoiceNumber: num });
+    if (!exists) return num;
+  }
+  throw ApiError.internal('Failed to generate unique invoice number');
 }
 
 // Compute totals from items + order-level discount. Tax is per-item, computed as
@@ -104,7 +112,7 @@ async function create(data, user, io) {
       }
 
       const order = new Order({
-        invoiceNumber: genInvoiceNumber(),
+        invoiceNumber: await genUniqueInvoiceNumber(),
         branchId: data.branchId || user.branchId,
         customerId: data.customerId,
         salespersonId: user.id,
@@ -123,9 +131,9 @@ async function create(data, user, io) {
       await order.save({ session });
       saved = order;
 
-      // Customer side-effects
-      if (order.customerId) {
-        const points = Math.floor(order.total / 10); // 1 pt per 10
+      // Customer side-effects — only for completed (paid) orders
+      if (order.customerId && order.status === 'completed') {
+        const points = Math.floor(order.total / 10);
         const update = { $inc: { loyaltyPoints: points } };
         if (order.balanceDue > 0) update.$inc.outstandingDebt = order.balanceDue;
         await Customer.updateOne({ _id: order.customerId }, update, { session });
