@@ -10,7 +10,6 @@ router.use(authenticate);
 
 router.get('/', productsController.list);
 router.get('/scan/:code', productsController.scan);
-router.get('/:id/qr', productsController.getQr);
 router.get('/:id', productsController.get);
 
 router.post('/', authorize('admin', 'manager'), validate(productValidator.create), audit('product.create'), productsController.create);
