@@ -19,9 +19,19 @@ function getTransporter() {
  * Send new-order notification to the store owner.
  * Fire-and-forget — never throws so the caller's transaction is unaffected.
  */
+async function getOwnerEmail() {
+  try {
+    const StoreSettings = require('../models/StoreSettings');
+    const s = await StoreSettings.findOne().lean();
+    if (s?.ownerEmail) return s.ownerEmail;
+  } catch {}
+  return env.OWNER_EMAIL;
+}
+
 async function sendNewOrderEmail(order, customerName, customerPhone) {
   const t = getTransporter();
-  if (!t || !env.OWNER_EMAIL) return;
+  const ownerEmail = await getOwnerEmail();
+  if (!t || !ownerEmail) return;
 
   const itemLines = (order.items || [])
     .map((i) => `• ${i.name} ×${i.quantity}  — ₪${i.unitPrice}`)
@@ -47,7 +57,7 @@ async function sendNewOrderEmail(order, customerName, customerPhone) {
   try {
     await t.sendMail({
       from: `"דור הסלולר" <${env.SMTP_USER}>`,
-      to: env.OWNER_EMAIL,
+      to: ownerEmail,
       subject: `🛒 הזמנה חדשה${customerName ? ` מ-${customerName}` : ''}`,
       html,
     });

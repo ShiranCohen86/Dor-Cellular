@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectStoreInfo, setStoreInfo } from '../store/slices/settingsSlice.js';
+import { httpClient } from '../api/request.js';
 
 const lbl = { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
 const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit' };
@@ -40,13 +41,16 @@ export default function SettingsPage() {
     if (field === 'whatsapp') setWaError(null);
   };
 
-  function handleSave(e) {
+  async function handleSave(e) {
     e.preventDefault();
     if (form.whatsapp && !isValidILWhatsApp(form.whatsapp)) {
       setWaError('פורמט לא תקין — קבל: 050-1234567 / 0501234567 / +972-50-1234567');
       return;
     }
     dispatch(setStoreInfo({ ...form, whatsapp: normalizeILWhatsApp(form.whatsapp) }));
+    if (form.email) {
+      httpClient.patch('/settings', { ownerEmail: form.email }).catch(() => {});
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }

@@ -11,6 +11,7 @@ router.use('/suppliers', require('./suppliers.routes'));
 router.use('/reports', require('./reports.routes'));
 router.use('/notifications', require('./notifications.routes'));
 router.use('/branches', require('./branches.routes'));
+router.use('/settings', require('./settings.routes'));
 router.use('/admin/ai', require('./ai.routes'));
 
 module.exports = router;
