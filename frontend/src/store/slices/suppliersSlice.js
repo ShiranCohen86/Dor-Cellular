@@ -28,7 +28,7 @@ export const loadSuppliersIfStale = createAsyncThunk('suppliers/loadIfStale', as
 const slice = createSlice({
   name: 'suppliers',
   initialState,
-  reducers: {},
+  reducers: { invalidateSuppliersCache(state) { state.loadedAt = null; } },
   extraReducers: (builder) => {
     builder
       .addCase(loadSuppliers.fulfilled, (state, action) => {
@@ -42,6 +42,7 @@ const slice = createSlice({
   },
 });
 
+export const { invalidateSuppliersCache } = slice.actions;
 export const selectAllSuppliers = (state) => state.suppliers.items;
 export const selectAllPurchaseOrders = (state) => state.suppliers.purchaseOrders;
 export default slice.reducer;

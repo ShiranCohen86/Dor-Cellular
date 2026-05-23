@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  loadSuppliersIfStale, loadSuppliers,
+  loadSuppliersIfStale, loadSuppliers, invalidateSuppliersCache,
   selectAllSuppliers,
 } from '../store/slices/suppliersSlice.js';
 import { createSupplier, updateSupplier } from '../api/suppliers.api.js';
@@ -150,7 +150,7 @@ export default function Suppliers() {
 
   useEffect(() => { dispatch(loadSuppliersIfStale()); }, [dispatch]);
 
-  const handleSaved = () => { dispatch(loadSuppliers()); };
+  const handleSaved = () => { dispatch(invalidateSuppliersCache()); dispatch(loadSuppliers()); };
 
   return (
     <div className="page">
