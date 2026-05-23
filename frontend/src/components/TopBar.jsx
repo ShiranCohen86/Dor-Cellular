@@ -59,16 +59,8 @@ export default function TopBar({
       <div className={isAdmin ? 'navbar-end' : 'shop-nav__actions'}>
         {/* Admin mode: quick link to storefront */}
         {isAdmin && (
-          <Link
-            to="/"
-            style={{
-              background: '#fff', color: '#0f172a',
-              borderRadius: 8, padding: '6px 14px',
-              fontWeight: 700, fontSize: 13,
-              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4,
-            }}
-          >
-            🏪 חנות
+          <Link to="/" className="btn-ghost" style={{ fontWeight: 700, fontSize: 13, padding: '6px 12px' }}>
+            🏠 בית
           </Link>
         )}
 

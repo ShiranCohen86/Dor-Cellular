@@ -988,16 +988,40 @@ table {
 }
 
 .shop-filters {
-  display: flex; flex-direction: column; gap: 10px;
-  padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 0;
+  background: var(--surface); border-bottom: 1px solid var(--border);
   position: sticky; top: 57px; z-index: 9;
 }
 
-.filter-row {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  &--tags { justify-content: space-between; }
-  &--dropdowns { flex-wrap: wrap; }
-  &__end { display: flex; gap: 8px; flex-shrink: 0; }
+.filter-compact-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; overflow: hidden;
+  .shop-chips {
+    flex: 1; min-width: 0;
+    flex-wrap: nowrap; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+.filter-expand-btn {
+  flex-shrink: 0;
+  background: var(--surface-3); color: var(--text-muted);
+  border: 1.5px solid var(--border); border-radius: $radius-full;
+  padding: 6px 14px; font-size: 12.5px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; min-height: unset;
+  transition: background .18s, color .18s, border-color .18s;
+  &:hover { background: var(--surface-3-hover); color: var(--text); transform: none; box-shadow: none; }
+  &--active { background: var(--brand-primary); color: #fff; border-color: var(--brand-primary); font-weight: 600; }
+}
+
+.filter-panel {
+  border-top: 1px solid var(--border);
+  padding: 12px 16px 14px;
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--surface-2);
+  &__group { display: flex; flex-direction: column; gap: 8px; }
+  &__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
 }
 
 .filter-select {
@@ -1006,19 +1030,6 @@ table {
   cursor: pointer; flex-shrink: 0;
   transition: border-color .18s ease;
   &:focus { outline: 2px solid var(--brand-primary); border-color: var(--brand-primary); }
-}
-
-.filter-dropdown {
-  position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
-  background: var(--surface-1); border: 1px solid var(--border); border-radius: $radius;
-  box-shadow: var(--shadow-md); min-width: 150px; overflow: hidden;
-
-  &__item {
-    display: block; width: 100%; text-align: right; padding: 9px 14px;
-    font-size: 13px; color: var(--text); background: none; border: none; cursor: pointer;
-    &:hover { background: var(--surface-2); }
-    &.active { color: var(--brand-primary); font-weight: 600; }
-  }
 }
 
 .filter-active-tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1060,7 +1071,7 @@ table {
 .shop-main { flex: 1; padding: 28px 24px; max-width: 1320px; margin: 0 auto; width: 100%; }
 
 .product-catalog {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 14px; align-items: start;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 14px;
 }
 
 .product-catalog__heading {
@@ -1162,6 +1173,11 @@ table {
   // Extra bottom padding so content isn't hidden under the bottom nav
   .shop-main   { padding-bottom: 90px; }
   .shop-footer { padding-bottom: 90px; }
+
+  // Raise WhatsApp FAB above the bottom nav
+  .whatsapp-fab {
+    bottom: calc(max(24px, env(safe-area-inset-bottom, 0px) + 16px) + 68px);
+  }
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────

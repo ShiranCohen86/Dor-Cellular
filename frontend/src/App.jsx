@@ -114,6 +114,14 @@ function useKeepAlive() {
 
 // ── PWA update banner ─────────────────────────────────────────────────────
 function UpdateBanner({ onUpdate }) {
+  const [secs, setSecs] = useState(5);
+
+  useEffect(() => {
+    if (secs <= 0) { onUpdate(); return; }
+    const id = setTimeout(() => setSecs(s => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [secs, onUpdate]);
+
   return (
     <div style={{
       position: 'fixed', bottom: 16, insetInlineStart: '50%', transform: 'translateX(-50%)',
@@ -122,7 +130,7 @@ function UpdateBanner({ onUpdate }) {
       display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px',
       fontSize: 14, color: 'var(--text)', whiteSpace: 'nowrap',
     }}>
-      <span>🔄 גרסה חדשה זמינה</span>
+      <span>🔄 גרסה חדשה זמינה — מתעדכן בעוד {secs}…</span>
       <button onClick={onUpdate} style={{ padding: '6px 16px', fontWeight: 700, fontSize: 13 }}>עדכן עכשיו</button>
     </div>
   );

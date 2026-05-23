@@ -6,10 +6,11 @@
  * Auth state comes from Redux; the password-change call goes straight to the API
  * (no need to cache it in the store).
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, updateProfile } from '../store/slices/authSlice.js';
+import { loadOrdersIfStale, selectAllOrders } from '../store/slices/ordersSlice.js';
 import { changeCurrentPassword } from '../api/auth.api.js';
 import { logError } from '../api/logger.js';
 
@@ -17,6 +18,17 @@ export default function Profile() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser);
+  const orders = useSelector(selectAllOrders);
+
+  const isCustomer = currentUser?.role === 'customer';
+
+  useEffect(() => {
+    if (isCustomer) dispatch(loadOrdersIfStale());
+  }, [dispatch, isCustomer]);
+
+  const myOrders = isCustomer
+    ? orders.filter(o => String(o.customerId?._id ?? o.customerId) === String(currentUser?.customerId))
+    : [];
 
   const [profileForm, setProfileForm] = useState({
     name:    currentUser?.name    || '',
@@ -75,14 +87,43 @@ export default function Profile() {
 
   return (
     <div className="page">
-      <div className="card">
-        <h2 style={{ marginTop: 0 }}>{t('profile.title')}</h2>
-        <div className="kpi-grid">
-          <div><div className="muted">{t('common.email')}</div><div><strong>{currentUser.email}</strong></div></div>
-          <div><div className="muted">{t('users.role')}</div><div><span className="badge info">{t(`roles.${currentUser.role}`)}</span></div></div>
-          <div><div className="muted">{t('profile.lastLogin')}</div><div>{currentUser.lastLogin ? new Date(currentUser.lastLogin).toLocaleString() : '—'}</div></div>
+      <div className="card" style={{ padding: '18px 20px' }}>
+        <h2 style={{ marginTop: 0, marginBottom: 14 }}>{t('profile.title')}</h2>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 14 }}>
+          <div>
+            <span className="muted" style={{ fontSize: 12 }}>{t('common.email')}</span>
+            <div><strong>{currentUser.email}</strong></div>
+          </div>
+          <div>
+            <span className="muted" style={{ fontSize: 12 }}>{t('users.role')}</span>
+            <div><strong>{t(`roles.${currentUser.role}`)}</strong></div>
+          </div>
         </div>
       </div>
+
+      {isCustomer && myOrders.length > 0 && (
+        <div className="card">
+          <h3 style={{ marginTop: 0 }}>הזמנות שלי</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {myOrders.slice(0, 10).map(order => {
+              const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
+              return (
+                <div key={order._id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <strong>{date}</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>#{order.orderNumber || order._id?.slice(-6)}</span>
+                  </div>
+                  {(order.items || []).map((item, i) => (
+                    <div key={i} style={{ color: 'var(--text-muted)' }}>
+                      {item.name} ×{item.quantity ?? item.qty ?? 1}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <form className="card" onSubmit={handleProfileSubmit}>
         <h3 style={{ marginTop: 0 }}>{t('profile.details')}</h3>
