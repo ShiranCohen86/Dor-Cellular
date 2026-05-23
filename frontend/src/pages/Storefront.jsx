@@ -84,6 +84,7 @@ export default function Storefront() {
   const [showCategoryMore, setShowCategoryMore] = useState(false);
   const [showSortMore,     setShowSortMore]     = useState(false);
   const [showSelectsMore,  setShowSelectsMore]  = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 700px)').matches);
   const categoryMoreRef = useRef(null);
   const sortMoreRef     = useRef(null);
   const selectsMoreRef  = useRef(null);
@@ -193,6 +194,13 @@ export default function Storefront() {
     }
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 700px)');
+    const handler = e => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
 
   const handleCategoriesOpen = useCallback(() => {
@@ -358,42 +366,50 @@ export default function Storefront() {
 
       {/* ── Filters ── */}
       <section className="shop-filters" ref={chipsRef}>
-        {/* Row 1: Category chips — הכל + 2 visible + "+" overflow */}
+        {/* Row 1: Category chips — mobile: הכל + 2 + ···  |  desktop: all visible */}
         <div className="filter-chips-row">
           <button className={`chip${activeCategoryId === '' && activeTag === '' ? ' chip--active' : ''}`}
             onClick={() => { setActiveCategoryId(''); setActiveTag(''); }}>
             {t('shop.all')}
           </button>
-          {visibleCategories.map(cat => (
+          {(isMobile ? visibleCategories : categories).map(cat => (
             <button key={cat._id}
               className={`chip${activeCategoryId === cat._id ? ' chip--active' : ''}`}
               onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); }}>
               {cat.name}
             </button>
           ))}
-          <div className="filter-more-wrap" ref={categoryMoreRef}>
-            <button
-              className={`chip${overflowHasActive ? ' chip--active' : ''}`}
-              onClick={() => setShowCategoryMore(s => !s)}>
-              ···
+          {!isMobile && (
+            <button className={`chip${activeTag === 'new' ? ' chip--active' : ''}`}
+              onClick={() => { setActiveTag(prev => prev === 'new' ? '' : 'new'); setActiveCategoryId(''); }}>
+              ✨ מוצרים חדשים
             </button>
-            {showCategoryMore && (
-              <div className="filter-more-list">
-                {overflowCategories.map(cat => (
-                  <button key={cat._id}
-                    className={`filter-more-list__item${activeCategoryId === cat._id ? ' filter-more-list__item--active' : ''}`}
-                    onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); setShowCategoryMore(false); }}>
-                    {cat.name}
+          )}
+          {isMobile && (
+            <div className="filter-more-wrap" ref={categoryMoreRef}>
+              <button
+                className={`chip${overflowHasActive ? ' chip--active' : ''}`}
+                onClick={() => setShowCategoryMore(s => !s)}>
+                ···
+              </button>
+              {showCategoryMore && (
+                <div className="filter-more-list">
+                  {overflowCategories.map(cat => (
+                    <button key={cat._id}
+                      className={`filter-more-list__item${activeCategoryId === cat._id ? ' filter-more-list__item--active' : ''}`}
+                      onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); setShowCategoryMore(false); }}>
+                      {cat.name}
+                    </button>
+                  ))}
+                  <button
+                    className={`filter-more-list__item${activeTag === 'new' ? ' filter-more-list__item--active' : ''}`}
+                    onClick={() => { setActiveTag(prev => prev === 'new' ? '' : 'new'); setActiveCategoryId(''); setShowCategoryMore(false); }}>
+                    ✨ מוצרים חדשים
                   </button>
-                ))}
-                <button
-                  className={`filter-more-list__item${activeTag === 'new' ? ' filter-more-list__item--active' : ''}`}
-                  onClick={() => { setActiveTag(prev => prev === 'new' ? '' : 'new'); setActiveCategoryId(''); setShowCategoryMore(false); }}>
-                  ✨ מוצרים חדשים
-                </button>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Row 2: ⚙ סנן on its own row */}
@@ -410,28 +426,30 @@ export default function Storefront() {
             <div className="filter-panel__group">
               <span className="filter-panel__label">מיון</span>
               <div className="filter-chips-row filter-chips-row--flush">
-                {SORT_OPTIONS.slice(0, 3).map(([val, label]) => (
+                {(isMobile ? SORT_OPTIONS.slice(0, 3) : SORT_OPTIONS).map(([val, label]) => (
                   <button key={val} className={`chip${sortBy === val ? ' chip--active' : ''}`}
                     onClick={() => setSortBy(val)}>{label}</button>
                 ))}
-                <div className="filter-more-wrap" ref={sortMoreRef}>
-                  <button
-                    className={`chip${SORT_OPTIONS.slice(3).some(([v]) => v === sortBy) ? ' chip--active' : ''}`}
-                    onClick={() => setShowSortMore(s => !s)}>
-                    ···
-                  </button>
-                  {showSortMore && (
-                    <div className="filter-more-list">
-                      {SORT_OPTIONS.slice(3).map(([val, label]) => (
-                        <button key={val}
-                          className={`filter-more-list__item${sortBy === val ? ' filter-more-list__item--active' : ''}`}
-                          onClick={() => { setSortBy(val); setShowSortMore(false); }}>
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {isMobile && (
+                  <div className="filter-more-wrap" ref={sortMoreRef}>
+                    <button
+                      className={`chip${SORT_OPTIONS.slice(3).some(([v]) => v === sortBy) ? ' chip--active' : ''}`}
+                      onClick={() => setShowSortMore(s => !s)}>
+                      ···
+                    </button>
+                    {showSortMore && (
+                      <div className="filter-more-list">
+                        {SORT_OPTIONS.slice(3).map(([val, label]) => (
+                          <button key={val}
+                            className={`filter-more-list__item${sortBy === val ? ' filter-more-list__item--active' : ''}`}
+                            onClick={() => { setSortBy(val); setShowSortMore(false); }}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -455,14 +473,14 @@ export default function Storefront() {
                         : modelOptions).map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                   )}
-                  {storageOptions.length > 0 && !storageInOverflow && (
+                  {storageOptions.length > 0 && (!isMobile || !storageInOverflow) && (
                     <select className="filter-select" value={storageFilter}
                       onChange={e => setStorageFilter(e.target.value)}>
                       <option value="">נפח ▾</option>
                       {storageOptions.map(s => <option key={s} value={s}>{s} GB</option>)}
                     </select>
                   )}
-                  {storageOptions.length > 0 && storageInOverflow && (
+                  {storageOptions.length > 0 && isMobile && storageInOverflow && (
                     <div className="filter-more-wrap" ref={selectsMoreRef}>
                       <button
                         className={`chip${storageFilter ? ' chip--active' : ''}`}

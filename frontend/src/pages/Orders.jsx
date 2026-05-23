@@ -151,13 +151,15 @@ export default function Orders() {
                         📱 WhatsApp
                       </a>
                     )}
-                    <button
-                      className="btn-secondary"
-                      style={{ fontSize: 13, padding: '7px 14px', whiteSpace: 'nowrap' }}
-                      onClick={() => toggleHandled(order._id)}
-                    >
-                      {done ? '↩ פתח' : '✓ סגור'}
-                    </button>
+                    {currentUser?.role !== 'customer' && (
+                      <button
+                        className="btn-secondary"
+                        style={{ fontSize: 13, padding: '7px 14px', whiteSpace: 'nowrap' }}
+                        onClick={() => toggleHandled(order._id)}
+                      >
+                        {done ? '↩ פתח' : '✓ סגור'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

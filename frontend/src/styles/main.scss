@@ -994,10 +994,11 @@ table {
   position: sticky; top: 57px; z-index: 9;
 }
 
-// Row of chips — no scroll, overflow hidden
+// Row of chips — chip count is limited by JS so no overflow clipping needed here
 .filter-chips-row {
   display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px 0; overflow: hidden; flex-wrap: nowrap;
+  padding: 10px 12px 0; overflow: visible; flex-wrap: nowrap;
+  @media (min-width: 701px) { flex-wrap: wrap; padding-bottom: 6px; }
   &--flush { padding: 0; }
 }
 
@@ -1028,10 +1029,10 @@ table {
   padding: 8px 12px 10px;
 }
 
-// One-row flex for filter selects — no wrap
+// One-row flex for filter selects — select count limited by JS so no clipping needed
 .filter-selects-row {
   display: flex; align-items: center; gap: 8px;
-  flex-wrap: nowrap; overflow: hidden;
+  flex-wrap: nowrap; overflow: visible;
 }
 
 .filter-expand-btn {
