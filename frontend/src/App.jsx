@@ -114,7 +114,7 @@ function useKeepAlive() {
 
 // ── PWA update banner ─────────────────────────────────────────────────────
 function UpdateBanner({ onUpdate }) {
-  const [secs, setSecs] = useState(5);
+  const [secs, setSecs] = useState(10);
 
   useEffect(() => {
     if (secs <= 0) { onUpdate(); return; }
@@ -124,10 +124,10 @@ function UpdateBanner({ onUpdate }) {
 
   return (
     <div style={{
-      position: 'fixed', bottom: 16, insetInlineStart: '50%', transform: 'translateX(-50%)',
-      zIndex: 9999, background: 'var(--surface-1)', border: '1px solid var(--border)',
-      borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,.35)',
-      display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px',
+      position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)',
+      zIndex: 9999, background: 'var(--surface-1)', border: '1px solid var(--brand-primary)',
+      borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,.5)',
+      display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px',
       fontSize: 14, color: 'var(--text)', whiteSpace: 'nowrap',
     }}>
       <span>🔄 גרסה חדשה זמינה — מתעדכן בעוד {secs}…</span>

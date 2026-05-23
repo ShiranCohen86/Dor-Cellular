@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const CustomerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, index: true },
-    phone: { type: String, required: true, trim: true, unique: true, index: true },
+    phone: { type: String, trim: true, unique: true, sparse: true },
     email: { type: String, lowercase: true, trim: true, sparse: true, unique: true },
     idNumber: { type: String, trim: true, sparse: true }, // teudat zehut / national id
     address: String,

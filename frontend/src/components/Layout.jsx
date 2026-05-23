@@ -80,6 +80,17 @@ export default function Layout() {
     return true;
   });
 
+  if (currentUser?.role === 'customer') {
+    return (
+      <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+        <TopBar mode="shop" cartCount={0} onCartOpen={() => {}} />
+        <main style={{ flex: 1, padding: '20px 16px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="layout">
       <div className={`sidebar-host${sidebarOpen ? ' sidebar-host--open' : ''}`}>

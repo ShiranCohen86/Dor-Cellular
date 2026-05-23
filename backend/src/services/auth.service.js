@@ -44,21 +44,25 @@ async function register({ name, email, password, phone, address, role = 'employe
   await user.setPassword(password);
   await user.save();
 
-  const trimmedPhone = (phone || '').trim();
-  if (trimmedPhone) {
-    try {
-      let customer = await Customer.findOne({ phone: trimmedPhone });
-      if (!customer) {
-        const customerData = { name, phone: trimmedPhone };
-        if (email) customerData.email = email;
-        if (address && address.trim()) customerData.address = address.trim();
-        customer = await Customer.create(customerData);
-      }
-      user.customerId = customer._id;
-      await user.save();
-    } catch (err) {
-      logger.warn('register: could not create/link customer', { userId: String(user._id), phone: trimmedPhone, err: err.message });
+  const trimmedPhone = (phone || '').trim() || undefined;
+  try {
+    let customer = trimmedPhone ? await Customer.findOne({ phone: trimmedPhone }) : null;
+    if (!customer && email) customer = await Customer.findOne({ email: email.toLowerCase() });
+    if (!customer && role === 'customer') {
+      const customerData = { name };
+      if (trimmedPhone) customerData.phone = trimmedPhone;
+      if (email) customerData.email = email.toLowerCase();
+      if (address?.trim()) customerData.address = address.trim();
+      customer = await Customer.create(customerData);
+    } else if (!customer && trimmedPhone) {
+      const customerData = { name, phone: trimmedPhone };
+      if (email) customerData.email = email.toLowerCase();
+      if (address?.trim()) customerData.address = address.trim();
+      customer = await Customer.create(customerData);
     }
+    if (customer) { user.customerId = customer._id; await user.save(); }
+  } catch (err) {
+    logger.warn('register: could not create/link customer', { userId: String(user._id), err: err.message });
   }
 
   AuditLog.create({ userId: user._id, action: 'auth.user.registered', meta: { email: user.email, name: user.name, role: user.role } }).catch(() => {});
@@ -123,7 +127,10 @@ async function googleAuth({ idToken, userAgent, ip }) {
       if (linkedCustomer) user.customerId = linkedCustomer._id;
     }
   } else {
-    const linkedCustomer = await Customer.findOne({ email: email.toLowerCase() }).lean();
+    let linkedCustomer = await Customer.findOne({ email: email.toLowerCase() }).lean();
+    if (!linkedCustomer) {
+      linkedCustomer = await Customer.create({ name: name || email.split('@')[0], email: email.toLowerCase() }).catch(() => null);
+    }
     user = new User({
       name: name || email.split('@')[0],
       email: email.toLowerCase(),

@@ -251,10 +251,30 @@ export default function Storefront() {
     }));
   }, [dispatch, searchQuery, activeCategoryId]);
 
-  // ── Client-side filter options ───────────────────────────────────
-  const brandOptions   = useMemo(() => [...new Set(products.map(p => p.brand).filter(Boolean))].sort(), [products]);
-  const modelOptions   = useMemo(() => [...new Set(products.map(p => p.model).filter(Boolean))].sort(), [products]);
-  const storageOptions = useMemo(() => [...new Set(products.map(p => p.storageGB).filter(Boolean))].sort((a, b) => a - b), [products]);
+  // ── Client-side filter options — only show values that yield results ──
+  const brandOptions = useMemo(() => {
+    let list = products;
+    if (activeTag === 'new') list = list.filter(p => Date.now() - new Date(p.createdAt) < 30 * 24 * 3600 * 1000);
+    if (modelFilter)   list = list.filter(p => p.model === modelFilter);
+    if (storageFilter) list = list.filter(p => String(p.storageGB) === String(storageFilter));
+    return [...new Set(list.map(p => p.brand).filter(Boolean))].sort();
+  }, [products, activeTag, modelFilter, storageFilter]);
+
+  const modelOptions = useMemo(() => {
+    let list = products;
+    if (activeTag === 'new') list = list.filter(p => Date.now() - new Date(p.createdAt) < 30 * 24 * 3600 * 1000);
+    if (brandFilter)   list = list.filter(p => p.brand === brandFilter);
+    if (storageFilter) list = list.filter(p => String(p.storageGB) === String(storageFilter));
+    return [...new Set(list.map(p => p.model).filter(Boolean))].sort();
+  }, [products, activeTag, brandFilter, storageFilter]);
+
+  const storageOptions = useMemo(() => {
+    let list = products;
+    if (activeTag === 'new') list = list.filter(p => Date.now() - new Date(p.createdAt) < 30 * 24 * 3600 * 1000);
+    if (brandFilter) list = list.filter(p => p.brand === brandFilter);
+    if (modelFilter) list = list.filter(p => p.model === modelFilter);
+    return [...new Set(list.map(p => p.storageGB).filter(Boolean))].sort((a, b) => a - b);
+  }, [products, activeTag, brandFilter, modelFilter]);
 
   const filteredProducts = useMemo(() => {
     let list = products;
@@ -276,11 +296,20 @@ export default function Storefront() {
     ['newest', 'חדש ראשון'], ['name', 'שם א-ת'],
   ];
 
-  const CHIPS_MAX          = 2;
-  const visibleCategories  = categories.slice(0, CHIPS_MAX);
-  const overflowCategories = categories.slice(CHIPS_MAX);
-  const overflowCount      = overflowCategories.length + 1; // +1 for מוצרים חדשים
-  const overflowHasActive  = activeTag === 'new' || overflowCategories.some(c => c._id === activeCategoryId);
+  const CHIPS_MAX = 2;
+  const categoriesWithProducts = useMemo(() =>
+    categories.filter(cat => products.some(p => String(p.categoryId?._id ?? p.categoryId) === String(cat._id))),
+    [categories, products]
+  );
+  const selectedCatInOverflow = categoriesWithProducts.slice(CHIPS_MAX).find(c => String(c._id) === String(activeCategoryId));
+  const visibleCategories = selectedCatInOverflow
+    ? [selectedCatInOverflow, ...categoriesWithProducts.filter(c => String(c._id) !== String(activeCategoryId)).slice(0, CHIPS_MAX - 1)]
+    : categoriesWithProducts.slice(0, CHIPS_MAX);
+  const overflowCategories = selectedCatInOverflow
+    ? categoriesWithProducts.filter(c => String(c._id) !== String(activeCategoryId)).slice(CHIPS_MAX - 1)
+    : categoriesWithProducts.slice(CHIPS_MAX);
+  const overflowCount     = overflowCategories.length + 1;
+  const overflowHasActive = activeTag === 'new' || overflowCategories.some(c => String(c._id) === String(activeCategoryId));
 
   const totalSelectCount = (brandOptions.length > 1 ? 1 : 0)
     + (modelOptions.length > 1 ? 1 : 0)
@@ -384,7 +413,7 @@ export default function Storefront() {
             onClick={() => { setActiveCategoryId(''); setActiveTag(''); }}>
             {t('shop.all')}
           </button>
-          {(isMobile ? visibleCategories : categories).map(cat => (
+          {(isMobile ? visibleCategories : categoriesWithProducts).map(cat => (
             <button key={cat._id}
               className={`chip${activeCategoryId === cat._id ? ' chip--active' : ''}`}
               onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); }}>
@@ -480,9 +509,7 @@ export default function Storefront() {
                     <select className="filter-select" value={modelFilter}
                       onChange={e => setModelFilter(e.target.value)}>
                       <option value="">דגם ▾</option>
-                      {(brandFilter
-                        ? modelOptions.filter(m => products.some(p => p.brand === brandFilter && p.model === m))
-                        : modelOptions).map(m => <option key={m} value={m}>{m}</option>)}
+                      {modelOptions.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                   )}
                   {storageOptions.length > 0 && (!isMobile || !storageInOverflow) && (
@@ -582,7 +609,7 @@ export default function Storefront() {
                       <div style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-3)', border: '1.5px solid var(--border)', borderRadius: 999, overflow: 'hidden' }}>
                           <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>−</button>
-                          <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 700, fontSize: 14 }}>{inCart.qty}</span>
+                          <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 34 }}>{inCart.qty}</span>
                           <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>+</button>
                         </div>
                       </div>
@@ -641,7 +668,7 @@ export default function Storefront() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-3)', border: '1.5px solid var(--border)', borderRadius: 999, overflow: 'hidden' }}>
                       <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>−</button>
-                      <span style={{ minWidth: 22, textAlign: 'center', fontWeight: 700, fontSize: 14 }}>{item.qty}</span>
+                      <span style={{ minWidth: 22, textAlign: 'center', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 30 }}>{item.qty}</span>
                       <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>+</button>
                     </div>
                   </div>

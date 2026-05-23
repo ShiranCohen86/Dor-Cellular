@@ -2,7 +2,7 @@
   "name": "דור הסלולר",
   "short_name": "דור הסלולר",
   "description": "חנות סלולר ומחשבים ומעבדת תיקונים",
-  "theme_color": "#8b5cf6",
+  "theme_color": "#080500",
   "background_color": "#0c0c1e",
   "display": "standalone",
   "orientation": "portrait",

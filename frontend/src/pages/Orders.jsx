@@ -114,8 +114,8 @@ export default function Orders() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {visible.map((order) => {
             const phoneFromNotes = order.notes?.match(/טלפון:\s*(\S+)/)?.[1];
-            const phone  = order.customerPhone || order.customer?.phone || phoneFromNotes;
-            const name   = order.customerName  || order.customer?.name || phone || 'לקוח';
+            const phone = order.customerId?.phone || phoneFromNotes;
+            const name  = order.customerId?.name  || phone || 'לקוח';
             const extraNotes = order.notes?.replace(/טלפון:\s*\S+\n?/, '').trim();
             const date   = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
             const waLink = buildWaLink(phone, order);
