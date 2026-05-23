@@ -54,12 +54,6 @@ function DeviceImage({ brand, categoryType }) {
   return <span style={{ fontSize: 52, lineHeight: 1, filter: 'drop-shadow(0 3px 8px rgba(0,0,0,.35))' }}>{getCategoryIcon(categoryType)}</span>;
 }
 
-const PAY_METHODS = [
-  { value: 'cash',          label: 'מזומן' },
-  { value: 'credit',        label: 'אשראי' },
-  { value: 'bank_transfer', label: 'העברה בנקאית' },
-  { value: 'cheque',        label: 'צ׳ק' },
-];
 
 export default function Storefront() {
   const { t } = useTranslation();
@@ -81,7 +75,7 @@ export default function Storefront() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [payMethod, setPayMethod] = useState('cash');
+  const [contactPhone, setContactPhone] = useState('');
   const [orderNote, setOrderNote] = useState('');
   const [ordering, setOrdering] = useState(false);
   const [orderDone, setOrderDone] = useState(null);
@@ -122,13 +116,17 @@ export default function Storefront() {
       navigate('/login?redirect=/');
       return;
     }
+    if (!contactPhone.trim()) {
+      setOrderError('נא להזין מספר טלפון ליצירת קשר');
+      return;
+    }
     setOrdering(true);
     setOrderError(null);
     try {
+      const notes = [`טלפון: ${contactPhone.trim()}`, orderNote.trim()].filter(Boolean).join('\n');
       const result = await createOrder({
         items: cart.map((i) => ({ productId: i._id, quantity: i.qty })),
-        payments: [{ method: payMethod, amount: cartTotal }],
-        notes: orderNote || undefined,
+        notes: notes || undefined,
       });
       setOrderDone(result);
       setCart([]);
@@ -280,14 +278,7 @@ export default function Storefront() {
                     )}
                   </div>
                   <div className="product-card__body">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div className="product-card__brand">{product.brand}</div>
-                      <button
-                        onClick={() => shareProduct(product)}
-                        title="שתף ב-WhatsApp"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 2, color: '#25d366' }}
-                      >⬆</button>
-                    </div>
+                    <div className="product-card__brand">{product.brand}</div>
                     <h3 className="product-card__name" style={{ cursor: 'pointer' }} onClick={() => setQuickView(product)}>{product.name}</h3>
                     <div className="product-card__meta">
                       {product.storageGB && <span className="badge">{product.storageGB}GB</span>}
@@ -297,11 +288,10 @@ export default function Storefront() {
                       <div className="product-card__price">₪{product.salePrice?.toLocaleString('he-IL')}</div>
                     </div>
                     {inCart ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
-                        <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 16 }}>−</button>
-                        <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{inCart.qty}</span>
-                        <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 16 }}>+</button>
-                        <span className="muted" style={{ fontSize: 12 }}>בעגלה</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
+                        <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1 }}>−</button>
+                        <span style={{ fontWeight: 700, minWidth: 24, textAlign: 'center', fontSize: 15 }}>{inCart.qty}</span>
+                        <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1 }}>+</button>
                       </div>
                     ) : (
                       <button
@@ -368,7 +358,7 @@ export default function Storefront() {
                 </div>
                 {currentUser ? (
                   <button onClick={() => { setCartOpen(false); setCheckoutOpen(true); }} style={{ width: '100%', padding: '12px 0', fontSize: 16, fontWeight: 700 }}>
-                    לתשלום →
+                    לביצוע הזמנה ←
                   </button>
                 ) : (
                   <div style={{ textAlign: 'center' }}>
@@ -493,28 +483,23 @@ export default function Storefront() {
                     </div>
                   ))}
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontWeight: 700, fontSize: 16 }}>
-                    <span>סה״כ לתשלום</span>
+                    <span>סה״כ מחיר</span>
                     <span style={{ color: 'var(--brand-primary)' }}>₪{cartTotal.toLocaleString('he-IL')}</span>
                   </div>
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>אמצעי תשלום</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    {PAY_METHODS.map((m) => (
-                      <button
-                        key={m.value}
-                        onClick={() => setPayMethod(m.value)}
-                        style={{
-                          padding: '9px 0', borderRadius: 8, fontSize: 13, cursor: 'pointer',
-                          border: `2px solid ${payMethod === m.value ? 'var(--brand-primary)' : 'var(--border)'}`,
-                          background: payMethod === m.value ? 'color-mix(in srgb, var(--brand-primary) 12%, transparent)' : 'var(--surface-2)',
-                          fontWeight: payMethod === m.value ? 700 : 400,
-                          color: 'inherit',
-                        }}
-                      >{m.label}</button>
-                    ))}
-                  </div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
+                    טלפון ליצירת קשר <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder="050-0000000"
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontFamily: 'inherit', fontSize: 14, boxSizing: 'border-box' }}
+                  />
+                  <div className="muted" style={{ fontSize: 11, marginTop: 4 }}>ניצור איתך קשר לתיאום המשך התהליך</div>
                 </div>
 
                 <div style={{ marginBottom: 18 }}>
