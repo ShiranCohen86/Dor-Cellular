@@ -60,9 +60,13 @@ async function create(data, user) {
     if (user.customerId) {
       data.customerId = user.customerId;
     } else if (user.email) {
+      const phoneFromNotes = data.notes?.match(/טלפון:\s*(\S+)/)?.[1];
+      const phone = user.phone || phoneFromNotes;
       let customer = await Customer.findOne({ email: user.email });
-      if (!customer) customer = await Customer.create({ name: user.name, phone: user.phone || '', email: user.email });
-      data.customerId = customer._id;
+      if (!customer && phone) {
+        customer = await Customer.create({ name: user.name, phone, email: user.email });
+      }
+      if (customer) data.customerId = customer._id;
     }
   }
 

@@ -7,18 +7,18 @@ $radius-lg:  14px;
 $radius-full: 999px;
 $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
 
-// ── Dark — Hapoel Jerusalem (default) ─────────────────────────────────────
+// ── Dark — Default ────────────────────────────────────────────────────────
 :root,
 [data-theme="dark"] {
-  --brand-primary:           #d41f1f;
-  --brand-primary-dark:      #b01515;
-  --brand-primary-light:     #f05050;
+  --brand-primary:           #f97316;
+  --brand-primary-dark:      #ea580c;
+  --brand-primary-light:     #fb923c;
   --brand-accent:            #f59e0b;
   --danger:                  #f87171;
   --success:                 #34d399;
   --warning:                 #fbbf24;
 
-  // Backgrounds — pure dark, no purple tint
+  // Backgrounds — pure dark, slight warm tint
   --bg:                      #0d0d0d;
   --surface:                 #161616;
   --surface-1:               #161616;
@@ -30,10 +30,10 @@ $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
   // Sidebar always dark
   --sidebar-bg:              #080808;
 
-  // Borders — warm dark, slight red tint
-  --border:                  #2a2020;
-  --border-subtle:           rgba(212, 31, 31, 0.12);
-  --border-strong:           #3d2a2a;
+  // Borders — warm dark, slight orange tint
+  --border:                  #2a2218;
+  --border-subtle:           rgba(249, 115, 22, 0.12);
+  --border-strong:           #3d2e1a;
 
   // Text hierarchy
   --text:                    #f0f0f0;
@@ -44,12 +44,12 @@ $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
   --shadow-sm:               0 1px 2px rgba(0,0,0,0.6), 0 1px 6px rgba(0,0,0,0.3);
   --shadow:                  0 4px 16px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.3);
   --shadow-lg:               0 12px 40px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.4);
-  --shadow-brand:            0 4px 24px rgba(212,31,31,0.28);
+  --shadow-brand:            0 4px 24px rgba(249,115,22,0.28);
   --shadow-accent:           0 4px 20px rgba(245,158,11,0.25);
 
   // Glass morphism
-  --glass-bg:                rgba(13,8,8,0.88);
-  --glass-border:            rgba(212,31,31,0.18);
+  --glass-bg:                rgba(10,8,5,0.88);
+  --glass-border:            rgba(249,115,22,0.18);
 
   // State colors
   --danger-dark:             #ef4444;
@@ -58,21 +58,21 @@ $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
   --sidebar-text-muted:      rgba(255,255,255,.82);
 
   // Alpha tokens
-  --brand-primary-alpha-10:  rgba(212, 31, 31, 0.10);
-  --brand-primary-alpha-20:  rgba(212, 31, 31, 0.18);
-  --brand-primary-alpha-25:  rgba(212, 31, 31, 0.22);
+  --brand-primary-alpha-10:  rgba(249, 115, 22, 0.10);
+  --brand-primary-alpha-20:  rgba(249, 115, 22, 0.18);
+  --brand-primary-alpha-25:  rgba(249, 115, 22, 0.22);
   --brand-accent-alpha-40:   rgba(245, 158, 11, 0.32);
 
   // Login
-  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(212,31,31,0.35) 0%, transparent 60%),
-                             linear-gradient(180deg, #0d0d0d 0%, #1a0808 100%);
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(249,115,22,0.35) 0%, transparent 60%),
+                             linear-gradient(180deg, #0d0d0d 0%, #1a0e05 100%);
 }
 
-// ── Light Pearl — Hapoel ──────────────────────────────────────────────────
+// ── Light Pearl ───────────────────────────────────────────────────────────
 [data-theme="light"] {
-  --brand-primary:           #c01818;
-  --brand-primary-dark:      #a01010;
-  --brand-primary-light:     #e03030;
+  --brand-primary:           #ea580c;
+  --brand-primary-dark:      #c2410c;
+  --brand-primary-light:     #f97316;
   --brand-accent:            #d97706;
   --danger:                  #ef4444;
   --success:                 #10b981;
@@ -83,40 +83,40 @@ $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
   --surface-1:               #ffffff;
   --surface-2:               #f5f5f5;
   --surface-3:               #eeeeee;
-  --surface-3-hover:         #e6e0e0;
-  --surface-4:               #ddd8d8;
+  --surface-3-hover:         #e8e0d8;
+  --surface-4:               #ddd5cc;
 
-  --sidebar-bg:              #150505;
+  --sidebar-bg:              #0f0800;
 
-  --border:                  #e0d8d8;
-  --border-subtle:           rgba(192,24,24,0.08);
-  --border-strong:           #d0c8c8;
+  --border:                  #e0d8cc;
+  --border-subtle:           rgba(234,88,12,0.08);
+  --border-strong:           #d0c4b8;
 
   --text:                    #1a1a1a;
   --text-muted:              #656565;
-  --text-subtle:             #b0a8a8;
+  --text-subtle:             #b0a898;
 
-  --shadow-sm:               0 1px 2px rgba(180,80,80,0.06), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow:                  0 4px 16px rgba(180,80,80,0.10), 0 1px 4px rgba(0,0,0,0.06);
-  --shadow-lg:               0 12px 40px rgba(180,80,80,0.16), 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-brand:            0 4px 20px rgba(192,24,24,0.22);
+  --shadow-sm:               0 1px 2px rgba(180,90,20,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow:                  0 4px 16px rgba(180,90,20,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg:               0 12px 40px rgba(180,90,20,0.16), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-brand:            0 4px 20px rgba(234,88,12,0.22);
   --shadow-accent:           0 4px 16px rgba(217,119,6,0.2);
 
   --glass-bg:                rgba(255,255,255,0.9);
-  --glass-border:            rgba(192,24,24,0.14);
+  --glass-border:            rgba(234,88,12,0.14);
 
   --danger-dark:             #dc2626;
   --nav-active-color:        #ffffff;
   --sidebar-text:            #ffffff;
   --sidebar-text-muted:      rgba(255,255,255,.82);
 
-  --brand-primary-alpha-10:  rgba(192, 24, 24, 0.08);
-  --brand-primary-alpha-20:  rgba(192, 24, 24, 0.14);
-  --brand-primary-alpha-25:  rgba(192, 24, 24, 0.16);
+  --brand-primary-alpha-10:  rgba(234, 88, 12, 0.08);
+  --brand-primary-alpha-20:  rgba(234, 88, 12, 0.14);
+  --brand-primary-alpha-25:  rgba(234, 88, 12, 0.16);
   --brand-accent-alpha-40:   rgba(245, 158, 11, 0.22);
 
-  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(192,24,24,0.4) 0%, transparent 60%),
-                             linear-gradient(180deg, #150505 0%, #4a0a0a 50%, #c01818 100%);
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(234,88,12,0.4) 0%, transparent 60%),
+                             linear-gradient(180deg, #0f0800 0%, #3d1a00 50%, #ea580c 100%);
 }
 
 // ── Deep Blue (preserved, no longer reachable from UI) ───────────────────
