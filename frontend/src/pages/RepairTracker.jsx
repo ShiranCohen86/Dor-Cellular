@@ -56,15 +56,15 @@ export default function RepairTracker() {
             הכנס את מספר הקריאה שקיבלת בעת מסירת המכשיר
           </p>
 
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 10, marginBottom: 28 }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap' }}>
             <input
               value={ticketId}
               onChange={(e) => setTicketId(e.target.value)}
               placeholder="מספר קריאה (לדוגמה: REP-0042)"
-              style={{ flex: 1, padding: '12px 16px', borderRadius: 10, border: '1.5px solid var(--border)', background: 'var(--surface-2)', fontSize: 15, fontFamily: 'inherit' }}
+              style={{ flex: '1 1 180px', minWidth: 0, padding: '12px 16px', borderRadius: 10, border: '1.5px solid var(--border)', background: 'var(--surface-2)', fontSize: 15, fontFamily: 'inherit' }}
               autoFocus
             />
-            <button type="submit" disabled={loading || !ticketId.trim()} style={{ padding: '12px 20px', fontSize: 15, fontWeight: 700, borderRadius: 10 }}>
+            <button type="submit" disabled={loading || !ticketId.trim()} style={{ flex: '0 0 auto', padding: '12px 24px', fontSize: 15, fontWeight: 700, borderRadius: 10 }}>
               {loading ? '...' : 'חפש'}
             </button>
           </form>
@@ -92,7 +92,7 @@ export default function RepairTracker() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
                 {result.createdAt && <span>📅 התקבל: {new Date(result.createdAt).toLocaleDateString('he-IL')}</span>}
                 {result.updatedAt && <span>🔄 עדכון אחרון: {new Date(result.updatedAt).toLocaleDateString('he-IL')}</span>}
               </div>

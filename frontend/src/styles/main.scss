@@ -653,6 +653,14 @@ table {
   table { min-width: unset; }
   .col-hide-mobile { display: none; }
 
+  // Profile / form-row — force single column on small screens
+  .form-row { grid-template-columns: 1fr; }
+
+  // Orders card — stack vertically
+  .order-card__row { flex-direction: column; gap: 10px; }
+  .order-card__items { min-width: unset; }
+  .order-card__actions { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+
   // POS — single column stack
   .pos { grid-template-columns: 1fr; height: auto; }
   .pos-right { overflow-y: visible; }

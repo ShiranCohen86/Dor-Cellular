@@ -235,7 +235,7 @@ function ProductModal({ product, categories, onClose, onSaved }) {
               style={{
                 border: '2px dashed var(--border)', borderRadius: 10, cursor: 'pointer',
                 height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--surface-2)', overflow: 'hidden', display: 'flex',
+                background: 'var(--surface-2)', overflow: 'hidden',
               }}
             >
               {imgLoading && <span className="muted">טוען...</span>}
