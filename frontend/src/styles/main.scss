@@ -109,6 +109,56 @@ input, select, textarea {
   margin: 0 auto;
 }
 
+// ── Cold-start / wake-up overlay ─────────────────────────────────────────
+@keyframes wakeup-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes wakeup-bar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+.wakeup-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: linear-gradient(150deg, #0a0600 0%, #1a0d00 40%, #3d1e00 80%, #7c3800 100%);
+  display: flex; align-items: center; justify-content: center;
+  direction: rtl; animation: fade-in .4s ease;
+
+  &__inner { text-align: center; padding: 40px 24px; }
+
+  &__icon {
+    font-size: 56px; display: block;
+    margin-bottom: 24px;
+    animation: wakeup-float 3s ease-in-out infinite;
+  }
+
+  .pwa-spinner { margin-bottom: 28px; }
+
+  &__title {
+    font-size: 20px; font-weight: 700; color: #fff;
+    margin: 0 0 10px; letter-spacing: -.3px;
+  }
+
+  &__sub {
+    font-size: 13px; color: rgba(255,255,255,.45);
+    line-height: 1.7; margin-bottom: 28px;
+  }
+
+  &__bar {
+    width: 220px; height: 3px;
+    background: rgba(255,255,255,.1);
+    border-radius: 99px; margin: 0 auto; overflow: hidden;
+
+    &::after {
+      content: ''; display: block; height: 100%;
+      background: var(--brand-primary);
+      border-radius: 99px;
+      animation: wakeup-bar 30s linear forwards;
+    }
+  }
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }

@@ -1,22 +1,26 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, Suspense, lazy } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
-import Storefront from './pages/Storefront.jsx';
-import Login from './pages/Login.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import Products from './pages/Products.jsx';
-import Orders from './pages/Orders.jsx';
-import Repairs from './pages/Repairs.jsx';
-import CustomersPage from './pages/Customers.jsx';
-import SuppliersPage from './pages/Suppliers.jsx';
-import UsersPage from './pages/Users.jsx';
-import Profile from './pages/Profile.jsx';
-import SettingsPage from './pages/Settings.jsx';
-import RepairTracker from './pages/RepairTracker.jsx';
 
+// Lazy-load every page so the initial bundle stays small.
+// React splits each into its own chunk — loaded only when first navigated to.
+const Storefront    = lazy(() => import('./pages/Storefront.jsx'));
+const Login         = lazy(() => import('./pages/Login.jsx'));
+const Dashboard     = lazy(() => import('./pages/Dashboard.jsx'));
+const Products      = lazy(() => import('./pages/Products.jsx'));
+const Orders        = lazy(() => import('./pages/Orders.jsx'));
+const Repairs       = lazy(() => import('./pages/Repairs.jsx'));
+const CustomersPage = lazy(() => import('./pages/Customers.jsx'));
+const SuppliersPage = lazy(() => import('./pages/Suppliers.jsx'));
+const UsersPage     = lazy(() => import('./pages/Users.jsx'));
+const Profile       = lazy(() => import('./pages/Profile.jsx'));
+const SettingsPage  = lazy(() => import('./pages/Settings.jsx'));
+const RepairTracker = lazy(() => import('./pages/RepairTracker.jsx'));
+
+// ── Error boundary ────────────────────────────────────────────────────────
 class ErrorBoundary extends React.Component {
   state = { hasError: false, error: null };
   static getDerivedStateFromError(error) { return { hasError: true, error }; }
@@ -26,7 +30,7 @@ class ErrorBoundary extends React.Component {
       <div style={{ padding: 24, color: '#fff', background: '#0a0a0a', minHeight: '100vh', direction: 'rtl' }}>
         <h2>שגיאה</h2>
         <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>{String(this.state.error)}</pre>
-        <button onClick={() => window.location.reload()} style={{ background: '#d41f1f', color: '#fff', border: 0, padding: '8px 16px', borderRadius: 8, marginTop: 12 }}>
+        <button onClick={() => window.location.reload()} style={{ background: '#f97316', color: '#fff', border: 0, padding: '8px 16px', borderRadius: 8, marginTop: 12 }}>
           טען מחדש
         </button>
       </div>
@@ -35,115 +39,118 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// ── Scroll restoration ────────────────────────────────────────────────────
 function ScrollToTop() {
   const { pathname } = useLocation();
   useLayoutEffect(() => {
-    // Primary reset — fires before the browser paints.
     window.scrollTo(0, 0);
-    // Backup reset one animation frame later — catches any post-render scroll manipulation
-    // by external scripts (e.g. Google GIS closing its One Tap overlay).
     const raf = requestAnimationFrame(() => window.scrollTo(0, 0));
     return () => cancelAnimationFrame(raf);
   }, [pathname]);
   return null;
 }
 
-function PwaUpdateModal({ onUpdate }) {
-  const [timedOut, setTimedOut] = useState(false);
+// ── Cold-start overlay ────────────────────────────────────────────────────
+// Shown when the auth bootstrap (first API call) takes more than 2.5 s,
+// which means Render's free tier is warming up from sleep.
+function WakeUpOverlay() {
+  const [dots, setDots] = useState('');
 
   useEffect(() => {
-    // Trigger the update immediately — no user action needed
-    onUpdate();
-    const t = setTimeout(() => setTimedOut(true), 30000);
-    return () => clearTimeout(t);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const t = setInterval(() => setDots((d) => (d.length >= 3 ? '' : d + '.')), 500);
+    return () => clearInterval(t);
+  }, []);
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 10000,
-      background: 'rgba(0,0,0,0.82)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      direction: 'rtl',
-    }}>
-      <div style={{
-        background: 'var(--surface, #161616)',
-        border: '1px solid rgba(212,31,31,0.35)',
-        borderRadius: 16,
-        padding: '36px 44px',
-        textAlign: 'center',
-        boxShadow: '0 8px 48px rgba(0,0,0,0.7)',
-        minWidth: 260, maxWidth: '88vw',
-      }}>
-        {timedOut ? (
-          <>
-            <div style={{ fontSize: 30, marginBottom: 12 }}>⚠️</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text, #f0f0f0)', marginBottom: 8 }}>
-              העדכון לקח יותר מהצפוי
-            </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,.5)', marginBottom: 20 }}>
-              אפשר לרענן ידנית כדי להמשיך
-            </div>
-            <button
-              onClick={() => window.location.reload()}
-              style={{ background: '#d41f1f', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 28px', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
-            >
-              רענן עכשיו
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="pwa-spinner" />
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text, #f0f0f0)', marginTop: 20, marginBottom: 6 }}>
-              מתקינה גרסה חדשה…
-            </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>
-              הדף יתרענן אוטומטית
-            </div>
-          </>
-        )}
+    <div className="wakeup-overlay">
+      <div className="wakeup-overlay__inner">
+        <div className="wakeup-overlay__icon">📱</div>
+        <div className="pwa-spinner" />
+        <div className="wakeup-overlay__title">מעיר את השרת{dots}</div>
+        <div className="wakeup-overlay__sub">
+          הטעינה הראשונה אחרי תקופת שקט<br />לוקחת עד 30 שניות
+        </div>
+        <div className="wakeup-overlay__bar" />
       </div>
     </div>
   );
 }
 
+// ── Suspense fallback (between page navigations) ──────────────────────────
+function PageFallback() {
+  return (
+    <div className="login-shell">
+      <div className="login-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        <div className="pwa-spinner" />
+        <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>טוען…</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Role guard ────────────────────────────────────────────────────────────
 function StaffOnlyRoute({ children }) {
   const { user } = useAuth();
   if (user?.role === 'customer') return <Navigate to="/orders" replace />;
   return children;
 }
 
+// ── Keep-alive ────────────────────────────────────────────────────────────
+// Render free tier sleeps after 15 min of inactivity. Ping /health every
+// 10 min so the server stays warm while anyone has the tab open.
+function useKeepAlive() {
+  useEffect(() => {
+    const ping = () => fetch('/api/health').catch(() => {});
+    const id = setInterval(ping, 10 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+}
+
+// ── App ───────────────────────────────────────────────────────────────────
 export default function App() {
   const { loading } = useAuth();
+  const [showWakeUp, setShowWakeUp] = useState(false);
   useRegisterSW();
+  useKeepAlive();
 
-  if (loading) return <div className="login-shell"><div className="login-card">טוען…</div></div>;
+  // After 2.5 s of auth loading, assume cold start and show the branded overlay.
+  useEffect(() => {
+    if (!loading) { setShowWakeUp(false); return; }
+    const t = setTimeout(() => setShowWakeUp(true), 2500);
+    return () => clearTimeout(t);
+  }, [loading]);
+
+  if (loading) return showWakeUp ? <WakeUpOverlay /> : <PageFallback />;
 
   return (
     <>
-    <ScrollToTop />
-    <ErrorBoundary>
-    <Routes>
-      {/* Public */}
-      <Route path="/" element={<Storefront />} />
-      <Route path="/shop" element={<Storefront />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/track" element={<RepairTracker />} />
+      <ScrollToTop />
+      <ErrorBoundary>
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            {/* Public */}
+            <Route path="/"      element={<Storefront />} />
+            <Route path="/shop"  element={<Storefront />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/track" element={<RepairTracker />} />
 
-      {/* Authenticated */}
-      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route path="/dashboard" element={<StaffOnlyRoute><Dashboard /></StaffOnlyRoute>} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/products" element={<StaffOnlyRoute><Products /></StaffOnlyRoute>} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/repairs" element={<StaffOnlyRoute><Repairs /></StaffOnlyRoute>} />
-        <Route path="/customers" element={<StaffOnlyRoute><CustomersPage /></StaffOnlyRoute>} />
-        <Route path="/suppliers" element={<StaffOnlyRoute><SuppliersPage /></StaffOnlyRoute>} />
-        <Route path="/users" element={<StaffOnlyRoute><UsersPage /></StaffOnlyRoute>} />
-        <Route path="/settings" element={<StaffOnlyRoute><SettingsPage /></StaffOnlyRoute>} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-    </ErrorBoundary>
+            {/* Authenticated */}
+            <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route path="/dashboard" element={<StaffOnlyRoute><Dashboard /></StaffOnlyRoute>} />
+              <Route path="/profile"   element={<Profile />} />
+              <Route path="/products"  element={<StaffOnlyRoute><Products /></StaffOnlyRoute>} />
+              <Route path="/orders"    element={<Orders />} />
+              <Route path="/repairs"   element={<StaffOnlyRoute><Repairs /></StaffOnlyRoute>} />
+              <Route path="/customers" element={<StaffOnlyRoute><CustomersPage /></StaffOnlyRoute>} />
+              <Route path="/suppliers" element={<StaffOnlyRoute><SuppliersPage /></StaffOnlyRoute>} />
+              <Route path="/users"     element={<StaffOnlyRoute><UsersPage /></StaffOnlyRoute>} />
+              <Route path="/settings"  element={<StaffOnlyRoute><SettingsPage /></StaffOnlyRoute>} />
+            </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </>
   );
 }

@@ -59,6 +59,17 @@ app.use(
   }),
 );
 
+// Stricter rate limit for auth endpoints — brute-force protection
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many attempts. Please try again in 15 minutes.' },
+});
+app.use('/api/auth/login',  authLimiter);
+app.use('/api/auth/google', authLimiter);
+
 app.get('/health', (_req, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
 if (env.NODE_ENV !== 'production') {
