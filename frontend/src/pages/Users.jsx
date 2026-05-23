@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { fetchAllUsers, registerEmployeeUser, updateUser } from '../api/auth.api.js';
 import { logError } from '../api/logger.js';
 
-const ROLES = ['admin', 'employee'];
+const ROLES      = ['admin', 'employee'];
+const EDIT_ROLES = ['admin', 'employee', 'customer'];
 const ALL_FILTER_ROLES = ['admin', 'employee', 'customer'];
 const ROLE_LABEL = { admin: 'מנהל', employee: 'עובד', customer: 'לקוח', manager: 'מנהל', salesperson: 'מוכר', technician: 'טכנאי' };
 
@@ -57,7 +58,7 @@ function AddUserInline({ onClose, onAdded }) {
             </select>
           </div>
         </div>
-        {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
+        {error && <div style={{ color: 'var(--brand-primary)', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
         <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
           <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
             {saving ? 'יוצר...' : 'צור עובד'}
@@ -69,7 +70,7 @@ function AddUserInline({ onClose, onAdded }) {
   );
 }
 
-// ── Edit role overlay modal ───────────────────────────────────────────────
+// ── Edit role modal ───────────────────────────────────────────────────────
 function EditRoleModal({ user, onClose, onUpdated }) {
   const [role, setRole]     = useState(user.role);
   const [saving, setSaving] = useState(false);
@@ -99,9 +100,9 @@ function EditRoleModal({ user, onClose, onUpdated }) {
         <form onSubmit={handleSubmit}>
           <label style={lbl}>תפקיד</label>
           <select value={role} onChange={(e) => setRole(e.target.value)} style={{ ...inp, marginBottom: 20 }}>
-            {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+            {EDIT_ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
           </select>
-          {error && <div style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>⚠ {error}</div>}
+          {error && <div style={{ color: 'var(--brand-primary)', fontSize: 13, marginBottom: 12 }}>⚠ {error}</div>}
           <div style={{ display: 'flex', gap: 10 }}>
             <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
               {saving ? 'שומר...' : 'שמור'}
@@ -110,6 +111,27 @@ function EditRoleModal({ user, onClose, onUpdated }) {
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+// ── User card (mobile) ────────────────────────────────────────────────────
+function UserCard({ user, onEdit }) {
+  return (
+    <div className="card" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 2 }}>{user.name}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span className={`badge ${user.role === 'admin' ? 'warning' : 'info'}`}>
+            {ROLE_LABEL[user.role] || user.role}
+          </span>
+          {user.phone && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{user.phone}</span>}
+        </div>
+      </div>
+      <button className="btn-ghost" onClick={() => onEdit(user)} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+        ערוך תפקיד
+      </button>
     </div>
   );
 }
@@ -153,7 +175,8 @@ export default function UsersPage() {
         />
       )}
 
-      <div className="table-wrap">
+      {/* Desktop table */}
+      <div className="table-wrap users-table-wrap">
         <table>
           <thead>
             <tr>
@@ -190,6 +213,21 @@ export default function UsersPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="users-card-list">
+        {loading ? (
+          <div className="muted" style={{ textAlign: 'center', padding: 24 }}>{t('common.loading')}</div>
+        ) : visible.length === 0 ? (
+          <div className="muted" style={{ textAlign: 'center', padding: 24 }}>{t('common.noData')}</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {visible.map((user) => (
+              <UserCard key={user._id} user={user} onEdit={setEditUser} />
+            ))}
+          </div>
+        )}
       </div>
 
       {editUser && (

@@ -576,6 +576,7 @@ table {
 }
 
 .table-wrap { @extend .card; padding: 0; overflow: hidden; }
+.users-card-list { display: none; }
 
 // ── Badges ────────────────────────────────────────────────────────────────
 
@@ -757,6 +758,10 @@ table {
   // POS — single column stack
   .pos { grid-template-columns: 1fr; height: auto; }
   .pos-right { overflow-y: visible; }
+
+  // Users — show card list, hide table
+  .users-table-wrap { display: none; }
+  .users-card-list  { display: block; }
 
   // Storefront footer — stack vertically
   .shop-footer { flex-direction: column; gap: 10px; text-align: center; }
