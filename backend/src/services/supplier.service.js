@@ -4,7 +4,6 @@ const Product = require('../models/Product');
 const AuditLog = require('../models/AuditLog');
 const ApiError = require('../utils/ApiError');
 const { paginate, escapeRegex } = require('../utils/pagination');
-const productService = require('./product.service');
 
 function genPONumber() {
   const now = new Date();
@@ -109,10 +108,6 @@ async function receivePO(id, receivedItems, user, io) {
     const toReceive = Math.min(recv.quantity, remaining);
     if (toReceive <= 0) continue;
     line.receivedQuantity += toReceive;
-    await productService.adjustStock({
-      productId: line.productId, branchId: po.branchId, delta: toReceive,
-      type: 'purchase', refType: 'PurchaseOrder', refId: po._id, performedBy: user.id, io,
-    });
   }
   for (const line of po.items) {
     if (line.receivedQuantity < line.quantity) allReceived = false;
