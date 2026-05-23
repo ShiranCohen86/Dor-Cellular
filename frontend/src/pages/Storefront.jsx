@@ -93,7 +93,9 @@ export default function Storefront() {
   const [addedIds, setAddedIds] = useState({});
 
   // ── Cart state ────────────────────────────────────────────────
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('dor_cart') || '[]'); } catch { return []; }
+  });
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [contactPhone, setContactPhone] = useState('');
@@ -101,6 +103,7 @@ export default function Storefront() {
   const [ordering, setOrdering] = useState(false);
   const [orderDone, setOrderDone] = useState(null);
   const [orderError, setOrderError] = useState(null);
+  const [orderWaUrl, setOrderWaUrl] = useState(null);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartTotal = cart.reduce((s, i) => s + i.salePrice * i.qty, 0);
@@ -149,9 +152,14 @@ export default function Storefront() {
         items: cart.map((i) => ({ productId: i._id, quantity: i.qty })),
         notes: notes || undefined,
       });
+      if (storeWhatsApp) {
+        const lines = cart.map(i => `• ${i.name} ×${i.qty} — ₪${i.salePrice * i.qty}`).join('\n');
+        const total = cart.reduce((s, i) => s + i.salePrice * i.qty, 0);
+        const msg = `שלום! ביצעתי הזמנה:\n${lines}\nסה"כ: ₪${total}`;
+        setOrderWaUrl(`https://wa.me/${storeWhatsApp}?text=${encodeURIComponent(msg)}`);
+      }
       setOrderDone(result);
       setCart([]);
-      setCheckoutOpen(false);
       dispatch(invalidateOrdersCache());
     } catch (err) {
       setOrderError(err.message || 'שגיאה ביצירת ההזמנה');
@@ -202,6 +210,10 @@ export default function Storefront() {
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('dor_cart', JSON.stringify(cart));
+  }, [cart]);
 
   const handleCategoriesOpen = useCallback(() => {
     chipsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -481,7 +493,7 @@ export default function Storefront() {
                     </select>
                   )}
                   {storageOptions.length > 0 && isMobile && storageInOverflow && (
-                    <div className="filter-more-wrap" ref={selectsMoreRef}>
+                    <div className="filter-more-wrap" ref={selectsMoreRef} style={{ marginInlineStart: 'auto' }}>
                       <button
                         className={`chip${storageFilter ? ' chip--active' : ''}`}
                         onClick={() => setShowSelectsMore(s => !s)}>
@@ -568,9 +580,9 @@ export default function Storefront() {
                     </div>
                     {inCart ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
-                        <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1 }}>−</button>
+                        <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1, color: 'var(--text)' }}>−</button>
                         <span style={{ fontWeight: 700, minWidth: 24, textAlign: 'center', fontSize: 15 }}>{inCart.qty}</span>
-                        <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1 }}>+</button>
+                        <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1, color: 'var(--text)' }}>+</button>
                       </div>
                     ) : (
                       <button
@@ -626,9 +638,9 @@ export default function Storefront() {
                       <div style={{ color: 'var(--brand-primary)', fontWeight: 700, marginTop: 2 }}>₪{(item.salePrice * item.qty).toLocaleString('he-IL')}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer' }}>−</button>
+                      <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontWeight: 700, fontSize: 16, lineHeight: 1, color: 'var(--text)' }}>−</button>
                       <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{item.qty}</span>
-                      <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer' }}>+</button>
+                      <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontWeight: 700, fontSize: 16, lineHeight: 1, color: 'var(--text)' }}>+</button>
                     </div>
                   </div>
                 ))
@@ -658,6 +670,9 @@ export default function Storefront() {
                     >התחבר והזמן</button>
                   </div>
                 )}
+                <button className="btn-secondary" style={{ width: '100%', marginTop: 8, padding: '10px 0', fontSize: 14 }} onClick={() => setCartOpen(false)}>
+                  המשך לקנות
+                </button>
               </div>
             )}
           </div>
@@ -706,36 +721,38 @@ export default function Storefront() {
               )}
             </div>
 
-            {/* Info */}
-            <div className="muted" style={{ fontSize: 12, marginBottom: 4 }}>{quickView.brand}</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>{quickView.name}</h2>
+            <div className="quick-view__body">
+              {/* Info */}
+              <div className="muted" style={{ fontSize: 12, marginBottom: 4 }}>{quickView.brand}</div>
+              <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>{quickView.name}</h2>
 
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-              {quickView.storageGB && <span className="badge">{quickView.storageGB}GB</span>}
-              {quickView.color     && <span className="badge">{quickView.color}</span>}
-              {quickView.model     && <span className="badge">{quickView.model}</span>}
-            </div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {quickView.storageGB && <span className="badge">{quickView.storageGB}GB</span>}
+                {quickView.color     && <span className="badge">{quickView.color}</span>}
+                {quickView.model     && <span className="badge">{quickView.model}</span>}
+              </div>
 
-            {quickView.description && (
-              <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 16 }}>{quickView.description}</p>
-            )}
+              {quickView.description && (
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 16 }}>{quickView.description}</p>
+              )}
 
-            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand-primary)', marginBottom: 18 }}>
-              ₪{quickView.salePrice?.toLocaleString('he-IL')}
-            </div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--brand-primary)', marginBottom: 18 }}>
+                ₪{quickView.salePrice?.toLocaleString('he-IL')}
+              </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => { addToCart(quickView); setQuickView(null); }}
-                style={{ flex: 1, padding: '12px 0', fontSize: 15, fontWeight: 700 }}
-              >
-                + הוסף לעגלה
-              </button>
-              <button
-                onClick={() => shareProduct(quickView)}
-                title="שתף ב-WhatsApp"
-                style={{ padding: '12px 16px', background: '#25d366', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 700 }}
-              >↑ שתף</button>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => { addToCart(quickView); setQuickView(null); }}
+                  style={{ flex: 1, padding: '12px 0', fontSize: 15, fontWeight: 700 }}
+                >
+                  + הוסף לעגלה
+                </button>
+                <button
+                  onClick={() => shareProduct(quickView)}
+                  title="שתף ב-WhatsApp"
+                  style={{ padding: '12px 16px', background: '#25d366', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 700 }}
+                >↑ שתף</button>
+              </div>
             </div>
           </div>
         </div>
@@ -744,14 +761,19 @@ export default function Storefront() {
       {/* ── Checkout Modal ── */}
       {checkoutOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={() => { if (!ordering) { setCheckoutOpen(false); setOrderError(null); } }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={() => { if (!ordering) { setCheckoutOpen(false); setOrderError(null); setOrderDone(null); setOrderWaUrl(null); } }} />
           <div className="card" style={{ position: 'relative', width: 420, padding: 28 }}>
             {orderDone ? (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
                 <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>ההזמנה נקלטה!</div>
                 <div className="muted">מספר הזמנה: <strong>{orderDone.orderNumber || orderDone._id}</strong></div>
-                <button onClick={() => { setCheckoutOpen(false); setOrderDone(null); }} style={{ marginTop: 20, padding: '10px 32px' }}>סגור</button>
+                {orderWaUrl && (
+                  <a href={orderWaUrl} target="_blank" rel="noopener noreferrer" className="wa-btn" style={{ marginTop: 16, display: 'inline-flex' }}>
+                    📱 שלח אישור ב-WhatsApp
+                  </a>
+                )}
+                <button onClick={() => { setCheckoutOpen(false); setOrderDone(null); setOrderWaUrl(null); }} style={{ marginTop: 12, padding: '10px 32px', display: 'block', width: '100%' }}>סגור</button>
               </div>
             ) : (
               <>

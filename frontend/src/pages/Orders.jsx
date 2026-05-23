@@ -29,6 +29,7 @@ export default function Orders() {
   const [filter,   setFilter]   = useState(currentUser?.role === 'admin' ? 'all' : 'new');
   const [handled,  setHandled]  = useState(loadHandled);
   const [sortDir,  setSortDir]  = useState('desc');
+  const [dateFilter, setDateFilter] = useState('all');
 
   // Show "my orders" tab for staff users who also have a customer record
   const showMyOrders = currentUser?.role !== 'customer' && !!currentUser?.customerId;
@@ -37,6 +38,13 @@ export default function Orders() {
     : BASE_FILTERS;
 
   useEffect(() => { dispatch(loadOrdersIfStale()); }, [dispatch]);
+
+  function isToday(dateStr) {
+    if (!dateStr) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(dateStr) >= today;
+  }
 
   function toggleHandled(id) {
     setHandled((prev) => {
@@ -57,12 +65,19 @@ export default function Orders() {
       list = orders.filter((o) => String(o.customerId?._id ?? o.customerId) === myId);
     } else if (filter === 'new')     { list = orders.filter((o) => !isHandled(o)); }
     else if (filter === 'handled')   { list = orders.filter((o) =>  isHandled(o)); }
+    if (dateFilter === 'today') {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      list = list.filter(o => new Date(o.createdAt) >= today);
+    } else if (dateFilter === 'week') {
+      const week = new Date(); week.setDate(week.getDate() - 7); week.setHours(0, 0, 0, 0);
+      list = list.filter(o => new Date(o.createdAt) >= week);
+    }
     list = [...list].sort((a, b) => {
       const diff = new Date(b.createdAt) - new Date(a.createdAt);
       return sortDir === 'desc' ? diff : -diff;
     });
     return list;
-  }, [orders, handled, filter, currentUser, sortDir]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orders, handled, filter, currentUser, sortDir, dateFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const emptyMsg = filter === 'new' ? 'אין הזמנות פתוחות 🎉' : 'אין הזמנות להציג';
 
@@ -74,8 +89,12 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Filter chips + sort */}
+      {/* Date + status filter chips + sort */}
       <div className="toolbar">
+        <button onClick={() => setDateFilter('all')} className={dateFilter === 'all' ? '' : 'btn-secondary'} style={{ fontSize: 13 }}>כל הזמנים</button>
+        <button onClick={() => setDateFilter('today')} className={dateFilter === 'today' ? '' : 'btn-secondary'} style={{ fontSize: 13 }}>היום</button>
+        <button onClick={() => setDateFilter('week')} className={dateFilter === 'week' ? '' : 'btn-secondary'} style={{ fontSize: 13 }}>השבוע</button>
+        <div style={{ width: 1, height: 20, background: 'var(--border)', alignSelf: 'center', flexShrink: 0 }} />
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -115,7 +134,7 @@ export default function Orders() {
             const done   = isHandled(order);
 
             return (
-              <div key={order._id} className={`order-card${done ? ' order-card--done' : ''}`}>
+              <div key={order._id} className={`order-card${done ? ' order-card--done' : ''}${isToday(order.createdAt) && !done ? ' order-card--today' : ''}`}>
                 <div className="order-card__row">
                   {/* Info */}
                   <div className="order-card__info">
@@ -146,7 +165,7 @@ export default function Orders() {
 
                   {/* Actions */}
                   <div className="order-card__actions">
-                    {waLink && (
+                    {waLink && !done && (
                       <a href={waLink} target="_blank" rel="noopener noreferrer" className="wa-btn">
                         📱 WhatsApp
                       </a>

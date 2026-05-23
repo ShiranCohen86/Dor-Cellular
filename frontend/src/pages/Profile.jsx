@@ -7,6 +7,7 @@
  * (no need to cache it in the store).
  */
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, updateProfile } from '../store/slices/authSlice.js';
@@ -16,6 +17,7 @@ import { logError } from '../api/logger.js';
 
 export default function Profile() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser);
   const orders = useSelector(selectAllOrders);
@@ -89,7 +91,7 @@ export default function Profile() {
     <div className="page">
       <div className="card" style={{ padding: '18px 20px' }}>
         <h2 style={{ marginTop: 0, marginBottom: 14 }}>{t('profile.title')}</h2>
-        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 14 }}>
           <div>
             <span className="muted" style={{ fontSize: 12 }}>{t('common.email')}</span>
             <div><strong>{currentUser.email}</strong></div>
@@ -102,8 +104,8 @@ export default function Profile() {
       </div>
 
       {isCustomer && myOrders.length > 0 && (
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>הזמנות שלי</h3>
+        <div className="card" style={{ cursor: 'pointer' }} onClick={() => navigate('/orders')} role="link" tabIndex={0}>
+          <h3 style={{ marginTop: 0 }}>הזמנות שלי ←</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {myOrders.slice(0, 10).map(order => {
               const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
