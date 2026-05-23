@@ -33,7 +33,8 @@ export default function SettingsPage() {
     address:  storeInfo.address  || '',
     email:    storeInfo.email    || '',
   });
-  const [saved, setSaved]   = useState(false);
+  const [saved, setSaved]     = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [waError, setWaError] = useState(null);
 
   const setField = (field) => (e) => {
@@ -43,16 +44,19 @@ export default function SettingsPage() {
 
   async function handleSave(e) {
     e.preventDefault();
+    setSaveError(null);
     if (form.whatsapp && !isValidILWhatsApp(form.whatsapp)) {
       setWaError('פורמט לא תקין — קבל: 050-1234567 / 0501234567 / +972-50-1234567');
       return;
     }
     dispatch(setStoreInfo({ ...form, whatsapp: normalizeILWhatsApp(form.whatsapp) }));
-    if (form.email) {
-      httpClient.patch('/settings', { ownerEmail: form.email }).catch(() => {});
+    try {
+      await httpClient.patch('/settings', { ownerEmail: form.email || '' });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      setSaveError('שגיאה בשמירת המייל — נסה שוב');
     }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   }
 
   const waPreview = form.whatsapp ? normalizeILWhatsApp(form.whatsapp) : null;
@@ -108,7 +112,8 @@ export default function SettingsPage() {
               <label style={lbl}>מייל לקבלת הזמנות</label>
               <input value={form.email} onChange={setField('email')} style={inp} placeholder="owner@example.com" type="email" />
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                התראות על הזמנות חדשות יישלחו לכתובת זו
+                התראות על הזמנות חדשות יישלחו לכתובת זו.{' '}
+                <span style={{ color: '#f59e0b' }}>כרגע נשלח רק ל-shiranc86@gmail.com (מגבלת Resend Free)</span>
               </div>
             </div>
           </div>
@@ -116,6 +121,7 @@ export default function SettingsPage() {
           <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 14 }}>
             <button type="submit" style={{ padding: '10px 28px', fontWeight: 700 }}>שמור פרטים</button>
             {saved && <span style={{ color: '#16a34a', fontSize: 14, fontWeight: 600 }}>✓ נשמר!</span>}
+            {saveError && <span style={{ color: '#ef4444', fontSize: 13 }}>⚠ {saveError}</span>}
           </div>
         </form>
       </div>
