@@ -130,23 +130,13 @@ export default function TopBar({
               >
                 {currentLanguage === 'he' ? 'EN' : 'עב'}
               </button>
-              {currentUser ? (
-                <Link
-                  to={profileTarget}
-                  className="btn-ghost"
-                  style={{ padding: '6px 9px', display: 'flex', alignItems: 'center' }}
-                  title={t('nav.profile')}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </Link>
-              ) : (
-                <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
-              )}
+              <Link
+                to={currentUser ? profileTarget : '/login'}
+                className="btn-ghost"
+                style={{ padding: '6px 10px', fontSize: 13 }}
+              >
+                {t('nav.profile')}
+              </Link>
             </div>
           </>
         )}
