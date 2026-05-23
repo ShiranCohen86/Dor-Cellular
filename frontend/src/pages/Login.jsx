@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -27,6 +27,7 @@ export default function Login() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate  = useNavigate();
+  const [searchParams] = useSearchParams();
   const authError     = useSelector(selectAuthError);
   const authStatus    = useSelector(selectAuthStatus);
   const currentUser   = useSelector(selectCurrentUser);
@@ -39,7 +40,12 @@ export default function Login() {
 
   const googleInitialized = useRef(false);
 
-  useEffect(() => { if (currentUser) navigate('/dashboard'); }, [currentUser, navigate]);
+  useEffect(() => {
+    if (currentUser) {
+      const redirect = searchParams.get('redirect');
+      navigate(redirect || '/dashboard', { replace: true });
+    }
+  }, [currentUser, navigate, searchParams]);
   useEffect(() => { if (authError) dispatch(clearAuthError()); }, [emailInput, passwordInput]); // eslint-disable-line
   // Clean up ALL GIS-injected elements when Login unmounts (fallback for any navigation path)
   useEffect(() => () => {
@@ -61,7 +67,8 @@ export default function Login() {
         // Full page navigation resets all browser state cleanly — the token is already
         // in localStorage so the app bootstraps straight to the dashboard.
         window.google?.accounts?.id?.cancel?.();
-        window.location.replace('/dashboard');
+        const redirect = new URLSearchParams(window.location.search).get('redirect');
+        window.location.replace(redirect || '/dashboard');
       } else setGoogleError(result.payload || 'שגיאה בהתחברות עם Google');
     } finally {
       setGoogleLoading(false);

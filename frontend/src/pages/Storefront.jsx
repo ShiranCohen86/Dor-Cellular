@@ -117,6 +117,11 @@ export default function Storefront() {
   }
 
   async function placeOrder() {
+    if (!currentUser) {
+      sessionStorage.setItem('pendingCart', JSON.stringify(cart));
+      navigate('/login?redirect=/');
+      return;
+    }
     setOrdering(true);
     setOrderError(null);
     try {
@@ -135,6 +140,21 @@ export default function Storefront() {
     }
   }
   // ─────────────────────────────────────────────────────────────
+
+  // Restore cart saved before login redirect
+  useEffect(() => {
+    if (!currentUser) return;
+    const saved = sessionStorage.getItem('pendingCart');
+    if (!saved) return;
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length) {
+        setCart(parsed);
+        setCartOpen(true);
+      }
+    } catch {}
+    sessionStorage.removeItem('pendingCart');
+  }, [currentUser]);
 
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape') setQuickView(null); }
@@ -360,9 +380,14 @@ export default function Storefront() {
                 ) : (
                   <div style={{ textAlign: 'center' }}>
                     <div className="muted" style={{ fontSize: 13, marginBottom: 10 }}>יש להתחבר כדי להזמין</div>
-                    <Link to="/login" onClick={() => setCartOpen(false)}>
-                      <button style={{ width: '100%', padding: '12px 0' }}>התחבר והזמן</button>
-                    </Link>
+                    <button
+                      style={{ width: '100%', padding: '12px 0' }}
+                      onClick={() => {
+                        sessionStorage.setItem('pendingCart', JSON.stringify(cart));
+                        setCartOpen(false);
+                        navigate('/login?redirect=/');
+                      }}
+                    >התחבר והזמן</button>
                   </div>
                 )}
               </div>

@@ -11,7 +11,7 @@ async function authenticate(req, _res, next) {
     const payload = jwt.verify(token, env.JWT_SECRET);
     const user = await User.findById(payload.sub).lean();
     if (!user || !user.isActive) throw ApiError.unauthorized('Invalid user');
-    req.user = { id: String(user._id), role: user.role, branchId: user.branchId, name: user.name };
+    req.user = { id: String(user._id), role: user.role, branchId: user.branchId, name: user.name, email: user.email, phone: user.phone, customerId: user.customerId };
     next();
   } catch (err) {
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {

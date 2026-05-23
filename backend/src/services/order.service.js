@@ -68,6 +68,18 @@ async function getById(id) {
 // Create a sales order. Decrements stock per item, attaches payments and tradeIn.
 async function create(data, user, io) {
   if (!data.items?.length) throw ApiError.badRequest('At least one item is required');
+
+  // For customer-role users: resolve or create their Customer record so the order is linkable
+  if (user.role === 'customer' && !data.customerId) {
+    if (user.customerId) {
+      data.customerId = user.customerId;
+    } else if (user.email) {
+      let customer = await Customer.findOne({ email: user.email });
+      if (!customer) customer = await Customer.create({ name: user.name, phone: user.phone || '', email: user.email });
+      data.customerId = customer._id;
+    }
+  }
+
   const session = await mongoose.startSession();
   let saved;
   try {
