@@ -112,8 +112,7 @@ export default function SettingsPage() {
               <label style={lbl}>מייל לקבלת הזמנות</label>
               <input value={form.email} onChange={setField('email')} style={inp} placeholder="owner@example.com" type="email" />
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                התראות על הזמנות חדשות יישלחו לכתובת זו.{' '}
-                <span style={{ color: '#f59e0b' }}>כרגע נשלח רק ל-shiranc86@gmail.com (מגבלת Resend Free)</span>
+                התראות על הזמנות חדשות יישלחו לכתובת זו
               </div>
             </div>
           </div>
