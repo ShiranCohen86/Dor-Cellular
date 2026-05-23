@@ -7,13 +7,13 @@ const ROLES = ['admin', 'employee'];
 const ROLE_LABEL = { admin: 'מנהל', employee: 'עובד', manager: 'מנהל', salesperson: 'מוכר', technician: 'טכנאי' };
 
 const lbl = { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
-const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit' };
+const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' };
 
-function AddUserModal({ onClose, onAdded }) {
+// ── Inline "add user" form ────────────────────────────────────────────────
+function AddUserInline({ onClose, onAdded }) {
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'employee' });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState(null);
-
   const set = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
 
   async function handleSubmit(e) {
@@ -30,50 +30,45 @@ function AddUserModal({ onClose, onAdded }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 'min(420px, 92vw)', padding: 28 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <strong style={{ fontSize: 17 }}>+ הוסף עובד</strong>
-          <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gap: 16 }}>
-            <div>
-              <label style={lbl}>שם מלא *</label>
-              <input value={form.name} onChange={set('name')} required style={inp} autoFocus />
-            </div>
-            <div>
-              <label style={lbl}>כתובת מייל *</label>
-              <input value={form.email} onChange={set('email')} required type="email" style={inp} />
-            </div>
-            <div>
-              <label style={lbl}>סיסמה *</label>
-              <input value={form.password} onChange={set('password')} required type="password" minLength={6} style={inp} />
-            </div>
-            <div>
-              <label style={lbl}>תפקיד *</label>
-              <select value={form.role} onChange={set('role')} style={inp}>
-                {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
-
-          <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-            <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
-              {saving ? 'יוצר...' : 'צור עובד'}
-            </button>
-            <button type="button" className="btn-secondary" onClick={onClose} style={{ flex: 1, padding: '11px 0' }}>ביטול</button>
-          </div>
-        </form>
+    <div className="card" style={{ padding: '20px 20px 24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+        <strong style={{ fontSize: 16 }}>+ הוסף עובד</strong>
+        <button type="button" className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
       </div>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+          <div>
+            <label style={lbl}>שם מלא *</label>
+            <input value={form.name} onChange={set('name')} required style={inp} autoFocus />
+          </div>
+          <div>
+            <label style={lbl}>כתובת מייל *</label>
+            <input value={form.email} onChange={set('email')} required type="email" style={inp} />
+          </div>
+          <div>
+            <label style={lbl}>סיסמה *</label>
+            <input value={form.password} onChange={set('password')} required type="password" minLength={6} style={inp} />
+          </div>
+          <div>
+            <label style={lbl}>תפקיד *</label>
+            <select value={form.role} onChange={set('role')} style={inp}>
+              {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+            </select>
+          </div>
+        </div>
+        {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
+        <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+          <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
+            {saving ? 'יוצר...' : 'צור עובד'}
+          </button>
+          <button type="button" className="btn-secondary" onClick={onClose} style={{ flex: 1, padding: '11px 0' }}>ביטול</button>
+        </div>
+      </form>
     </div>
   );
 }
 
+// ── Edit role overlay modal ───────────────────────────────────────────────
 function EditRoleModal({ user, onClose, onUpdated }) {
   const [role, setRole]     = useState(user.role);
   const [saving, setSaving] = useState(false);
@@ -100,15 +95,12 @@ function EditRoleModal({ user, onClose, onUpdated }) {
           <strong style={{ fontSize: 17 }}>שינוי תפקיד — {user.name}</strong>
           <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
         </div>
-
         <form onSubmit={handleSubmit}>
           <label style={lbl}>תפקיד</label>
           <select value={role} onChange={(e) => setRole(e.target.value)} style={{ ...inp, marginBottom: 20 }}>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
           </select>
-
           {error && <div style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>⚠ {error}</div>}
-
           <div style={{ display: 'flex', gap: 10 }}>
             <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
               {saving ? 'שומר...' : 'שמור'}
@@ -123,11 +115,11 @@ function EditRoleModal({ user, onClose, onUpdated }) {
 
 export default function UsersPage() {
   const { t } = useTranslation();
-  const [users, setUsers]       = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [users, setUsers]         = useState([]);
+  const [loading, setLoading]     = useState(true);
   const [filterRole, setFilterRole] = useState('');
-  const [showAdd, setShowAdd]   = useState(false);
-  const [editUser, setEditUser] = useState(null);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [editUser, setEditUser]   = useState(null);
 
   async function loadUsers() {
     try {
@@ -150,8 +142,15 @@ export default function UsersPage() {
           {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
         </select>
         <div className="spacer-flex" />
-        <button onClick={() => setShowAdd(true)}>+ הוסף עובד</button>
+        <button onClick={() => setShowNewForm(true)} disabled={showNewForm}>+ הוסף עובד</button>
       </div>
+
+      {showNewForm && (
+        <AddUserInline
+          onClose={() => setShowNewForm(false)}
+          onAdded={loadUsers}
+        />
+      )}
 
       <div className="table-wrap">
         <table>
@@ -191,13 +190,6 @@ export default function UsersPage() {
           </tbody>
         </table>
       </div>
-
-      {showAdd && (
-        <AddUserModal
-          onClose={() => setShowAdd(false)}
-          onAdded={loadUsers}
-        />
-      )}
 
       {editUser && (
         <EditRoleModal

@@ -138,7 +138,7 @@ input, select, textarea {
   overflow: hidden;
 
   background:
-    radial-gradient(ellipse 140% 28% at 50% 0%, rgba(139,92,246,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 140% 28% at 50% 0%, rgba(212,31,31,.15) 0%, transparent 60%),
     var(--sidebar-bg);
 
   border-inline-end: 1px solid rgba(255,255,255,.06);
@@ -202,7 +202,7 @@ input, select, textarea {
     }
 
     &.active {
-      background: rgba(139,92,246,.16);
+      background: rgba(212,31,31,.16);
       color: var(--nav-active-color);
       font-weight: 600;
       padding-inline-start: 16px;
@@ -503,7 +503,7 @@ table {
 .badge.success { background: rgba(52,211,153,.12); color: #6ee7b7; border-color: rgba(52,211,153,.2); }
 .badge.warning { background: rgba(245,158,11,.12); color: #fcd34d; border-color: rgba(245,158,11,.22); }
 .badge.danger  { background: rgba(239,68,68,.12);  color: #fca5a5; border-color: rgba(239,68,68,.22); animation: badge-pulse 2.5s ease-in-out infinite; }
-.badge.info    { background: rgba(99,102,241,.14); color: #a5b4fc; border-color: rgba(99,102,241,.22); }
+.badge.info    { background: rgba(6,182,212,.14);  color: #67e8f9; border-color: rgba(6,182,212,.22); }
 
 // ── Forms ─────────────────────────────────────────────────────────────────
 
@@ -741,16 +741,17 @@ table {
 .shop { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
 
 .shop-nav {
-  background: rgba(7,7,26,.9);
+  background: rgba(10,0,0,.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(139,92,246,.15);
+  border-bottom: 1px solid rgba(212,31,31,.15);
   padding: 12px 24px;
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 10;
 
   &__brand { font-size: 21px; font-weight: 800; letter-spacing: -.4px; color: var(--brand-accent); a { color: inherit; text-decoration: none; } }
   &__actions { display: flex; align-items: center; gap: 8px; }
+  &__mobile-only { display: none; }
   &__link {
     padding: 7px 12px; border-radius: $radius; color: var(--text-muted); font-size: 13px; font-weight: 500;
     transition: background .18s ease, color .18s ease;
@@ -763,14 +764,14 @@ table {
   min-height: 560px;
   display: flex; align-items: center; justify-content: center; text-align: center;
   overflow: hidden;
-  background: linear-gradient(150deg, #06041a 0%, #150a40 25%, #3d1480 55%, #7c3aed 80%, #8b5cf6 100%);
+  background: linear-gradient(150deg, #0d0000 0%, #1a0505 25%, #4a0808 55%, #8b1010 80%, #b01515 100%);
   color: #fff;
 
   &::before {
     content: ''; position: absolute; inset: 0;
     background-image:
-      linear-gradient(rgba(139,92,246,.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(139,92,246,.07) 1px, transparent 1px);
+      linear-gradient(rgba(212,31,31,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,31,31,.07) 1px, transparent 1px);
     background-size: 48px 48px;
     pointer-events: none;
   }
@@ -778,8 +779,8 @@ table {
   &::after {
     content: ''; position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 65% 50% at 15% 65%, rgba(139,92,246,.28) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 45% at 88% 30%, rgba(167,85,247,.2) 0%, transparent 55%),
+      radial-gradient(ellipse 65% 50% at 15% 65%, rgba(212,31,31,.28) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 45% at 88% 30%, rgba(180,30,30,.2) 0%, transparent 55%),
       radial-gradient(ellipse 40% 30% at 50% 110%, rgba(245,158,11,.12) 0%, transparent 50%);
     pointer-events: none;
   }
@@ -803,9 +804,9 @@ table {
   h1 {
     font-size: clamp(34px, 7vw, 66px); font-weight: 900; line-height: 1.05;
     margin: 0 0 12px; letter-spacing: -1.5px;
-    background: linear-gradient(135deg, #fff 30%, #ddd6fe 65%, #c4b5fd 100%);
+    background: linear-gradient(135deg, #fff 30%, #fecaca 65%, #f87171 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    filter: drop-shadow(0 4px 24px rgba(139,92,246,.4));
+    filter: drop-shadow(0 4px 24px rgba(212,31,31,.4));
   }
 
   &__subtitle { font-size: clamp(14px, 2vw, 17px); opacity: .75; margin: 0 0 30px; font-weight: 400; line-height: 1.6; }
@@ -817,7 +818,7 @@ table {
       background: rgba(255,255,255,.96); color: #0f172a;
       box-shadow: 0 8px 48px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
       transition: box-shadow .2s ease;
-      &:focus { outline: none; box-shadow: 0 8px 48px rgba(0,0,0,.35), 0 0 0 3px rgba(139,92,246,.6); }
+      &:focus { outline: none; box-shadow: 0 8px 48px rgba(0,0,0,.35), 0 0 0 3px rgba(212,31,31,.6); }
       &::placeholder { color: #94a3b8; }
     }
   }
@@ -833,7 +834,7 @@ table {
     display: inline-flex; align-items: center; gap: 5px; direction: ltr;
     color: rgba(255,255,255,.88); text-decoration: none; font-weight: 600;
     transition: color .18s ease;
-    &:hover { color: #ddd6fe; text-decoration: none; }
+    &:hover { color: #fca5a5; text-decoration: none; }
   }
 
   &__stats {
@@ -923,10 +924,12 @@ table {
   .shop-main { padding: 16px; }
 
   // Collapse less-important nav items on small screens
-  .shop-nav__link    { display: none; }   // hide "האזור האישי"
-  .shop-nav__lang    { display: none; }   // hide language toggle (less critical)
-  .shop-nav__cart-label { display: none; } // cart shows icon only
-  .shop-nav__logout  { font-size: 12px; padding: 6px 10px; } // shrink logout
+  .shop-nav__link         { display: none; }  // hide "האזור האישי"
+  .shop-nav__lang         { display: none; }  // hide language toggle
+  .shop-nav__cart-label   { display: none; }  // cart shows icon only
+  .shop-nav__desktop-text { display: none; }  // hide full text on admin btns
+  .shop-nav__mobile-only  { display: inline; } // show icon-only version
+  .shop-nav__logout       { font-size: 13px; padding: 6px 10px; }
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────

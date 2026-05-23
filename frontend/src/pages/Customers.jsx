@@ -1,7 +1,3 @@
-/**
- * Customers list page. Loads the full list once, then filters client-side so
- * Hebrew text is matched correctly and results are always visible.
- */
 import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,8 +11,73 @@ import { splitByQuery } from '../utils/searchUtils.js';
 const lbl = { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
 const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit', color: 'var(--text)', boxSizing: 'border-box' };
 
-function CustomerModal({ customer, onClose, onSaved }) {
-  const isNew = !customer._id;
+// ── Inline "new customer" form ────────────────────────────────────────────
+function NewCustomerInline({ onClose, onSaved }) {
+  const [form, setForm] = useState({ name: '', phone: '', email: '', idNumber: '', notes: '', isVip: false });
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState(null);
+  const set = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true); setError(null);
+    try {
+      await createCustomer(form);
+      onSaved();
+      onClose();
+    } catch (err) {
+      setError(err.message || 'שגיאה בשמירה');
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="card" style={{ padding: '20px 20px 24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+        <strong style={{ fontSize: 16 }}>+ לקוח חדש</strong>
+        <button type="button" className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
+      </div>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+          <div>
+            <label style={lbl}>שם מלא *</label>
+            <input value={form.name} onChange={set('name')} required style={inp} autoFocus />
+          </div>
+          <div>
+            <label style={lbl}>טלפון *</label>
+            <input value={form.phone} onChange={set('phone')} required style={inp} type="tel" />
+          </div>
+          <div>
+            <label style={lbl}>אימייל</label>
+            <input value={form.email} onChange={set('email')} style={inp} type="email" />
+          </div>
+          <div>
+            <label style={lbl}>ת.ז.</label>
+            <input value={form.idNumber} onChange={set('idNumber')} style={inp} />
+          </div>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <label style={lbl}>הערות</label>
+            <textarea value={form.notes} onChange={set('notes')} rows={3} style={{ ...inp, resize: 'vertical' }} />
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14 }}>
+            <input type="checkbox" checked={form.isVip} onChange={(e) => setForm((p) => ({ ...p, isVip: e.target.checked }))} />
+            לקוח VIP
+          </label>
+        </div>
+        {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
+        <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+          <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
+            {saving ? 'שומר...' : 'צור לקוח'}
+          </button>
+          <button type="button" className="btn-secondary" onClick={onClose} style={{ flex: 1, padding: '11px 0' }}>ביטול</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ── Edit overlay modal ────────────────────────────────────────────────────
+function EditCustomerModal({ customer, onClose, onSaved }) {
   const [form, setForm] = useState({
     name:     customer.name     || '',
     phone:    customer.phone    || '',
@@ -27,15 +88,13 @@ function CustomerModal({ customer, onClose, onSaved }) {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState(null);
-
   const set = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true); setError(null);
     try {
-      if (isNew) await createCustomer(form);
-      else await updateCustomer(customer._id, form);
+      await updateCustomer(customer._id, form);
       onSaved();
       onClose();
     } catch (err) {
@@ -45,11 +104,11 @@ function CustomerModal({ customer, onClose, onSaved }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 'min(420px, 92vw)', maxHeight: '92vh', overflowY: 'auto', padding: 28 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '16px 12px' }}>
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
+      <div className="card" style={{ position: 'relative', width: 'min(420px, 100%)', padding: 28, marginTop: 'auto', marginBottom: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <strong style={{ fontSize: 17 }}>{isNew ? '+ לקוח חדש' : 'עריכת לקוח'}</strong>
+          <strong style={{ fontSize: 17 }}>עריכת לקוח</strong>
           <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -82,7 +141,7 @@ function CustomerModal({ customer, onClose, onSaved }) {
           {error && <div style={{ color: '#dc2626', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
           <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
             <button type="submit" disabled={saving} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
-              {saving ? 'שומר...' : isNew ? 'צור לקוח' : 'שמור שינויים'}
+              {saving ? 'שומר...' : 'שמור שינויים'}
             </button>
             <button type="button" className="btn-secondary" onClick={onClose} style={{ flex: 1, padding: '11px 0' }}>ביטול</button>
           </div>
@@ -100,10 +159,10 @@ export default function Customers() {
   const customerList = useSelector(selectAllCustomers);
   const loadingStatus = useSelector(selectCustomersStatus);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [modal, setModal] = useState(null);
+  const [searchQuery,  setSearchQuery]  = useState('');
+  const [showNewForm,  setShowNewForm]  = useState(false);
+  const [editCustomer, setEditCustomer] = useState(null);
 
-  // Load the full list once — filtering is client-side.
   useEffect(() => { dispatch(loadCustomersIfStale()); }, [dispatch]);
 
   const handleSaved = () => {
@@ -117,7 +176,7 @@ export default function Customers() {
   );
 
   const renderRow = (customer, dimmed) => (
-    <tr key={customer._id} style={dimmed ? { opacity: 0.4 } : undefined} onClick={() => setModal(customer)} className="product-row">
+    <tr key={customer._id} style={dimmed ? { opacity: 0.4 } : undefined} onClick={() => setEditCustomer(customer)} className="product-row">
       <td>
         {customer.name}
         {customer.isVip && <span className="badge warning" style={{ marginInlineStart: 6 }}>VIP</span>}
@@ -131,7 +190,7 @@ export default function Customers() {
           : '—'}
       </td>
       <td className="col-hide-mobile" onClick={(e) => e.stopPropagation()}>
-        <button className="btn-ghost" onClick={() => setModal(customer)}>{t('common.edit')}</button>
+        <button className="btn-ghost" onClick={() => setEditCustomer(customer)}>{t('common.edit')}</button>
       </td>
     </tr>
   );
@@ -149,8 +208,15 @@ export default function Customers() {
           <button className="btn-ghost" onClick={() => setSearchQuery('')} style={{ padding: '4px 10px' }}>✕</button>
         )}
         <div className="spacer-flex" />
-        <button onClick={() => setModal({})}>{t('customers.new')}</button>
+        <button onClick={() => setShowNewForm(true)} disabled={showNewForm}>{t('customers.new')}</button>
       </div>
+
+      {showNewForm && (
+        <NewCustomerInline
+          onClose={() => setShowNewForm(false)}
+          onSaved={handleSaved}
+        />
+      )}
 
       <div className="table-wrap">
         <table>
@@ -192,10 +258,10 @@ export default function Customers() {
         </table>
       </div>
 
-      {modal !== null && (
-        <CustomerModal
-          customer={modal}
-          onClose={() => setModal(null)}
+      {editCustomer && (
+        <EditCustomerModal
+          customer={editCustomer}
+          onClose={() => setEditCustomer(null)}
           onSaved={handleSaved}
         />
       )}

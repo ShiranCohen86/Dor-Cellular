@@ -101,16 +101,18 @@ export default function Repairs() {
 
   return (
     <div className="page">
-      <div className="toolbar">
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="">{t('common.status')}: —</option>
-          {REPAIR_STATUSES.map((s) => (
-            <option key={s} value={s}>{t(`repairs.${s}`)}</option>
-          ))}
-        </select>
-        <div className="spacer-flex" />
-        <button onClick={() => setShowIntakeForm(true)} disabled={showIntakeForm}>{t('repairs.new')}</button>
-      </div>
+      {!showIntakeForm && (
+        <div className="toolbar">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="">{t('common.status')}: —</option>
+            {REPAIR_STATUSES.map((s) => (
+              <option key={s} value={s}>{t(`repairs.${s}`)}</option>
+            ))}
+          </select>
+          <div className="spacer-flex" />
+          <button onClick={() => setShowIntakeForm(true)}>{t('repairs.new')}</button>
+        </div>
+      )}
 
       {showIntakeForm && (
         <div className="card" style={{ padding: '20px 20px 24px' }}>

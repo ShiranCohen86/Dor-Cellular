@@ -4,10 +4,26 @@ import { selectStoreInfo, setStoreInfo } from '../store/slices/settingsSlice.js'
 
 const lbl = { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
 const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit' };
+const inpErr = { ...inp, borderColor: '#ef4444' };
+
+function normalizeILWhatsApp(raw) {
+  if (!raw) return '';
+  const digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('972') && digits.length >= 12) return digits;
+  if (digits.startsWith('0') && digits.length >= 9) return '972' + digits.slice(1);
+  if (!digits.startsWith('0') && !digits.startsWith('972') && digits.length === 9) return '972' + digits;
+  return digits;
+}
+
+function isValidILWhatsApp(raw) {
+  if (!raw.trim()) return true;
+  const normalized = normalizeILWhatsApp(raw);
+  return /^972[5-9]\d{8}$/.test(normalized);
+}
 
 export default function SettingsPage() {
-  const dispatch   = useDispatch();
-  const storeInfo  = useSelector(selectStoreInfo);
+  const dispatch  = useDispatch();
+  const storeInfo = useSelector(selectStoreInfo);
 
   const [form, setForm] = useState({
     name:     storeInfo.name     || '',
@@ -16,16 +32,27 @@ export default function SettingsPage() {
     address:  storeInfo.address  || '',
     email:    storeInfo.email    || '',
   });
-  const [saved, setSaved] = useState(false);
+  const [saved, setSaved]   = useState(false);
+  const [waError, setWaError] = useState(null);
 
-  const setField = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
+  const setField = (field) => (e) => {
+    setForm((p) => ({ ...p, [field]: e.target.value }));
+    if (field === 'whatsapp') setWaError(null);
+  };
 
   function handleSave(e) {
     e.preventDefault();
-    dispatch(setStoreInfo(form));
+    if (form.whatsapp && !isValidILWhatsApp(form.whatsapp)) {
+      setWaError('פורמט לא תקין — קבל: 050-1234567 / 0501234567 / +972-50-1234567');
+      return;
+    }
+    dispatch(setStoreInfo({ ...form, whatsapp: normalizeILWhatsApp(form.whatsapp) }));
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
+
+  const waPreview = form.whatsapp ? normalizeILWhatsApp(form.whatsapp) : null;
+  const waValid   = isValidILWhatsApp(form.whatsapp);
 
   return (
     <div className="page">
@@ -47,11 +74,27 @@ export default function SettingsPage() {
               <input value={form.phone} onChange={setField('phone')} style={inp} placeholder="052-6098000" type="tel" />
             </div>
             <div>
-              <label style={lbl}>מספר WhatsApp (פורמט בינלאומי ללא +)</label>
-              <input value={form.whatsapp} onChange={setField('whatsapp')} style={inp} placeholder="9720526098000" />
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                לדוגמה: 052-xxx-xxxx → 972052xxxxxxx
-              </div>
+              <label style={lbl}>מספר WhatsApp</label>
+              <input
+                value={form.whatsapp}
+                onChange={setField('whatsapp')}
+                style={waError ? inpErr : inp}
+                placeholder="050-1234567"
+                type="tel"
+              />
+              {waError && (
+                <div style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>⚠ {waError}</div>
+              )}
+              {!waError && waPreview && waValid && (
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                  ✓ יישמר כ: {waPreview}
+                </div>
+              )}
+              {!waError && !waPreview && (
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+                  קבל: 050-1234567 · 0501234567 · +972-50-1234567
+                </div>
+              )}
             </div>
             <div>
               <label style={lbl}>כתובת</label>

@@ -7,119 +7,119 @@ $radius-lg:  14px;
 $radius-full: 999px;
 $font-sans:  'Inter', 'Heebo', system-ui, -apple-system, sans-serif;
 
-// ── Dark Violet — default ─────────────────────────────────────────────────
+// ── Dark — Hapoel Jerusalem (default) ─────────────────────────────────────
 :root,
 [data-theme="dark"] {
-  --brand-primary:           #8b5cf6;
-  --brand-primary-dark:      #7c3aed;
-  --brand-primary-light:     #a78bfa;
+  --brand-primary:           #d41f1f;
+  --brand-primary-dark:      #b01515;
+  --brand-primary-light:     #f05050;
   --brand-accent:            #f59e0b;
   --danger:                  #f87171;
   --success:                 #34d399;
   --warning:                 #fbbf24;
 
-  // Backgrounds — layered depth system
-  --bg:                      #07071a;
-  --surface:                 #0d0d26;
-  --surface-1:               #0d0d26;
-  --surface-2:               #131330;
-  --surface-3:               #1a1a40;
-  --surface-3-hover:         #21214e;
-  --surface-4:               #22225a;
+  // Backgrounds — pure dark, no purple tint
+  --bg:                      #0d0d0d;
+  --surface:                 #161616;
+  --surface-1:               #161616;
+  --surface-2:               #1f1f1f;
+  --surface-3:               #292929;
+  --surface-3-hover:         #333333;
+  --surface-4:               #3d3d3d;
 
   // Sidebar always dark
-  --sidebar-bg:              #080816;
+  --sidebar-bg:              #080808;
 
-  // Borders
-  --border:                  #1e1e48;
-  --border-subtle:           rgba(139, 92, 246, 0.12);
-  --border-strong:           #2a2a5a;
+  // Borders — warm dark, slight red tint
+  --border:                  #2a2020;
+  --border-subtle:           rgba(212, 31, 31, 0.12);
+  --border-strong:           #3d2a2a;
 
   // Text hierarchy
-  --text:                    #eeeeff;
-  --text-muted:              #6060a0;
-  --text-subtle:             #38385a;
+  --text:                    #f0f0f0;
+  --text-muted:              #858585;
+  --text-subtle:             #3d3d3d;
 
-  // Shadows — multi-layer premium depth
+  // Shadows
   --shadow-sm:               0 1px 2px rgba(0,0,0,0.6), 0 1px 6px rgba(0,0,0,0.3);
   --shadow:                  0 4px 16px rgba(0,0,0,0.55), 0 1px 4px rgba(0,0,0,0.3);
   --shadow-lg:               0 12px 40px rgba(0,0,0,0.7), 0 4px 12px rgba(0,0,0,0.4);
-  --shadow-brand:            0 4px 24px rgba(139,92,246,0.28);
+  --shadow-brand:            0 4px 24px rgba(212,31,31,0.28);
   --shadow-accent:           0 4px 20px rgba(245,158,11,0.25);
 
   // Glass morphism
-  --glass-bg:                rgba(13,13,38,0.88);
-  --glass-border:            rgba(139,92,246,0.18);
+  --glass-bg:                rgba(13,8,8,0.88);
+  --glass-border:            rgba(212,31,31,0.18);
 
   // State colors
   --danger-dark:             #ef4444;
-  --nav-active-color:        #c4b5fd;
-  --sidebar-text:            #9090c8;
-  --sidebar-text-muted:      #48487a;
+  --nav-active-color:        #f87171;
+  --sidebar-text:            #909090;
+  --sidebar-text-muted:      #484848;
 
   // Alpha tokens
-  --brand-primary-alpha-10:  rgba(139, 92, 246, 0.10);
-  --brand-primary-alpha-20:  rgba(139, 92, 246, 0.18);
-  --brand-primary-alpha-25:  rgba(139, 92, 246, 0.22);
+  --brand-primary-alpha-10:  rgba(212, 31, 31, 0.10);
+  --brand-primary-alpha-20:  rgba(212, 31, 31, 0.18);
+  --brand-primary-alpha-25:  rgba(212, 31, 31, 0.22);
   --brand-accent-alpha-40:   rgba(245, 158, 11, 0.32);
 
   // Login
-  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.35) 0%, transparent 60%),
-                             linear-gradient(180deg, #07071a 0%, #0d0728 100%);
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(212,31,31,0.35) 0%, transparent 60%),
+                             linear-gradient(180deg, #0d0d0d 0%, #1a0808 100%);
 }
 
-// ── Light Pearl ───────────────────────────────────────────────────────────
+// ── Light Pearl — Hapoel ──────────────────────────────────────────────────
 [data-theme="light"] {
-  --brand-primary:           #7c3aed;
-  --brand-primary-dark:      #6d28d9;
-  --brand-primary-light:     #a78bfa;
+  --brand-primary:           #c01818;
+  --brand-primary-dark:      #a01010;
+  --brand-primary-light:     #e03030;
   --brand-accent:            #d97706;
   --danger:                  #ef4444;
   --success:                 #10b981;
   --warning:                 #f59e0b;
 
-  --bg:                      #f5f4ff;
+  --bg:                      #f8f8f8;
   --surface:                 #ffffff;
   --surface-1:               #ffffff;
-  --surface-2:               #faf9ff;
-  --surface-3:               #f0eeff;
-  --surface-3-hover:         #e8e4ff;
-  --surface-4:               #e2dcff;
+  --surface-2:               #f5f5f5;
+  --surface-3:               #eeeeee;
+  --surface-3-hover:         #e6e0e0;
+  --surface-4:               #ddd8d8;
 
-  --sidebar-bg:              #12093a;
+  --sidebar-bg:              #150505;
 
-  --border:                  #e2dcff;
-  --border-subtle:           rgba(124,58,237,0.08);
-  --border-strong:           #cec6ff;
+  --border:                  #e0d8d8;
+  --border-subtle:           rgba(192,24,24,0.08);
+  --border-strong:           #d0c8c8;
 
-  --text:                    #1a1440;
-  --text-muted:              #6050a0;
-  --text-subtle:             #b0a8d8;
+  --text:                    #1a1a1a;
+  --text-muted:              #656565;
+  --text-subtle:             #b0a8a8;
 
-  --shadow-sm:               0 1px 2px rgba(100,80,200,0.06), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow:                  0 4px 16px rgba(100,80,200,0.1), 0 1px 4px rgba(0,0,0,0.06);
-  --shadow-lg:               0 12px 40px rgba(100,80,200,0.16), 0 4px 12px rgba(0,0,0,0.06);
-  --shadow-brand:            0 4px 20px rgba(124,58,237,0.22);
+  --shadow-sm:               0 1px 2px rgba(180,80,80,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow:                  0 4px 16px rgba(180,80,80,0.10), 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-lg:               0 12px 40px rgba(180,80,80,0.16), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-brand:            0 4px 20px rgba(192,24,24,0.22);
   --shadow-accent:           0 4px 16px rgba(217,119,6,0.2);
 
   --glass-bg:                rgba(255,255,255,0.9);
-  --glass-border:            rgba(124,58,237,0.14);
+  --glass-border:            rgba(192,24,24,0.14);
 
   --danger-dark:             #dc2626;
-  --nav-active-color:        #c4b5fd;
-  --sidebar-text:            #b0a0e0;
-  --sidebar-text-muted:      #7060b0;
+  --nav-active-color:        #f87171;
+  --sidebar-text:            #c0a0a0;
+  --sidebar-text-muted:      #906060;
 
-  --brand-primary-alpha-10:  rgba(124, 58, 237, 0.08);
-  --brand-primary-alpha-20:  rgba(124, 58, 237, 0.14);
-  --brand-primary-alpha-25:  rgba(124, 58, 237, 0.16);
+  --brand-primary-alpha-10:  rgba(192, 24, 24, 0.08);
+  --brand-primary-alpha-20:  rgba(192, 24, 24, 0.14);
+  --brand-primary-alpha-25:  rgba(192, 24, 24, 0.16);
   --brand-accent-alpha-40:   rgba(245, 158, 11, 0.22);
 
-  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139,92,246,0.4) 0%, transparent 60%),
-                             linear-gradient(180deg, #12093a 0%, #2d1b8a 50%, #7c3aed 100%);
+  --login-bg:                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(192,24,24,0.4) 0%, transparent 60%),
+                             linear-gradient(180deg, #150505 0%, #4a0a0a 50%, #c01818 100%);
 }
 
-// ── Deep Blue ─────────────────────────────────────────────────────────────
+// ── Deep Blue (preserved, no longer reachable from UI) ───────────────────
 [data-theme="deep-blue"] {
   --brand-primary:           #3b82f6;
   --brand-primary-dark:      #2563eb;
