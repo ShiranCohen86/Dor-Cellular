@@ -186,15 +186,6 @@ export default function Storefront() {
     return () => document.removeEventListener('mousedown', onOutside);
   }, []);
 
-  // Scroll so hero search input is near top when suggestions appear
-  useEffect(() => {
-    if (heroDrop && heroSuggestions.length > 0 && heroRef.current) {
-      const rect = heroRef.current.getBoundingClientRect();
-      const targetY = window.scrollY + rect.top - 64;
-      window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
-    }
-  }, [heroDrop, heroSuggestions.length]);
-
   const handleCategoriesOpen = useCallback(() => {
     chipsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
@@ -211,6 +202,15 @@ export default function Storefront() {
       )
       .slice(0, 7);
   }, [heroSearch, products]);
+
+  // Scroll so hero search input is near top when suggestions appear
+  useEffect(() => {
+    if (heroDrop && heroSuggestions.length > 0 && heroRef.current) {
+      const rect = heroRef.current.getBoundingClientRect();
+      const targetY = window.scrollY + rect.top - 64;
+      window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+    }
+  }, [heroDrop, heroSuggestions.length]);
 
   useEffect(() => { dispatch(loadPublicCategories()); }, [dispatch]);
 
