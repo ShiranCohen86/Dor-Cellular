@@ -89,6 +89,7 @@ export default function Storefront() {
   const sortMoreRef     = useRef(null);
   const selectsMoreRef  = useRef(null);
   const [quickView, setQuickView] = useState(null);
+  const [navMenuOpen, setNavMenuOpen] = useState(false);
   const [cartBounce, setCartBounce] = useState(false);
   const [addedIds, setAddedIds] = useState({});
 
@@ -392,7 +393,45 @@ export default function Storefront() {
             )}
           </div>
           <div className="shop-hero__contact">
-            <span className="shop-hero__contact-item"><span>📍</span>{t('shop.heroAddress')}</span>
+            <span className="shop-hero__contact-item" style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setNavMenuOpen(v => !v)}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                    color: 'inherit', font: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  <span>📍</span>{t('shop.heroAddress')}
+                </button>
+                {navMenuOpen && (
+                  <div style={{
+                    position: 'absolute', top: '100%', right: 0, zIndex: 100,
+                    background: 'var(--surface-1)', border: '1px solid var(--border)',
+                    borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,.4)',
+                    display: 'flex', flexDirection: 'column', minWidth: 160, overflow: 'hidden',
+                    marginTop: 6,
+                  }}>
+                    <a
+                      href={`https://waze.com/ul?q=${encodeURIComponent(t('shop.heroAddress'))}`}
+                      target="_blank" rel="noopener noreferrer"
+                      onClick={() => setNavMenuOpen(false)}
+                      style={{ padding: '10px 16px', color: 'var(--text)', textDecoration: 'none',
+                        fontSize: 14, fontWeight: 600, borderBottom: '1px solid var(--border)',
+                        display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
+                      <span>🚗</span> Waze
+                    </a>
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(t('shop.heroAddress'))}`}
+                      target="_blank" rel="noopener noreferrer"
+                      onClick={() => setNavMenuOpen(false)}
+                      style={{ padding: '10px 16px', color: 'var(--text)', textDecoration: 'none',
+                        fontSize: 14, fontWeight: 600,
+                        display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
+                      <span>🗺️</span> Google Maps
+                    </a>
+                  </div>
+                )}
+              </span>
             <span className="shop-hero__contact-sep">·</span>
             <a href={`tel:${t('shop.heroPhone')}`} className="shop-hero__contact-phone"><span>📞</span>{t('shop.heroPhone')}</a>
           </div>
@@ -608,9 +647,9 @@ export default function Storefront() {
                     {inCart ? (
                       <div style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-3)', border: '1.5px solid var(--border)', borderRadius: 999, overflow: 'hidden' }}>
-                          <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>−</button>
+                          <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                           <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 34 }}>{inCart.qty}</span>
-                          <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>+</button>
+                          <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                         </div>
                       </div>
                     ) : (
@@ -667,9 +706,9 @@ export default function Storefront() {
                       <div style={{ color: 'var(--brand-primary)', fontWeight: 700, marginTop: 2 }}>₪{(item.salePrice * item.qty).toLocaleString('he-IL')}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-3)', border: '1.5px solid var(--border)', borderRadius: 999, overflow: 'hidden' }}>
-                      <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>−</button>
+                      <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                       <span style={{ minWidth: 22, textAlign: 'center', fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 30 }}>{item.qty}</span>
-                      <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>+</button>
+                      <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                     </div>
                   </div>
                 ))
