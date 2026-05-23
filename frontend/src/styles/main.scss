@@ -17,6 +17,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 a { color: var(--brand-primary-light, var(--brand-accent)); text-decoration: none; }
@@ -26,6 +28,7 @@ button {
   font: inherit;
   cursor: pointer; border: 0; border-radius: $radius;
   padding: 8px 16px;
+  min-height: 44px;
   background: var(--brand-primary); color: #fff;
   font-weight: 600;
   font-size: 13.5px;
@@ -136,9 +139,10 @@ input, select, textarea {
 .layout {
   display: grid;
   grid-template-columns: $sidebar-w 1fr;
-  grid-template-rows: $navbar-h 1fr;
+  grid-template-rows: calc(#{$navbar-h} + env(safe-area-inset-top, 0px)) 1fr;
   grid-template-areas: 'sidebar navbar' 'sidebar main';
   height: 100vh;
+  height: 100dvh;
   // CSS Grid reverses column order when direction: rtl is inherited from <html dir='rtl'>,
   // so the above template already places sidebar on the physical RIGHT in RTL.
 }
@@ -277,7 +281,7 @@ input, select, textarea {
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(212,31,31,.15);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px; gap: 10px;
+  padding: env(safe-area-inset-top, 0px) 16px 0; gap: 10px;
   min-width: 0; max-width: 100%; overflow: hidden;
 
   // Navbar is always dark — force white text on btn-ghost
@@ -356,7 +360,8 @@ input, select, textarea {
 // ── Main content area ─────────────────────────────────────────────────────
 
 .main {
-  grid-area: main; overflow-y: auto; overflow-x: hidden; padding: 24px;
+  grid-area: main; overflow-y: auto; overflow-x: hidden;
+  padding: 24px 24px max(24px, calc(env(safe-area-inset-bottom, 0px) + 24px));
   > * { animation: fade-up .2s cubic-bezier(.22,1,.36,1) both; }
 }
 
@@ -537,7 +542,9 @@ table {
 // ── Login ─────────────────────────────────────────────────────────────────
 
 .login-shell {
-  display: grid; place-items: center; height: 100vh;
+  display: grid; place-items: center;
+  height: 100vh;
+  height: 100dvh;
   background: var(--login-bg);
   animation: fade-in .4s ease;
   overflow: hidden;
@@ -597,7 +604,7 @@ table {
   // Sidebar out of grid flow — becomes a slide-in overlay
   .layout {
     grid-template-columns: 1fr;
-    grid-template-rows: $navbar-h 1fr;
+    grid-template-rows: calc(#{$navbar-h} + env(safe-area-inset-top, 0px)) 1fr;
     grid-template-areas: 'navbar' 'main';
   }
 
@@ -667,7 +674,7 @@ table {
   /* Normalize all navbar interactive elements to the same height */
   .navbar .btn-ghost, .navbar-hamburger, .navbar-user { height: 36px; box-sizing: border-box; }
 
-  .main { padding: 14px; }
+  .main { padding: 14px 14px max(14px, calc(env(safe-area-inset-bottom, 0px) + 14px)); }
 
   // Tables — no horizontal scroll; hide non-essential columns instead
   .table-wrap { overflow-x: hidden; }
@@ -759,14 +766,14 @@ table {
 // Storefront (public)
 // ═════════════════════════════════════════════════════════════════════════
 
-.shop { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.shop { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; background: var(--bg); }
 
 .shop-nav {
   background: rgba(10,0,0,.92);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(212,31,31,.15);
-  padding: 12px 24px;
+  padding: max(12px, calc(env(safe-area-inset-top, 0px) + 12px)) 24px 12px;
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 10;
 
@@ -1005,8 +1012,8 @@ table {
 
 .whatsapp-fab {
   position: fixed;
-  bottom: 24px;
-  inset-inline-end: 24px;
+  bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px));
+  inset-inline-end: max(24px, calc(env(safe-area-inset-right, 0px) + 24px));
   z-index: 300;
   width: 56px;
   height: 56px;
