@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectStoreInfo, setStoreInfo } from '../store/slices/settingsSlice.js';
 import { httpClient } from '../api/request.js';
@@ -36,6 +36,13 @@ export default function SettingsPage() {
   const [saved, setSaved]     = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [waError, setWaError] = useState(null);
+
+  // Load ownerEmail from backend on mount — source of truth is DB, not localStorage
+  useEffect(() => {
+    httpClient.get('/settings').then(({ data }) => {
+      if (data?.ownerEmail) setForm((p) => ({ ...p, email: data.ownerEmail }));
+    }).catch(() => {});
+  }, []);
 
   const setField = (field) => (e) => {
     setForm((p) => ({ ...p, [field]: e.target.value }));
