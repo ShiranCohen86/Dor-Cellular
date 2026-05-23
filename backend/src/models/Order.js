@@ -43,7 +43,7 @@ const TradeInSchema = new mongoose.Schema(
 const OrderSchema = new mongoose.Schema(
   {
     invoiceNumber: { type: String, required: true, unique: true, index: true },
-    branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', required: true, index: true },
+    branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', index: true },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', index: true },
     salespersonId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
 
