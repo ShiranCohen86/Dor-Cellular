@@ -202,7 +202,7 @@ input, select, textarea {
     }
 
     &.active {
-      background: rgba(212,31,31,.16);
+      background: rgba(212,31,31,.24);
       color: var(--nav-active-color);
       font-weight: 600;
       padding-inline-start: 16px;
@@ -755,6 +755,12 @@ table {
     padding: 7px 12px; border-radius: $radius; color: var(--text-muted); font-size: 13px; font-weight: 500;
     transition: background .18s ease, color .18s ease;
     &:hover { background: rgba(255,255,255,.08); text-decoration: none; color: var(--text); }
+  }
+
+  // Shop-nav is always dark regardless of theme — force light text on btn-ghost
+  .btn-ghost, a.btn-ghost {
+    color: rgba(255,255,255,.75);
+    &:hover { background: rgba(255,255,255,.1); color: #fff; }
   }
 }
 
