@@ -26,7 +26,7 @@ export default function Orders() {
   const dispatch     = useDispatch();
   const orders       = useSelector(selectAllOrders);
   const currentUser  = useSelector(selectCurrentUser);
-  const [filter,  setFilter]  = useState('new');
+  const [filter,  setFilter]  = useState(currentUser?.role === 'admin' ? 'all' : 'new');
   const [handled, setHandled] = useState(loadHandled);
 
   // Show "my orders" tab for staff users who also have a customer record

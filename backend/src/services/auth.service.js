@@ -108,7 +108,12 @@ async function googleAuth({ idToken, userAgent, ip }) {
 
   const { sub: googleId, email, name } = ticket.getPayload();
 
-  let user = await User.findOne({ $or: [{ googleId }, { email: email.toLowerCase() }] });
+  // Find by googleId first (exact match), then fall back to email.
+  // Keeping these as two separate queries avoids the $or ambiguity where
+  // MongoDB may return the email-matched document instead of the googleId-matched
+  // one, causing a duplicate-key error when we try to assign the googleId.
+  let user = await User.findOne({ googleId });
+  if (!user) user = await User.findOne({ email: email.toLowerCase() });
 
   if (user) {
     if (!user.isActive) throw ApiError.unauthorized('Account is disabled');
