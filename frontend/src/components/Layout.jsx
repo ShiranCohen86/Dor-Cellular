@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
 import { pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
-import { selectTheme, selectCustomColors, setTheme } from '../store/slices/settingsSlice.js';
+import { selectTheme, selectCustomColors } from '../store/slices/settingsSlice.js';
 import TopBar from './TopBar.jsx';
 
 
@@ -111,7 +111,7 @@ export default function Layout() {
                 <div className="sidebar-user__role">{t(`roles.${currentUser?.role}`)}</div>
               </div>
             </div>
-            <button className="btn-secondary" onClick={handleLogoutClick} style={{ width: '100%', fontSize: 12 }}>
+            <button className="btn-secondary" onClick={() => dispatch(logoutUser())} style={{ width: '100%', fontSize: 12 }}>
               {t('nav.logout')}
             </button>
           </div>
