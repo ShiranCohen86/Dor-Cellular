@@ -88,10 +88,16 @@ function PageFallback() {
   );
 }
 
-// ── Role guard ────────────────────────────────────────────────────────────
+// ── Role guards ───────────────────────────────────────────────────────────
 function StaffOnlyRoute({ children }) {
   const { user } = useAuth();
   if (user?.role === 'customer') return <Navigate to="/orders" replace />;
+  return children;
+}
+
+function AdminOnlyRoute({ children }) {
+  const { user } = useAuth();
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -142,9 +148,9 @@ export default function App() {
               <Route path="/orders"    element={<Orders />} />
               <Route path="/repairs"   element={<StaffOnlyRoute><Repairs /></StaffOnlyRoute>} />
               <Route path="/customers" element={<StaffOnlyRoute><CustomersPage /></StaffOnlyRoute>} />
-              <Route path="/suppliers" element={<StaffOnlyRoute><SuppliersPage /></StaffOnlyRoute>} />
-              <Route path="/users"     element={<StaffOnlyRoute><UsersPage /></StaffOnlyRoute>} />
-              <Route path="/settings"  element={<StaffOnlyRoute><SettingsPage /></StaffOnlyRoute>} />
+              <Route path="/suppliers" element={<AdminOnlyRoute><SuppliersPage /></AdminOnlyRoute>} />
+              <Route path="/users"     element={<AdminOnlyRoute><UsersPage /></AdminOnlyRoute>} />
+              <Route path="/settings"  element={<AdminOnlyRoute><SettingsPage /></AdminOnlyRoute>} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
