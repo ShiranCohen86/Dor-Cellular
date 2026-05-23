@@ -112,11 +112,28 @@ function useKeepAlive() {
   }, []);
 }
 
+// ── PWA update banner ─────────────────────────────────────────────────────
+function UpdateBanner({ onUpdate }) {
+  return (
+    <div style={{
+      position: 'fixed', bottom: 16, insetInlineStart: '50%', transform: 'translateX(-50%)',
+      zIndex: 9999, background: 'var(--surface-1)', border: '1px solid var(--border)',
+      borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,.35)',
+      display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px',
+      fontSize: 14, color: 'var(--text)', whiteSpace: 'nowrap',
+    }}>
+      <span>🔄 גרסה חדשה זמינה</span>
+      <button onClick={onUpdate} style={{ padding: '6px 16px', fontWeight: 700, fontSize: 13 }}>עדכן עכשיו</button>
+    </div>
+  );
+}
+
 // ── App ───────────────────────────────────────────────────────────────────
 export default function App() {
   const { loading } = useAuth();
   const [showWakeUp, setShowWakeUp] = useState(false);
-  useRegisterSW();
+  const [showUpdate, setShowUpdate] = useState(false);
+  const { updateServiceWorker } = useRegisterSW({ onNeedRefresh() { setShowUpdate(true); } });
   useKeepAlive();
 
   // After 2.5 s of auth loading, assume cold start and show the branded overlay.
@@ -130,6 +147,7 @@ export default function App() {
 
   return (
     <>
+      {showUpdate && <UpdateBanner onUpdate={() => updateServiceWorker(true)} />}
       <ScrollToTop />
       <ErrorBoundary>
         <Suspense fallback={<PageFallback />}>

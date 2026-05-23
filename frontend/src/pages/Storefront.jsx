@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,6 +67,9 @@ export default function Storefront() {
   const storeWhatsApp = useSelector(selectStoreWhatsApp);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [heroSearch, setHeroSearch] = useState('');
+  const [heroDrop, setHeroDrop] = useState(false);
+  const heroRef = useRef(null);
   const [activeCategoryId, setActiveCategoryId] = useState('');
   const [quickView, setQuickView] = useState(null);
   const [cartBounce, setCartBounce] = useState(false);
@@ -157,10 +160,32 @@ export default function Storefront() {
   }, [currentUser]);
 
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') setQuickView(null); }
+    function onKey(e) {
+      if (e.key === 'Escape') { setQuickView(null); setHeroDrop(false); setHeroSearch(''); }
+    }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  // Close hero dropdown on outside click
+  useEffect(() => {
+    function onOutside(e) { if (heroRef.current && !heroRef.current.contains(e.target)) setHeroDrop(false); }
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
+
+  // Client-side filter all loaded products for hero suggestions (all languages)
+  const heroSuggestions = useMemo(() => {
+    const q = heroSearch.trim().toLowerCase();
+    if (!q) return [];
+    return products
+      .filter((p) =>
+        p.name?.toLowerCase().includes(q) ||
+        p.brand?.toLowerCase().includes(q) ||
+        p.model?.toLowerCase().includes(q)
+      )
+      .slice(0, 7);
+  }, [heroSearch, products]);
 
   useEffect(() => { dispatch(loadPublicCategories()); }, [dispatch]);
 
@@ -214,8 +239,38 @@ export default function Storefront() {
           </div>
           <h1>{t('shop.heroTitle')}</h1>
           <p className="shop-hero__subtitle">{t('shop.heroSubtitle')}</p>
-          <div className="shop-hero__search">
-            <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('shop.searchPlaceholder')} />
+          <div className="shop-hero__search" ref={heroRef}>
+            <input
+              value={heroSearch}
+              onChange={(e) => { setHeroSearch(e.target.value); setHeroDrop(true); }}
+              onFocus={() => { if (heroSearch) setHeroDrop(true); }}
+              placeholder={t('shop.searchPlaceholder')}
+            />
+            {heroDrop && heroSuggestions.length > 0 && (
+              <div className="hero-drop">
+                {heroSuggestions.map((p) => (
+                  <button
+                    key={p._id}
+                    className="hero-drop__item"
+                    onMouseDown={() => { setQuickView(p); setHeroDrop(false); setHeroSearch(''); }}
+                  >
+                    {p.images?.[0]
+                      ? <img src={p.images[0]} alt="" className="hero-drop__img" />
+                      : <span className="hero-drop__img hero-drop__img--empty">📦</span>
+                    }
+                    <div className="hero-drop__info">
+                      <span className="hero-drop__name">{p.name}</span>
+                      {(p.brand || p.model) && (
+                        <span className="hero-drop__sub">{[p.brand, p.model].filter(Boolean).join(' · ')}</span>
+                      )}
+                    </div>
+                    {p.salePrice > 0 && (
+                      <span className="hero-drop__price">₪{p.salePrice.toLocaleString()}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="shop-hero__contact">
             <span className="shop-hero__contact-item"><span>📍</span>{t('shop.heroAddress')}</span>
