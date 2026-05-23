@@ -12,6 +12,7 @@ import { invalidateOrdersCache } from '../store/slices/ordersSlice.js';
 import { SkeletonCard } from '../components/Skeleton.jsx';
 import { selectStoreWhatsApp } from '../store/slices/settingsSlice.js';
 import TopBar from '../components/TopBar.jsx';
+import ShopBottomNav from '../components/ShopBottomNav.jsx';
 
 const CATEGORY_ORDER = ['smartphone', 'tablet', 'charger', 'case', 'screen_protector', 'sim', 'esim', 'accessory', 'repair_part'];
 
@@ -69,8 +70,18 @@ export default function Storefront() {
   const [searchQuery, setSearchQuery] = useState('');
   const [heroSearch, setHeroSearch] = useState('');
   const [heroDrop, setHeroDrop] = useState(false);
-  const heroRef = useRef(null);
+  const heroRef    = useRef(null);
+  const chipsRef   = useRef(null);
+  const sortMenuRef = useRef(null);
   const [activeCategoryId, setActiveCategoryId] = useState('');
+
+  // ── Advanced filters ─────────────────────────────────────────────
+  const [activeTag,     setActiveTag]     = useState('');
+  const [brandFilter,   setBrandFilter]   = useState('');
+  const [modelFilter,   setModelFilter]   = useState('');
+  const [storageFilter, setStorageFilter] = useState('');
+  const [sortBy,        setSortBy]        = useState('');
+  const [showSortMenu,  setShowSortMenu]  = useState(false);
   const [quickView, setQuickView] = useState(null);
   const [cartBounce, setCartBounce] = useState(false);
   const [addedIds, setAddedIds] = useState({});
@@ -167,11 +178,18 @@ export default function Storefront() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Close hero dropdown on outside click
+  // Close hero dropdown and sort menu on outside click
   useEffect(() => {
-    function onOutside(e) { if (heroRef.current && !heroRef.current.contains(e.target)) setHeroDrop(false); }
+    function onOutside(e) {
+      if (heroRef.current && !heroRef.current.contains(e.target)) setHeroDrop(false);
+      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target)) setShowSortMenu(false);
+    }
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
+
+  const handleCategoriesOpen = useCallback(() => {
+    chipsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
   // Client-side filter all loaded products for hero suggestions (all languages)
@@ -197,9 +215,27 @@ export default function Storefront() {
     }));
   }, [dispatch, searchQuery, activeCategoryId]);
 
+  // ── Client-side filter options ───────────────────────────────────
+  const brandOptions   = useMemo(() => [...new Set(products.map(p => p.brand).filter(Boolean))].sort(), [products]);
+  const modelOptions   = useMemo(() => [...new Set(products.map(p => p.model).filter(Boolean))].sort(), [products]);
+  const storageOptions = useMemo(() => [...new Set(products.map(p => p.storageGB).filter(Boolean))].sort((a, b) => a - b), [products]);
+
+  const filteredProducts = useMemo(() => {
+    let list = products;
+    if (activeTag === 'new') list = list.filter(p => Date.now() - new Date(p.createdAt) < 30 * 24 * 3600 * 1000);
+    if (brandFilter)   list = list.filter(p => p.brand === brandFilter);
+    if (modelFilter)   list = list.filter(p => p.model === modelFilter);
+    if (storageFilter) list = list.filter(p => String(p.storageGB) === String(storageFilter));
+    if (sortBy === 'price-asc')  list = [...list].sort((a, b) => a.salePrice - b.salePrice);
+    if (sortBy === 'price-desc') list = [...list].sort((a, b) => b.salePrice - a.salePrice);
+    if (sortBy === 'newest')     list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (sortBy === 'name')       list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'he'));
+    return list;
+  }, [products, activeTag, brandFilter, modelFilter, storageFilter, sortBy]);
+
   const flatCatalogItems = useMemo(() => {
     const groupMap = new Map();
-    for (const product of products) {
+    for (const product of filteredProducts) {
       const key = product.categoryId?._id || 'other';
       if (!groupMap.has(key)) groupMap.set(key, { name: product.categoryId?.name || 'Other', type: product.categoryId?.type || '', items: [] });
       groupMap.get(key).items.push(product);
@@ -208,14 +244,14 @@ export default function Storefront() {
       const ia = CATEGORY_ORDER.indexOf(a.type), ib = CATEGORY_ORDER.indexOf(b.type);
       return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
-    if (activeCategoryId) return products.map((p) => ({ kind: 'product', product: p }));
+    if (activeCategoryId) return filteredProducts.map((p) => ({ kind: 'product', product: p }));
     const flat = [];
     for (const group of groups) {
       flat.push({ kind: 'header', name: group.name, type: group.type });
       for (const product of group.items) flat.push({ kind: 'product', product });
     }
     return flat;
-  }, [products, activeCategoryId]);
+  }, [filteredProducts, activeCategoryId]);
 
   const distinctBrands = useMemo(() => new Set(products.map((p) => p.brand)).size, [products]);
 
@@ -288,13 +324,76 @@ export default function Storefront() {
       </section>
 
       {/* ── Filters ── */}
-      <section className="shop-filters">
-        <div className="shop-chips">
-          <button className={`chip ${activeCategoryId === '' ? 'chip--active' : ''}`} onClick={() => setActiveCategoryId('')}>{t('shop.all')}</button>
-          {categories.map((cat) => (
-            <button key={cat._id} className={`chip ${activeCategoryId === cat._id ? 'chip--active' : ''}`} onClick={() => setActiveCategoryId(cat._id)}>{cat.name}</button>
-          ))}
+      <section className="shop-filters" ref={chipsRef}>
+        {/* Row 1: category chips + sort */}
+        <div className="filter-row filter-row--tags">
+          <div className="shop-chips">
+            <button className={`chip${activeCategoryId === '' && activeTag === '' ? ' chip--active' : ''}`} onClick={() => { setActiveCategoryId(''); setActiveTag(''); }}>{t('shop.all')}</button>
+            {categories.map((cat) => (
+              <button key={cat._id} className={`chip${activeCategoryId === cat._id ? ' chip--active' : ''}`} onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); }}>{cat.name}</button>
+            ))}
+            <button className={`chip${activeTag === 'new' ? ' chip--active' : ''}`} onClick={() => { setActiveTag(t => t === 'new' ? '' : 'new'); setActiveCategoryId(''); }}>✨ מוצרים חדשים</button>
+          </div>
+          <div className="filter-row__end">
+            <div ref={sortMenuRef} style={{ position: 'relative' }}>
+              <button className={`chip${sortBy ? ' chip--active' : ''}`} onClick={() => setShowSortMenu(s => !s)} style={{ whiteSpace: 'nowrap' }}>
+                ⇅ {sortBy ? ({ 'price-asc': 'מחיר עולה', 'price-desc': 'מחיר יורד', 'newest': 'חדש ראשון', 'name': 'שם א-ת' }[sortBy]) : 'מיון'}
+              </button>
+              {showSortMenu && (
+                <div className="filter-dropdown">
+                  {[['', 'ברירת מחדל'], ['price-asc', 'מחיר עולה ↑'], ['price-desc', 'מחיר יורד ↓'], ['newest', 'חדש ראשון'], ['name', 'שם א-ת']].map(([val, label]) => (
+                    <button key={val} className={`filter-dropdown__item${sortBy === val ? ' active' : ''}`}
+                      onClick={() => { setSortBy(val); setShowSortMenu(false); }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Row 2: dropdown filters (brand, model, storage) */}
+        {(brandOptions.length > 1 || storageOptions.length > 0) && (
+          <div className="filter-row filter-row--dropdowns">
+            {brandOptions.length > 1 && (
+              <select className="filter-select" value={brandFilter} onChange={e => { setBrandFilter(e.target.value); setModelFilter(''); }}>
+                <option value="">יצרן ▾</option>
+                {brandOptions.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
+            )}
+            {modelOptions.length > 1 && (
+              <select className="filter-select" value={modelFilter} onChange={e => setModelFilter(e.target.value)}>
+                <option value="">דגם ▾</option>
+                {(brandFilter
+                  ? modelOptions.filter(m => products.some(p => p.brand === brandFilter && p.model === m))
+                  : modelOptions
+                ).map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            )}
+            {storageOptions.length > 0 && (
+              <select className="filter-select" value={storageFilter} onChange={e => setStorageFilter(e.target.value)}>
+                <option value="">נפח אחסון ▾</option>
+                {storageOptions.map(s => <option key={s} value={s}>{s} GB</option>)}
+              </select>
+            )}
+            {(brandFilter || modelFilter || storageFilter) && (
+              <button className="btn-ghost" style={{ fontSize: 12, padding: '4px 10px', whiteSpace: 'nowrap' }}
+                onClick={() => { setBrandFilter(''); setModelFilter(''); setStorageFilter(''); }}>
+                ✕ נקה
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Active filter tags */}
+        {(brandFilter || modelFilter || storageFilter) && (
+          <div className="filter-active-tags">
+            {brandFilter   && <span className="filter-tag">{brandFilter}   <button onClick={() => setBrandFilter('')}>×</button></span>}
+            {modelFilter   && <span className="filter-tag">{modelFilter}   <button onClick={() => setModelFilter('')}>×</button></span>}
+            {storageFilter && <span className="filter-tag">{storageFilter}GB <button onClick={() => setStorageFilter('')}>×</button></span>}
+          </div>
+        )}
       </section>
 
       {/* ── Product grid ── */}
@@ -371,6 +470,12 @@ export default function Storefront() {
         <span>© {new Date().getFullYear()} {t('app.name')}</span>
         <span className="muted">{t('app.tagline')}</span>
       </footer>
+
+      <ShopBottomNav
+        cartCount={cartCount}
+        onCartOpen={() => setCartOpen(true)}
+        onCategoriesOpen={handleCategoriesOpen}
+      />
 
       {/* ── Cart Drawer ── */}
       {cartOpen && (

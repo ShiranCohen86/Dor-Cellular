@@ -96,7 +96,7 @@ export default function TopBar({
           <>
             <button
               onClick={onCartOpen}
-              className={cartBounce ? 'cart-bounce' : ''}
+              className={`shop-nav__cart-mobile-hide${cartBounce ? ' cart-bounce' : ''}`}
               style={{
                 position: 'relative',
                 background: '#fff', color: '#0f172a',
@@ -119,11 +119,11 @@ export default function TopBar({
               )}
             </button>
             {currentUser ? (
-              <Link to={profileTarget} className="btn-ghost">
+              <Link to={profileTarget} className="btn-ghost shop-nav__cart-mobile-hide">
                 {t('nav.profile')}
               </Link>
             ) : (
-              <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
+              <Link to="/login" className="btn-ghost shop-nav__cart-mobile-hide">{t('auth.login')}</Link>
             )}
           </>
         )}

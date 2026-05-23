@@ -387,6 +387,7 @@ export default function Products() {
   const categories    = useSelector(selectAllCategories);
 
   const [searchQuery,   setSearchQuery]   = useState('');
+  const [sortBy,        setSortBy]        = useState('');
   const [showNewForm,   setShowNewForm]   = useState(false);
   const [newFormData,   setNewFormData]   = useState(null);
   const [editProduct,   setEditProduct]   = useState(null);
@@ -399,10 +400,18 @@ export default function Products() {
     if (searchParams.get('new') === '1') { setShowNewForm(true); setNewFormData(null); }
   }, [searchParams]);
 
-  const { matched, rest } = useMemo(
-    () => splitByQuery(productList, searchQuery, PRODUCT_FIELDS),
-    [productList, searchQuery],
-  );
+  const { matched, rest } = useMemo(() => {
+    const result = splitByQuery(productList, searchQuery, PRODUCT_FIELDS);
+    const applySort = (list) => {
+      if (!sortBy) return list;
+      const sorted = [...list];
+      if (sortBy === 'price-asc')  sorted.sort((a, b) => a.salePrice - b.salePrice);
+      if (sortBy === 'price-desc') sorted.sort((a, b) => b.salePrice - a.salePrice);
+      if (sortBy === 'name')       sorted.sort((a, b) => a.name.localeCompare(b.name, 'he'));
+      return sorted;
+    };
+    return { matched: applySort(result.matched), rest: applySort(result.rest) };
+  }, [productList, searchQuery, sortBy]);
 
   const handleSaved = () => {
     dispatch(invalidateProductsCache());
@@ -447,6 +456,17 @@ export default function Products() {
         {searchQuery && (
           <button className="btn-ghost" onClick={() => setSearchQuery('')} style={{ padding: '4px 10px' }}>✕</button>
         )}
+        <select
+          className="filter-select"
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value)}
+          style={{ fontSize: 13 }}
+        >
+          <option value="">מיון ▾</option>
+          <option value="price-asc">מחיר עולה ↑</option>
+          <option value="price-desc">מחיר יורד ↓</option>
+          <option value="name">שם א-ת</option>
+        </select>
         <div className="spacer-flex" />
         <button className="btn-secondary" onClick={() => setShowCsvImport(true)} style={{ fontSize: 13 }}>⬆ ייבוא CSV</button>
         <button onClick={() => { setShowNewForm(true); setNewFormData(null); }} disabled={showNewForm}>{t('products.new')}</button>

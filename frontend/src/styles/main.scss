@@ -988,10 +988,47 @@ table {
 }
 
 .shop-filters {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
+  display: flex; flex-direction: column; gap: 10px;
   padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
   position: sticky; top: 57px; z-index: 9;
+}
+
+.filter-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  &--tags { justify-content: space-between; }
+  &--dropdowns { flex-wrap: wrap; }
+  &__end { display: flex; gap: 8px; flex-shrink: 0; }
+}
+
+.filter-select {
+  background: var(--surface-3); color: var(--text); border: 1.5px solid var(--border);
+  border-radius: $radius-full; padding: 6px 12px; font-size: 12.5px; font-weight: 500;
+  cursor: pointer; flex-shrink: 0;
+  transition: border-color .18s ease;
+  &:focus { outline: 2px solid var(--brand-primary); border-color: var(--brand-primary); }
+}
+
+.filter-dropdown {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: $radius;
+  box-shadow: var(--shadow-md); min-width: 150px; overflow: hidden;
+
+  &__item {
+    display: block; width: 100%; text-align: right; padding: 9px 14px;
+    font-size: 13px; color: var(--text); background: none; border: none; cursor: pointer;
+    &:hover { background: var(--surface-2); }
+    &.active { color: var(--brand-primary); font-weight: 600; }
+  }
+}
+
+.filter-active-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.filter-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(139,92,246,.12); color: var(--brand-primary);
+  border: 1px solid rgba(139,92,246,.3);
+  border-radius: $radius-full; padding: 3px 10px; font-size: 12px;
+  button { background: none; border: none; cursor: pointer; color: inherit; font-size: 15px; padding: 0 0 0 2px; line-height: 1; }
 }
 
 .shop-chips {
@@ -1061,6 +1098,48 @@ table {
   background: var(--surface); color: var(--text-muted); font-size: 13px;
 }
 
+// ── Mobile Bottom Nav (shop only) ───────────────────────────────────────────
+.bottom-nav {
+  display: none;
+
+  @media (max-width: 700px) {
+    display: flex;
+    position: fixed; bottom: 0; inset-inline-start: 0; inset-inline-end: 0; z-index: 200;
+    background: rgba(8,5,0,.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(249,115,22,.18);
+    padding: 6px 0 max(10px, env(safe-area-inset-bottom, 10px));
+
+    @media all and (display-mode: standalone) {
+      padding-bottom: max(22px, env(safe-area-inset-bottom, 22px));
+    }
+  }
+
+  &__tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: none; border: none; cursor: pointer; padding: 4px 2px;
+    color: rgba(255,255,255,.4); font-size: 10px; font-weight: 500; text-decoration: none;
+    transition: color .18s ease;
+    &--active { color: var(--brand-primary); }
+    &:hover   { color: rgba(255,255,255,.7); }
+  }
+
+  &__icon {
+    font-size: 20px; line-height: 1; position: relative; display: inline-block;
+  }
+
+  &__badge {
+    position: absolute; top: -5px; right: -9px;
+    background: var(--brand-primary); color: #fff;
+    border-radius: 50%; min-width: 16px; height: 16px; padding: 0 3px;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  &__label { font-size: 10px; font-weight: 500; }
+}
+
 @media (max-width: 700px) {
   .shop-hero {
     min-height: 420px;
@@ -1075,9 +1154,14 @@ table {
   .shop-main { padding: 16px; }
 
   // Collapse less-important nav items on small screens
-  .shop-nav__lang        { display: none; }
-  .shop-nav__hide-mobile { display: none; }
-  .shop-nav__cart-label  { display: none; }
+  .shop-nav__lang            { display: none; }
+  .shop-nav__hide-mobile     { display: none; }
+  .shop-nav__cart-label      { display: none; }
+  .shop-nav__cart-mobile-hide { display: none; }
+
+  // Extra bottom padding so content isn't hidden under the bottom nav
+  .shop-main   { padding-bottom: 90px; }
+  .shop-footer { padding-bottom: 90px; }
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────

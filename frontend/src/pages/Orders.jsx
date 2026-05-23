@@ -26,8 +26,9 @@ export default function Orders() {
   const dispatch     = useDispatch();
   const orders       = useSelector(selectAllOrders);
   const currentUser  = useSelector(selectCurrentUser);
-  const [filter,  setFilter]  = useState(currentUser?.role === 'admin' ? 'all' : 'new');
-  const [handled, setHandled] = useState(loadHandled);
+  const [filter,   setFilter]   = useState(currentUser?.role === 'admin' ? 'all' : 'new');
+  const [handled,  setHandled]  = useState(loadHandled);
+  const [sortDir,  setSortDir]  = useState('desc');
 
   // Show "my orders" tab for staff users who also have a customer record
   const showMyOrders = currentUser?.role !== 'customer' && !!currentUser?.customerId;
@@ -56,8 +57,12 @@ export default function Orders() {
       list = orders.filter((o) => String(o.customerId?._id ?? o.customerId) === myId);
     } else if (filter === 'new')     { list = orders.filter((o) => !isHandled(o)); }
     else if (filter === 'handled')   { list = orders.filter((o) =>  isHandled(o)); }
+    list = [...list].sort((a, b) => {
+      const diff = new Date(b.createdAt) - new Date(a.createdAt);
+      return sortDir === 'desc' ? diff : -diff;
+    });
     return list;
-  }, [orders, handled, filter, currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orders, handled, filter, currentUser, sortDir]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const emptyMsg = filter === 'new' ? 'אין הזמנות פתוחות 🎉' : 'אין הזמנות להציג';
 
@@ -69,7 +74,7 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Filter chips */}
+      {/* Filter chips + sort */}
       <div className="toolbar">
         {FILTERS.map((f) => (
           <button
@@ -86,6 +91,14 @@ export default function Orders() {
             )}
           </button>
         ))}
+        <div className="spacer-flex" />
+        <button
+          className="btn-secondary"
+          style={{ fontSize: 13, padding: '7px 14px', whiteSpace: 'nowrap' }}
+          onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')}
+        >
+          {sortDir === 'desc' ? '↓ חדש ראשון' : '↑ ישן ראשון'}
+        </button>
       </div>
 
       {visible.length === 0 ? (
