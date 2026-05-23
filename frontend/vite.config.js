@@ -17,14 +17,14 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         includeAssets: ['favicon.svg', 'pwa-192.png', 'pwa-512.png'],
         manifest: {
           name: 'דור הסלולר',
           short_name: 'דור הסלולר',
           description: 'חנות סלולר ומחשבים ומעבדת תיקונים',
-          theme_color: '#8b5cf6',
-          background_color: '#0c0c1e',
+          theme_color: '#d41f1f',
+          background_color: '#0d0d0d',
           display: 'standalone',
           orientation: 'portrait',
           start_url: '/',
@@ -38,7 +38,6 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          skipWaiting: true,
           clientsClaim: true,
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
           // Cache the public storefront API + categories so the shop renders offline

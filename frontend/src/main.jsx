@@ -8,7 +8,6 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { LanguageProvider } from './context/LanguageContext.jsx';
 import './i18n';
 import './styles/main.scss';
-import { registerServiceWorker } from './pwa.js';
 
 // Tell the browser not to restore scroll positions automatically on navigation — we do it.
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -34,4 +33,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>,
 );
 
-registerServiceWorker();

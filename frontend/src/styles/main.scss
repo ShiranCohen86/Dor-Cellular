@@ -92,6 +92,19 @@ input, select, textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pwa-spin {
+  to { transform: rotate(360deg); }
+}
+
+.pwa-spinner {
+  width: 48px; height: 48px;
+  border: 4px solid rgba(212,31,31,.2);
+  border-top-color: #d41f1f;
+  border-radius: 50%;
+  animation: pwa-spin .85s linear infinite;
+  margin: 0 auto;
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
