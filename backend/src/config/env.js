@@ -16,10 +16,7 @@ const env = {
   LOG_LEVEL:              process.env.LOG_LEVEL || 'info',
   AUTO_SEED_IF_EMPTY:     (process.env.AUTO_SEED_IF_EMPTY || 'false').toLowerCase() === 'true',
   ANTHROPIC_API_KEY:      process.env.ANTHROPIC_API_KEY || '',
-  SMTP_HOST:              process.env.SMTP_HOST || '',
-  SMTP_PORT:              parseInt(process.env.SMTP_PORT, 10) || 587,
-  SMTP_USER:              process.env.SMTP_USER || '',
-  SMTP_PASS:              process.env.SMTP_PASS || '',
+  RESEND_API_KEY:         process.env.RESEND_API_KEY || '',
   OWNER_EMAIL:            process.env.OWNER_EMAIL || '',
   GOOGLE_CLIENT_ID:       process.env.GOOGLE_CLIENT_ID || '',
   // Set RETURN_DEV_TOKEN=true only in explicitly non-production local dev to expose reset tokens in API responses

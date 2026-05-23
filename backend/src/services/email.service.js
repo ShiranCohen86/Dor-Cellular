@@ -1,24 +1,5 @@
-const nodemailer = require('nodemailer');
 const env = require('../config/env');
 
-let transporter = null;
-
-function getTransporter() {
-  if (transporter) return transporter;
-  if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASS) return null;
-  transporter = nodemailer.createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    secure: env.SMTP_PORT === 465,
-    auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-  });
-  return transporter;
-}
-
-/**
- * Send new-order notification to the store owner.
- * Fire-and-forget — never throws so the caller's transaction is unaffected.
- */
 async function getOwnerEmail() {
   try {
     const StoreSettings = require('../models/StoreSettings');
@@ -29,18 +10,23 @@ async function getOwnerEmail() {
 }
 
 async function sendNewOrderEmail(order, customerName, customerPhone) {
-  const t = getTransporter();
+  if (!env.RESEND_API_KEY) {
+    console.warn('[email] RESEND_API_KEY not set — skipping email');
+    return;
+  }
+
   const ownerEmail = await getOwnerEmail();
-  console.log('[email] SMTP ready:', !!t, '| ownerEmail:', ownerEmail || '(empty)');
-  if (!t) { console.error('[email] transporter is null — SMTP_HOST/USER/PASS missing?', { host: env.SMTP_HOST, user: env.SMTP_USER, hasPass: !!env.SMTP_PASS }); return; }
-  if (!ownerEmail) { console.error('[email] ownerEmail is empty — set it in Settings or OWNER_EMAIL env'); return; }
+  if (!ownerEmail) {
+    console.warn('[email] ownerEmail not set — skipping email');
+    return;
+  }
 
   const itemLines = (order.items || [])
     .map((i) => `• ${i.name} ×${i.quantity}  — ₪${i.unitPrice}`)
     .join('\n');
 
   const waLink = customerPhone
-    ? `https://wa.me/${customerPhone.replace(/\D/g, '').replace(/^0/, '972')}?text=${encodeURIComponent(`שלום! קיבלנו את הזמנתך 🙏\nניצור קשר לתיאום תשלום ומשלוח/איסוף.\nדור הסלולר`)}`
+    ? `https://wa.me/${customerPhone.replace(/\D/g, '').replace(/^0/, '972')}?text=${encodeURIComponent('שלום! קיבלנו את הזמנתך 🙏\nניצור קשר לתיאום.\nדור הסלולר')}`
     : null;
 
   const html = `
@@ -57,15 +43,27 @@ async function sendNewOrderEmail(order, customerName, customerPhone) {
 </div>`;
 
   try {
-    await t.sendMail({
-      from: `"דור הסלולר" <${env.SMTP_USER}>`,
-      to: ownerEmail,
-      subject: `🛒 הזמנה חדשה${customerName ? ` מ-${customerName}` : ''}`,
-      html,
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'דור הסלולר <onboarding@resend.dev>',
+        to: [ownerEmail],
+        subject: `🛒 הזמנה חדשה${customerName ? ` מ-${customerName}` : ''}`,
+        html,
+      }),
     });
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[email] Resend error:', data);
+    } else {
+      console.log('[email] sent OK, id:', data.id);
+    }
   } catch (err) {
-    // Never block the order flow
-    console.error('[email] failed to send order notification:', err.message);
+    console.error('[email] failed:', err.message);
   }
 }
 
