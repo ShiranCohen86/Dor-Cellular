@@ -357,6 +357,7 @@ input, select, textarea {
   font-size: 13px; font-weight: 500;
   color: rgba(255,255,255,.5);
   padding-inline-start: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   &::before { content: '/'; margin-inline-end: 6px; opacity: .4; }
 }
 
@@ -1203,10 +1204,6 @@ table {
   .shop-main   { padding-bottom: 90px; }
   .shop-footer { padding-bottom: 90px; }
 
-  // Raise WhatsApp FAB above the bottom nav
-  .whatsapp-fab {
-    bottom: 92px;
-  }
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────
@@ -1261,6 +1258,7 @@ table {
   position: fixed;
   bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px));
   inset-inline-end: max(24px, calc(env(safe-area-inset-right, 0px) + 24px));
+  @media (max-width: 700px) { bottom: 92px; }
   z-index: 300;
   width: 56px;
   height: 56px;

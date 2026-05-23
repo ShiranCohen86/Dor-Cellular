@@ -83,8 +83,10 @@ export default function Storefront() {
   const [showFilterPanel,  setShowFilterPanel]  = useState(false);
   const [showCategoryMore, setShowCategoryMore] = useState(false);
   const [showSortMore,     setShowSortMore]     = useState(false);
+  const [showSelectsMore,  setShowSelectsMore]  = useState(false);
   const categoryMoreRef = useRef(null);
   const sortMoreRef     = useRef(null);
+  const selectsMoreRef  = useRef(null);
   const [quickView, setQuickView] = useState(null);
   const [cartBounce, setCartBounce] = useState(false);
   const [addedIds, setAddedIds] = useState({});
@@ -187,6 +189,7 @@ export default function Storefront() {
       if (heroRef.current && !heroRef.current.contains(e.target)) setHeroDrop(false);
       if (categoryMoreRef.current && !categoryMoreRef.current.contains(e.target)) setShowCategoryMore(false);
       if (sortMoreRef.current && !sortMoreRef.current.contains(e.target)) setShowSortMore(false);
+      if (selectsMoreRef.current && !selectsMoreRef.current.contains(e.target)) setShowSelectsMore(false);
     }
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
@@ -258,6 +261,11 @@ export default function Storefront() {
   const overflowCategories = categories.slice(CHIPS_MAX);
   const overflowCount      = overflowCategories.length + 1; // +1 for מוצרים חדשים
   const overflowHasActive  = activeTag === 'new' || overflowCategories.some(c => c._id === activeCategoryId);
+
+  const totalSelectCount = (brandOptions.length > 1 ? 1 : 0)
+    + (modelOptions.length > 1 ? 1 : 0)
+    + (storageOptions.length > 0 ? 1 : 0);
+  const storageInOverflow = totalSelectCount >= 3;
 
   const flatCatalogItems = useMemo(() => {
     const groupMap = new Map();
@@ -367,7 +375,7 @@ export default function Storefront() {
             <button
               className={`chip${overflowHasActive ? ' chip--active' : ''}`}
               onClick={() => setShowCategoryMore(s => !s)}>
-              +{overflowCount}
+              ···
             </button>
             {showCategoryMore && (
               <div className="filter-more-list">
@@ -410,7 +418,7 @@ export default function Storefront() {
                   <button
                     className={`chip${SORT_OPTIONS.slice(3).some(([v]) => v === sortBy) ? ' chip--active' : ''}`}
                     onClick={() => setShowSortMore(s => !s)}>
-                    +{SORT_OPTIONS.length - 3}
+                    ···
                   </button>
                   {showSortMore && (
                     <div className="filter-more-list">
@@ -447,12 +455,30 @@ export default function Storefront() {
                         : modelOptions).map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                   )}
-                  {storageOptions.length > 0 && (
+                  {storageOptions.length > 0 && !storageInOverflow && (
                     <select className="filter-select" value={storageFilter}
                       onChange={e => setStorageFilter(e.target.value)}>
                       <option value="">נפח ▾</option>
                       {storageOptions.map(s => <option key={s} value={s}>{s} GB</option>)}
                     </select>
+                  )}
+                  {storageOptions.length > 0 && storageInOverflow && (
+                    <div className="filter-more-wrap" ref={selectsMoreRef}>
+                      <button
+                        className={`chip${storageFilter ? ' chip--active' : ''}`}
+                        onClick={() => setShowSelectsMore(s => !s)}>
+                        ···
+                      </button>
+                      {showSelectsMore && (
+                        <div className="filter-more-list" style={{ padding: '8px 12px' }}>
+                          <select className="filter-select" value={storageFilter}
+                            onChange={e => setStorageFilter(e.target.value)}>
+                            <option value="">נפח ▾</option>
+                            {storageOptions.map(s => <option key={s} value={s}>{s} GB</option>)}
+                          </select>
+                        </div>
+                      )}
+                    </div>
                   )}
                   {(brandFilter || modelFilter || storageFilter) && (
                     <button className="btn-ghost" style={{ fontSize: 12, padding: '4px 10px' }}
