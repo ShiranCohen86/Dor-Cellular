@@ -9,6 +9,7 @@ exports.register = {
     email:    email.required(),
     password: password.required(),
     phone:    Joi.string().allow(''),
+    address:  Joi.string().allow(''),
     role:     Joi.string().valid('admin', 'manager', 'salesperson', 'technician', 'employee'),
     branchId: Joi.string().hex().length(24),
   }),

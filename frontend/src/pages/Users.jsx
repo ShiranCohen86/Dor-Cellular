@@ -13,7 +13,7 @@ const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px 
 
 // ── Inline "add user" form ────────────────────────────────────────────────
 function AddUserInline({ onClose, onAdded }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'employee' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'employee', phone: '', address: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState(null);
   const set = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
@@ -56,6 +56,14 @@ function AddUserInline({ onClose, onAdded }) {
             <select value={form.role} onChange={set('role')} style={inp}>
               {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
             </select>
+          </div>
+          <div>
+            <label style={lbl}>טלפון</label>
+            <input value={form.phone} onChange={set('phone')} type="tel" style={inp} placeholder="050-0000000" />
+          </div>
+          <div>
+            <label style={lbl}>כתובת</label>
+            <input value={form.address} onChange={set('address')} style={inp} placeholder="רחוב, עיר" />
           </div>
         </div>
         {error && <div style={{ color: 'var(--brand-primary)', fontSize: 13, marginTop: 12 }}>⚠ {error}</div>}
