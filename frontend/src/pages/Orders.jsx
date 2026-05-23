@@ -29,7 +29,6 @@ export default function Orders() {
   const [filter,   setFilter]   = useState(currentUser?.role === 'admin' ? 'all' : 'new');
   const [handled,  setHandled]  = useState(loadHandled);
   const [sortDir,  setSortDir]  = useState('desc');
-  const [dateFilter, setDateFilter] = useState('all');
 
   // Show "my orders" tab for staff users who also have a customer record
   const showMyOrders = currentUser?.role !== 'customer' && !!currentUser?.customerId;
@@ -65,19 +64,12 @@ export default function Orders() {
       list = orders.filter((o) => String(o.customerId?._id ?? o.customerId) === myId);
     } else if (filter === 'new')     { list = orders.filter((o) => !isHandled(o)); }
     else if (filter === 'handled')   { list = orders.filter((o) =>  isHandled(o)); }
-    if (dateFilter === 'today') {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      list = list.filter(o => new Date(o.createdAt) >= today);
-    } else if (dateFilter === 'week') {
-      const week = new Date(); week.setDate(week.getDate() - 7); week.setHours(0, 0, 0, 0);
-      list = list.filter(o => new Date(o.createdAt) >= week);
-    }
     list = [...list].sort((a, b) => {
       const diff = new Date(b.createdAt) - new Date(a.createdAt);
       return sortDir === 'desc' ? diff : -diff;
     });
     return list;
-  }, [orders, handled, filter, currentUser, sortDir, dateFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orders, handled, filter, currentUser, sortDir]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const emptyMsg = filter === 'new' ? 'אין הזמנות פתוחות 🎉' : 'אין הזמנות להציג';
 
@@ -89,12 +81,8 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Date + status filter chips + sort */}
+      {/* Filter chips + sort */}
       <div className="toolbar">
-        <button onClick={() => setDateFilter('all')} className={dateFilter === 'all' ? '' : 'btn-secondary'} style={{ fontSize: 13 }}>כל הזמנים</button>
-        <button onClick={() => setDateFilter('today')} className={dateFilter === 'today' ? '' : 'btn-secondary'} style={{ fontSize: 13 }}>היום</button>
-        <button onClick={() => setDateFilter('week')} className={dateFilter === 'week' ? '' : 'btn-secondary'} style={{ fontSize: 13 }}>השבוע</button>
-        <div style={{ width: 1, height: 20, background: 'var(--border)', alignSelf: 'center', flexShrink: 0 }} />
         {FILTERS.map((f) => (
           <button
             key={f.key}
@@ -127,7 +115,7 @@ export default function Orders() {
           {visible.map((order) => {
             const phoneFromNotes = order.notes?.match(/טלפון:\s*(\S+)/)?.[1];
             const phone  = order.customerPhone || order.customer?.phone || phoneFromNotes;
-            const name   = order.customerName  || order.customer?.name || phone || 'לקוח';
+            const name   = order.customerName  || order.customer?.name || 'לקוח';
             const extraNotes = order.notes?.replace(/טלפון:\s*\S+\n?/, '').trim();
             const date   = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
             const waLink = buildWaLink(phone, order);
@@ -165,7 +153,7 @@ export default function Orders() {
 
                   {/* Actions */}
                   <div className="order-card__actions">
-                    {waLink && !done && (
+                    {waLink && !done && currentUser?.role !== 'customer' && (
                       <a href={waLink} target="_blank" rel="noopener noreferrer" className="wa-btn">
                         📱 WhatsApp
                       </a>

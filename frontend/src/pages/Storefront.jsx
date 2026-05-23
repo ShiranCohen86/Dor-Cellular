@@ -398,7 +398,7 @@ export default function Storefront() {
             </button>
           )}
           {isMobile && (
-            <div className="filter-more-wrap" ref={categoryMoreRef}>
+            <div className="filter-more-wrap" ref={categoryMoreRef} style={{ marginInlineStart: 'auto', flexShrink: 0 }}>
               <button
                 className={`chip${overflowHasActive ? ' chip--active' : ''}`}
                 onClick={() => setShowCategoryMore(s => !s)}>
@@ -443,7 +443,7 @@ export default function Storefront() {
                     onClick={() => setSortBy(val)}>{label}</button>
                 ))}
                 {isMobile && (
-                  <div className="filter-more-wrap" ref={sortMoreRef}>
+                  <div className="filter-more-wrap" ref={sortMoreRef} style={{ marginInlineStart: 'auto', flexShrink: 0 }}>
                     <button
                       className={`chip${SORT_OPTIONS.slice(3).some(([v]) => v === sortBy) ? ' chip--active' : ''}`}
                       onClick={() => setShowSortMore(s => !s)}>
@@ -579,10 +579,12 @@ export default function Storefront() {
                       <div className="product-card__price">₪{product.salePrice?.toLocaleString('he-IL')}</div>
                     </div>
                     {inCart ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
-                        <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1, color: 'var(--text)' }}>−</button>
-                        <span style={{ fontWeight: 700, minWidth: 24, textAlign: 'center', fontSize: 15 }}>{inCart.qty}</span>
-                        <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 18, fontWeight: 700, lineHeight: 1, color: 'var(--text)' }}>+</button>
+                      <div style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-3)', border: '1.5px solid var(--border)', borderRadius: 999, overflow: 'hidden' }}>
+                          <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>−</button>
+                          <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 700, fontSize: 14 }}>{inCart.qty}</span>
+                          <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 34, height: 34, background: 'none', border: 'none', fontSize: 20, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>+</button>
+                        </div>
                       </div>
                     ) : (
                       <button
@@ -637,10 +639,10 @@ export default function Storefront() {
                       <div className="muted" style={{ fontSize: 12 }}>{item.brand}</div>
                       <div style={{ color: 'var(--brand-primary)', fontWeight: 700, marginTop: 2 }}>₪{(item.salePrice * item.qty).toLocaleString('he-IL')}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontWeight: 700, fontSize: 16, lineHeight: 1, color: 'var(--text)' }}>−</button>
-                      <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{item.qty}</span>
-                      <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid var(--brand-primary)', background: 'var(--surface-2)', cursor: 'pointer', fontWeight: 700, fontSize: 16, lineHeight: 1, color: 'var(--text)' }}>+</button>
+                    <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-3)', border: '1.5px solid var(--border)', borderRadius: 999, overflow: 'hidden' }}>
+                      <button onClick={() => setItemQty(item._id, item.qty - 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>−</button>
+                      <span style={{ minWidth: 22, textAlign: 'center', fontWeight: 700, fontSize: 14 }}>{item.qty}</span>
+                      <button onClick={() => setItemQty(item._id, item.qty + 1)} style={{ width: 30, height: 30, background: 'none', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', color: 'var(--text)', lineHeight: 1 }}>+</button>
                     </div>
                   </div>
                 ))
