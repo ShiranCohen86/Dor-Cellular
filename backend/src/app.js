@@ -4,10 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const swaggerUi = require('swagger-ui-express');
 
 const env = require('./config/env');
-const swaggerSpec = require('./config/swagger');
 const routes = require('./routes');
 const errorMiddleware = require('./middleware/error');
 const requestLogger = require('./middleware/logger');
@@ -16,8 +14,6 @@ const DIST = path.join(__dirname, '../public');
 
 const app = express();
 
-// Trust the single reverse proxy in front of the app (Render, nginx, etc.)
-// so req.ip returns the real client IP instead of the proxy's IP.
 app.set('trust proxy', 1);
 
 // sw.js and the PWA manifest must never be HTTP-cached so the browser
@@ -65,9 +61,13 @@ app.use(
 
 app.get('/health', (_req, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api', routes);
+if (env.NODE_ENV !== 'production') {
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerSpec = require('./config/swagger');
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
+app.use('/api', routes);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found', path: _req.originalUrl }));
 
 app.get('*', (_req, res) =>
