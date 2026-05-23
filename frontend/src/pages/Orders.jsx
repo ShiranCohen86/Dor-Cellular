@@ -115,7 +115,7 @@ export default function Orders() {
           {visible.map((order) => {
             const phoneFromNotes = order.notes?.match(/טלפון:\s*(\S+)/)?.[1];
             const phone  = order.customerPhone || order.customer?.phone || phoneFromNotes;
-            const name   = order.customerName  || order.customer?.name || 'לקוח';
+            const name   = order.customerName  || order.customer?.name || phone || 'לקוח';
             const extraNotes = order.notes?.replace(/טלפון:\s*\S+\n?/, '').trim();
             const date   = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
             const waLink = buildWaLink(phone, order);
@@ -131,7 +131,7 @@ export default function Orders() {
                       <span className={`badge ${done ? 'success' : 'warning'}`}>{done ? 'סגורה' : 'פתוחה'}</span>
                     </div>
                     <div className="order-card__meta">{date}</div>
-                    {phone && (
+                    {phone && phone !== name && (
                       <a href={`tel:${phone}`} style={{ fontSize: 14, marginTop: 4, display: 'block', color: 'var(--brand-primary)', fontWeight: 600, textDecoration: 'none' }}>
                         📞 {phone}
                       </a>
