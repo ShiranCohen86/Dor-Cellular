@@ -80,7 +80,11 @@ export default function Storefront() {
   const [modelFilter,     setModelFilter]     = useState('');
   const [storageFilter,   setStorageFilter]   = useState('');
   const [sortBy,          setSortBy]          = useState('');
-  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showFilterPanel,  setShowFilterPanel]  = useState(false);
+  const [showCategoryMore, setShowCategoryMore] = useState(false);
+  const [showSortMore,     setShowSortMore]     = useState(false);
+  const categoryMoreRef = useRef(null);
+  const sortMoreRef     = useRef(null);
   const [quickView, setQuickView] = useState(null);
   const [cartBounce, setCartBounce] = useState(false);
   const [addedIds, setAddedIds] = useState({});
@@ -177,10 +181,12 @@ export default function Storefront() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Close hero dropdown on outside click
+  // Close hero dropdown + overflow dropdowns on outside click
   useEffect(() => {
     function onOutside(e) {
       if (heroRef.current && !heroRef.current.contains(e.target)) setHeroDrop(false);
+      if (categoryMoreRef.current && !categoryMoreRef.current.contains(e.target)) setShowCategoryMore(false);
+      if (sortMoreRef.current && !sortMoreRef.current.contains(e.target)) setShowSortMore(false);
     }
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
@@ -241,6 +247,17 @@ export default function Storefront() {
   }, [products, activeTag, brandFilter, modelFilter, storageFilter, sortBy]);
 
   const activeFilterCount = [brandFilter, modelFilter, storageFilter, sortBy].filter(Boolean).length;
+
+  const SORT_OPTIONS = [
+    ['', 'ברירת מחדל'], ['price-asc', 'מחיר ↑'], ['price-desc', 'מחיר ↓'],
+    ['newest', 'חדש ראשון'], ['name', 'שם א-ת'],
+  ];
+
+  const CHIPS_MAX          = 2;
+  const visibleCategories  = categories.slice(0, CHIPS_MAX);
+  const overflowCategories = categories.slice(CHIPS_MAX);
+  const overflowCount      = overflowCategories.length + 1; // +1 for מוצרים חדשים
+  const overflowHasActive  = activeTag === 'new' || overflowCategories.some(c => c._id === activeCategoryId);
 
   const flatCatalogItems = useMemo(() => {
     const groupMap = new Map();
@@ -333,24 +350,46 @@ export default function Storefront() {
 
       {/* ── Filters ── */}
       <section className="shop-filters" ref={chipsRef}>
-        <div className="filter-compact-row">
-          <div className="shop-chips">
-            <button className={`chip${activeCategoryId === '' && activeTag === '' ? ' chip--active' : ''}`}
-              onClick={() => { setActiveCategoryId(''); setActiveTag(''); }}>
-              {t('shop.all')}
+        {/* Row 1: Category chips — הכל + 2 visible + "+" overflow */}
+        <div className="filter-chips-row">
+          <button className={`chip${activeCategoryId === '' && activeTag === '' ? ' chip--active' : ''}`}
+            onClick={() => { setActiveCategoryId(''); setActiveTag(''); }}>
+            {t('shop.all')}
+          </button>
+          {visibleCategories.map(cat => (
+            <button key={cat._id}
+              className={`chip${activeCategoryId === cat._id ? ' chip--active' : ''}`}
+              onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); }}>
+              {cat.name}
             </button>
-            {categories.map((cat) => (
-              <button key={cat._id}
-                className={`chip${activeCategoryId === cat._id ? ' chip--active' : ''}`}
-                onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); }}>
-                {cat.name}
-              </button>
-            ))}
-            <button className={`chip${activeTag === 'new' ? ' chip--active' : ''}`}
-              onClick={() => { setActiveTag(prev => prev === 'new' ? '' : 'new'); setActiveCategoryId(''); }}>
-              ✨ מוצרים חדשים
+          ))}
+          <div className="filter-more-wrap" ref={categoryMoreRef}>
+            <button
+              className={`chip${overflowHasActive ? ' chip--active' : ''}`}
+              onClick={() => setShowCategoryMore(s => !s)}>
+              +{overflowCount}
             </button>
+            {showCategoryMore && (
+              <div className="filter-more-list">
+                {overflowCategories.map(cat => (
+                  <button key={cat._id}
+                    className={`filter-more-list__item${activeCategoryId === cat._id ? ' filter-more-list__item--active' : ''}`}
+                    onClick={() => { setActiveCategoryId(cat._id); setActiveTag(''); setShowCategoryMore(false); }}>
+                    {cat.name}
+                  </button>
+                ))}
+                <button
+                  className={`filter-more-list__item${activeTag === 'new' ? ' filter-more-list__item--active' : ''}`}
+                  onClick={() => { setActiveTag(prev => prev === 'new' ? '' : 'new'); setActiveCategoryId(''); setShowCategoryMore(false); }}>
+                  ✨ מוצרים חדשים
+                </button>
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Row 2: ⚙ סנן on its own row */}
+        <div className="filter-expand-row">
           <button
             className={`filter-expand-btn${showFilterPanel || activeFilterCount > 0 ? ' filter-expand-btn--active' : ''}`}
             onClick={() => setShowFilterPanel(s => !s)}>
@@ -362,18 +401,36 @@ export default function Storefront() {
           <div className="filter-panel">
             <div className="filter-panel__group">
               <span className="filter-panel__label">מיון</span>
-              <div className="shop-chips">
-                {[['', 'ברירת מחדל'], ['price-asc', 'מחיר ↑'], ['price-desc', 'מחיר ↓'], ['newest', 'חדש ראשון'], ['name', 'שם א-ת']].map(([val, label]) => (
+              <div className="filter-chips-row filter-chips-row--flush">
+                {SORT_OPTIONS.slice(0, 3).map(([val, label]) => (
                   <button key={val} className={`chip${sortBy === val ? ' chip--active' : ''}`}
                     onClick={() => setSortBy(val)}>{label}</button>
                 ))}
+                <div className="filter-more-wrap" ref={sortMoreRef}>
+                  <button
+                    className={`chip${SORT_OPTIONS.slice(3).some(([v]) => v === sortBy) ? ' chip--active' : ''}`}
+                    onClick={() => setShowSortMore(s => !s)}>
+                    +{SORT_OPTIONS.length - 3}
+                  </button>
+                  {showSortMore && (
+                    <div className="filter-more-list">
+                      {SORT_OPTIONS.slice(3).map(([val, label]) => (
+                        <button key={val}
+                          className={`filter-more-list__item${sortBy === val ? ' filter-more-list__item--active' : ''}`}
+                          onClick={() => { setSortBy(val); setShowSortMore(false); }}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             {(brandOptions.length > 1 || modelOptions.length > 1 || storageOptions.length > 0) && (
               <div className="filter-panel__group">
                 <span className="filter-panel__label">סינון</span>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="filter-selects-row">
                   {brandOptions.length > 1 && (
                     <select className="filter-select" value={brandFilter}
                       onChange={e => { setBrandFilter(e.target.value); setModelFilter(''); }}>
@@ -409,8 +466,8 @@ export default function Storefront() {
 
             {(brandFilter || modelFilter || storageFilter) && (
               <div className="filter-active-tags">
-                {brandFilter   && <span className="filter-tag">{brandFilter} <button onClick={() => setBrandFilter('')}>×</button></span>}
-                {modelFilter   && <span className="filter-tag">{modelFilter} <button onClick={() => setModelFilter('')}>×</button></span>}
+                {brandFilter   && <span className="filter-tag">{brandFilter}   <button onClick={() => setBrandFilter('')}>×</button></span>}
+                {modelFilter   && <span className="filter-tag">{modelFilter}   <button onClick={() => setModelFilter('')}>×</button></span>}
                 {storageFilter && <span className="filter-tag">{storageFilter}GB <button onClick={() => setStorageFilter('')}>×</button></span>}
               </div>
             )}
