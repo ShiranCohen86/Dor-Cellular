@@ -202,7 +202,7 @@ input, select, textarea {
     }
 
     &.active {
-      background: rgba(212,31,31,.24);
+      background: var(--brand-primary);
       color: var(--nav-active-color);
       font-weight: 600;
       padding-inline-start: 16px;
@@ -215,7 +215,7 @@ input, select, textarea {
 
     .nav-icon {
       font-size: 14px; width: 20px; text-align: center;
-      flex-shrink: 0; opacity: .55;
+      flex-shrink: 0; opacity: .75;
       transition: opacity .18s;
     }
     &:hover .nav-icon, &.active .nav-icon { opacity: 1; }
@@ -288,7 +288,7 @@ input, select, textarea {
   border-radius: 999px;
   background: var(--brand-primary-alpha-25);
   border: 1.5px solid var(--brand-primary);
-  font-size: 12px; font-weight: 600; color: var(--nav-active-color);
+  font-size: 12px; font-weight: 600; color: var(--text);
   animation: fade-in .2s ease;
   cursor: default;
 
