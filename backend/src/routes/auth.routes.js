@@ -32,7 +32,7 @@ router.post('/password/change',  authenticate, validate(authValidator.changePass
 // Admin / Manager — user management
 router.post('/register',         authenticate, authorize('admin', 'manager'), validate(authValidator.register), authController.register);
 router.get('/users',             authenticate, authorize('admin', 'manager'), authController.listUsers);
-router.patch('/users/:id',       authenticate, authorize('admin'),            authController.updateUser);
+router.patch('/users/:id',       authenticate, authorize('admin'),            validate(authValidator.updateUser), authController.updateUser);
 router.get('/audit/logins',      authenticate, authorize('admin', 'manager'), authController.getLoginLogs);
 router.get('/audit',             authenticate, authorize('admin', 'manager'), authController.getAuditLogs);
 

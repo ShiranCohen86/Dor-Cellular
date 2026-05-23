@@ -179,7 +179,9 @@ async function resetPassword({ token, newPassword }) {
   await user.setPassword(newPassword);
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
+  user.sessions = [];
   await user.save();
+  AuditLog.create({ userId: user._id, action: 'auth.password.reset', meta: { email: user.email } }).catch(() => {});
   return { ok: true };
 }
 
