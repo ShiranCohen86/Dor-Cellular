@@ -81,8 +81,10 @@ export default function Orders() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {visible.map((order) => {
-            const phone  = order.customerPhone || order.customer?.phone;
-            const name   = order.customerName  || order.customer?.name || 'לקוח';
+            const phoneFromNotes = order.notes?.match(/טלפון:\s*(\S+)/)?.[1];
+            const phone  = order.customerPhone || order.customer?.phone || phoneFromNotes;
+            const name   = order.customerName  || order.customer?.name || phone || 'לקוח';
+            const extraNotes = order.notes?.replace(/טלפון:\s*\S+\n?/, '').trim();
             const date   = order.createdAt ? new Date(order.createdAt).toLocaleDateString('he-IL') : '';
             const waLink = buildWaLink(phone, order);
             const done   = isHandled(order);
@@ -97,7 +99,11 @@ export default function Orders() {
                       <span className={`badge ${done ? 'success' : 'warning'}`}>{done ? 'טופל' : 'חדש'}</span>
                     </div>
                     <div className="order-card__meta">{date}</div>
-                    {phone && <div style={{ fontSize: 13, marginTop: 3 }}>📞 {phone}</div>}
+                    {phone && (
+                      <a href={`tel:${phone}`} style={{ fontSize: 14, marginTop: 4, display: 'block', color: 'var(--brand-primary)', fontWeight: 600, textDecoration: 'none' }}>
+                        📞 {phone}
+                      </a>
+                    )}
                   </div>
 
                   {/* Items */}
@@ -108,8 +114,8 @@ export default function Orders() {
                         {item.unitPrice ? ` · ₪${item.unitPrice}` : ''}
                       </div>
                     ))}
-                    {order.notes && (
-                      <div className="muted" style={{ fontSize: 12, marginTop: 4, fontStyle: 'italic' }}>{order.notes}</div>
+                    {extraNotes && (
+                      <div className="muted" style={{ fontSize: 12, marginTop: 4, fontStyle: 'italic' }}>{extraNotes}</div>
                     )}
                   </div>
 
@@ -117,7 +123,7 @@ export default function Orders() {
                   <div className="order-card__actions">
                     {waLink && (
                       <a href={waLink} target="_blank" rel="noopener noreferrer" className="wa-btn">
-                        WhatsApp ↗
+                        📱 WhatsApp
                       </a>
                     )}
                     <button
