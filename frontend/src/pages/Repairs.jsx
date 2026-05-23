@@ -39,7 +39,6 @@ export default function Repairs() {
   const [searchParams] = useSearchParams();
   const repairList = useSelector(selectAllRepairs);
 
-  const [statusFilter, setStatusFilter] = useState('');
   const [showIntakeForm, setShowIntakeForm] = useState(false);
   const [intakeForm, setIntakeForm] = useState(EMPTY_INTAKE);
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
@@ -53,10 +52,10 @@ export default function Repairs() {
 
   const reloadRepairList = () => {
     dispatch(invalidateRepairsCache());
-    dispatch(loadRepairs(statusFilter ? { status: statusFilter } : {}));
+    dispatch(loadRepairs({}));
   };
 
-  useEffect(reloadRepairList, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(reloadRepairList, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleIntakeSubmit = async (e) => {
     e.preventDefault();
@@ -103,12 +102,6 @@ export default function Repairs() {
     <div className="page">
       {!showIntakeForm && (
         <div className="toolbar">
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="">{t('common.status')}: —</option>
-            {REPAIR_STATUSES.map((s) => (
-              <option key={s} value={s}>{t(`repairs.${s}`)}</option>
-            ))}
-          </select>
           <div className="spacer-flex" />
           <button onClick={() => setShowIntakeForm(true)}>{t('repairs.new')}</button>
         </div>
@@ -234,9 +227,8 @@ export default function Repairs() {
               <th>{t('repairs.device')}</th>
               <th className="col-hide-mobile">IMEI</th>
               <th className="col-hide-mobile">{t('pos.customer')}</th>
-              <th>{t('common.status')}</th>
               <th className="col-hide-mobile">{t('repairs.estimatedCost')}</th>
-              <th>{t('common.actions')}</th>
+              <th>{t('common.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -248,16 +240,14 @@ export default function Repairs() {
                 <td>{[repair.deviceBrand, repair.deviceModel].filter(Boolean).join(' ')}</td>
                 <td className="col-hide-mobile">{repair.imei || '—'}</td>
                 <td className="col-hide-mobile">{repair.customerId?.name || '—'}</td>
-                <td><span className="badge info">{t(`repairs.${repair.status}`)}</span></td>
                 <td className="col-hide-mobile">₪ {repair.estimatedCost || 0}</td>
                 <td style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                   <select
                     key={`${repair._id}-${repair.status}`}
+                    value={repair.status}
                     onChange={(e) => handleStatusChange(repair._id, e.target.value)}
-                    defaultValue=""
                     style={{ fontSize: 12, padding: '5px 8px' }}
                   >
-                    <option value="" disabled>{t('repairs.changeStatus')}</option>
                     {REPAIR_STATUSES.map((s) => (
                       <option key={s} value={s}>{t(`repairs.${s}`)}</option>
                     ))}

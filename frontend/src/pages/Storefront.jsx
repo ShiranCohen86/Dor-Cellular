@@ -295,29 +295,22 @@ export default function Storefront() {
                     </div>
                     <div className="product-card__footer">
                       <div className="product-card__price">₪{product.salePrice?.toLocaleString('he-IL')}</div>
-                      <span className={`badge ${product.isInStock ? 'success' : 'danger'}`}>
-                        {product.isInStock ? t('shop.inStock') : t('shop.outOfStock')}
-                      </span>
                     </div>
-                    {product.isInStock ? (
-                      inCart ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
-                          <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 16 }}>−</button>
-                          <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{inCart.qty}</span>
-                          <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 16 }}>+</button>
-                          <span className="muted" style={{ fontSize: 12 }}>בעגלה</span>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => addToCart(product)}
-                          className={addedIds[product._id] ? 'btn-added' : ''}
-                          style={{ marginTop: 10, width: '100%', fontSize: 13, padding: '7px 0' }}
-                        >
-                          {addedIds[product._id] ? '✓ נוסף!' : '+ הוסף לעגלה'}
-                        </button>
-                      )
+                    {inCart ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+                        <button onClick={() => setItemQty(product._id, inCart.qty - 1)} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 16 }}>−</button>
+                        <span style={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{inCart.qty}</span>
+                        <button onClick={() => setItemQty(product._id, inCart.qty + 1)} style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface-2)', cursor: 'pointer', fontSize: 16 }}>+</button>
+                        <span className="muted" style={{ fontSize: 12 }}>בעגלה</span>
+                      </div>
                     ) : (
-                      <button disabled style={{ marginTop: 10, width: '100%', fontSize: 13, padding: '7px 0', opacity: 0.4 }}>אזל מהמלאי</button>
+                      <button
+                        onClick={() => addToCart(product)}
+                        className={addedIds[product._id] ? 'btn-added' : ''}
+                        style={{ marginTop: 10, width: '100%', fontSize: 13, padding: '7px 0' }}
+                      >
+                        {addedIds[product._id] ? '✓ נוסף!' : '+ הוסף לעגלה'}
+                      </button>
                     )}
                   </div>
                 </article>
@@ -446,9 +439,6 @@ export default function Storefront() {
               {quickView.storageGB && <span className="badge">{quickView.storageGB}GB</span>}
               {quickView.color     && <span className="badge">{quickView.color}</span>}
               {quickView.model     && <span className="badge">{quickView.model}</span>}
-              <span className={`badge ${quickView.isInStock ? 'success' : 'danger'}`}>
-                {quickView.isInStock ? 'במלאי' : 'אזל'}
-              </span>
             </div>
 
             {quickView.description && (
@@ -460,16 +450,12 @@ export default function Storefront() {
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              {quickView.isInStock ? (
-                <button
-                  onClick={() => { addToCart(quickView); setQuickView(null); }}
-                  style={{ flex: 1, padding: '12px 0', fontSize: 15, fontWeight: 700 }}
-                >
-                  + הוסף לעגלה
-                </button>
-              ) : (
-                <button disabled style={{ flex: 1, padding: '12px 0', fontSize: 15, opacity: 0.4 }}>אזל מהמלאי</button>
-              )}
+              <button
+                onClick={() => { addToCart(quickView); setQuickView(null); }}
+                style={{ flex: 1, padding: '12px 0', fontSize: 15, fontWeight: 700 }}
+              >
+                + הוסף לעגלה
+              </button>
               <button
                 onClick={() => shareProduct(quickView)}
                 title="שתף ב-WhatsApp"
