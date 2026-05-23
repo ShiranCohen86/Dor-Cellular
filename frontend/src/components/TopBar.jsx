@@ -57,9 +57,24 @@ export default function TopBar({
 
       {/* ── Actions / End ── */}
       <div className={isAdmin ? 'navbar-end' : 'shop-nav__actions'}>
-        {/* Theme toggle */}
+        {/* Admin mode: quick link to storefront */}
+        {isAdmin && (
+          <Link
+            to="/"
+            style={{
+              background: '#fff', color: '#0f172a',
+              borderRadius: 8, padding: '6px 14px',
+              fontWeight: 700, fontSize: 13,
+              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            🏪 חנות
+          </Link>
+        )}
+
+        {/* Theme toggle — hidden on mobile in shop mode */}
         <button
-          className="btn-ghost"
+          className={`btn-ghost${!isAdmin ? ' shop-nav__hide-mobile' : ''}`}
           onClick={handleTheme}
           style={{ fontSize: 16, padding: '6px 9px' }}
           title={currentTheme === 'light' ? 'מצב לילה' : 'מצב יום'}
@@ -67,16 +82,14 @@ export default function TopBar({
           {currentTheme === 'light' ? '🌙' : '☀️'}
         </button>
 
-        {/* Language toggle */}
+        {/* Language toggle — hidden on mobile in shop mode */}
         <button
-          className={`btn-ghost${!isAdmin ? ' shop-nav__lang' : ''}`}
+          className={`btn-ghost shop-nav__lang${!isAdmin ? ' shop-nav__hide-mobile' : ''}`}
           onClick={() => dispatch(toggleLanguage())}
           style={{ fontSize: 13, padding: '6px 10px' }}
         >
           {currentLanguage === 'he' ? 'EN' : 'עב'}
         </button>
-
-        {/* Admin: profile + logout are in the sidebar — keep navbar compact */}
 
         {/* Shop mode only: cart + user actions */}
         {!isAdmin && (
@@ -86,17 +99,17 @@ export default function TopBar({
               className={cartBounce ? 'cart-bounce' : ''}
               style={{
                 position: 'relative',
-                background: 'var(--brand-primary)', color: '#fff',
+                background: '#fff', color: '#0f172a',
                 border: 'none', borderRadius: 8,
                 padding: '7px 14px', cursor: 'pointer',
-                fontWeight: 600, fontSize: 14,
+                fontWeight: 700, fontSize: 14,
               }}
             >
               🛒 <span className="shop-nav__cart-label">עגלה</span>
               {cartCount > 0 && (
                 <span style={{
                   position: 'absolute', top: -6, right: -6,
-                  background: '#dc2626', color: '#fff',
+                  background: 'var(--brand-primary)', color: '#fff',
                   borderRadius: '50%', width: 20, height: 20,
                   fontSize: 11, fontWeight: 700,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -106,18 +119,9 @@ export default function TopBar({
               )}
             </button>
             {currentUser ? (
-              <>
-                <Link to={profileTarget} className="btn-ghost">
-                  {t('nav.profile')}
-                </Link>
-                <button
-                  className="shop-nav__logout btn-secondary"
-                  onClick={handleLogout}
-                  style={{ fontSize: 13, padding: '7px 14px' }}
-                >
-                  {t('nav.logout')}
-                </button>
-              </>
+              <Link to={profileTarget} className="btn-ghost">
+                {t('nav.profile')}
+              </Link>
             ) : (
               <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
             )}

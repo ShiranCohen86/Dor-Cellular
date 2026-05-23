@@ -17,8 +17,8 @@ function saveHandled(set) {
 }
 
 const BASE_FILTERS = [
-  { key: 'new',     label: 'חדשות' },
-  { key: 'handled', label: 'טופלו' },
+  { key: 'new',     label: 'פתוחות' },
+  { key: 'handled', label: 'סגורות' },
   { key: 'all',     label: 'הכל' },
 ];
 
@@ -59,7 +59,7 @@ export default function Orders() {
     return list;
   }, [orders, handled, filter, currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const emptyMsg = filter === 'new' ? 'אין הזמנות חדשות 🎉' : 'אין הזמנות להציג';
+  const emptyMsg = filter === 'new' ? 'אין הזמנות פתוחות 🎉' : 'אין הזמנות להציג';
 
   return (
     <div className="page">
@@ -108,7 +108,7 @@ export default function Orders() {
                   <div className="order-card__info">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
                       <strong className="order-card__name">{name}</strong>
-                      <span className={`badge ${done ? 'success' : 'warning'}`}>{done ? 'טופל' : 'חדש'}</span>
+                      <span className={`badge ${done ? 'success' : 'warning'}`}>{done ? 'סגורה' : 'פתוחה'}</span>
                     </div>
                     <div className="order-card__meta">{date}</div>
                     {phone && (
@@ -143,7 +143,7 @@ export default function Orders() {
                       style={{ fontSize: 13, padding: '7px 14px', whiteSpace: 'nowrap' }}
                       onClick={() => toggleHandled(order._id)}
                     >
-                      {done ? '↩ בטל' : '✓ טופל'}
+                      {done ? '↩ פתח' : '✓ סגור'}
                     </button>
                   </div>
                 </div>

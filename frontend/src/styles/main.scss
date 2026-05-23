@@ -865,6 +865,8 @@ table {
     color: rgba(255,255,255,.75);
     &:hover { background: rgba(255,255,255,.1); color: #fff; }
   }
+
+  &__hide-mobile { /* visible on desktop, hidden on mobile — set in breakpoint below */ }
 }
 
 .shop-hero {
@@ -1073,9 +1075,9 @@ table {
   .shop-main { padding: 16px; }
 
   // Collapse less-important nav items on small screens
-  .shop-nav__lang       { display: none; }   // hide language toggle
-  .shop-nav__cart-label { display: none; }   // cart shows icon only
-  .shop-nav__logout     { font-size: 13px; padding: 6px 10px; }
+  .shop-nav__lang        { display: none; }
+  .shop-nav__hide-mobile { display: none; }
+  .shop-nav__cart-label  { display: none; }
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────
