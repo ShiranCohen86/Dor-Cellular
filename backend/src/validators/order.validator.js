@@ -5,7 +5,6 @@ const objectId = Joi.string().hex().length(24);
 const itemSchema = Joi.object({
   productId: objectId.required(),
   quantity: Joi.number().integer().min(1).required(),
-  unitPrice: Joi.number().min(0),
   discount: Joi.number().min(0),
   imei: Joi.string().allow('', null),
 });

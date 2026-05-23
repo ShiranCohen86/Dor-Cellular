@@ -16,7 +16,7 @@ router.use(authenticate);
 
 router.get('/', ordersController.list);
 router.get('/:id', ordersController.get);
-router.get('/:id/invoice.pdf', ordersController.invoicePdf);
+router.get('/:id/invoice.pdf', authorize('admin', 'manager', 'employee'), ordersController.invoicePdf);
 
 router.post('/', authorize('admin', 'manager', 'salesperson', 'employee', 'customer'), validate(orderValidator.create), audit('order.create'), ordersController.create);
 router.post('/:id/payments', authorize('admin', 'manager', 'salesperson', 'employee'), validate(orderValidator.addPayment), audit('order.addPayment'), ordersController.addPayment);

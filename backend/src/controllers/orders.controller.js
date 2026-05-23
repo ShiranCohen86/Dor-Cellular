@@ -1,4 +1,5 @@
 const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
 const svc = require('../services/order.service');
 const pdfService = require('../services/pdf.service');
 const emailSvc = require('../services/email.service');
@@ -12,7 +13,13 @@ exports.list = asyncHandler(async (req, res) => {
   }
   res.json(await svc.list(query));
 });
-exports.get = asyncHandler(async (req, res) => res.json(await svc.getById(req.params.id)));
+exports.get = asyncHandler(async (req, res) => {
+  const order = await svc.getById(req.params.id);
+  if (req.user.role === 'customer' && String(order.customerId?._id ?? order.customerId) !== String(req.user.customerId)) {
+    throw ApiError.forbidden('Access denied');
+  }
+  res.json(order);
+});
 
 exports.create = asyncHandler(async (req, res) => {
   const order = await svc.create(req.body, req.user, req.app.get('io'));
