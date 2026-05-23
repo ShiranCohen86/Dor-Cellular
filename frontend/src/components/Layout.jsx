@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
 import { selectLanguage, toggleLanguage, pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
-import { selectTheme, selectCustomColors } from '../store/slices/settingsSlice.js';
+import { selectTheme, selectCustomColors, setTheme } from '../store/slices/settingsSlice.js';
 
 
 
@@ -126,6 +126,14 @@ export default function Layout() {
           <Link to="/" className="btn-ghost" style={{ fontSize: 13 }}>{t('nav.shop')}</Link>
         </div>
         <div className="navbar-end">
+          <button
+            className="btn-ghost"
+            onClick={() => dispatch(setTheme(currentTheme === 'light' ? 'dark' : 'light'))}
+            style={{ fontSize: 16, padding: '6px 10px' }}
+            title={currentTheme === 'light' ? 'מצב לילה' : 'מצב יום'}
+          >
+            {currentTheme === 'light' ? '🌙' : '☀️'}
+          </button>
           <button className="btn-ghost" onClick={() => dispatch(toggleLanguage())} style={{ fontSize: 13, padding: '6px 10px' }}>
             {currentLanguage === 'he' ? 'EN' : 'עב'}
           </button>

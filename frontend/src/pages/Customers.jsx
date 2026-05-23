@@ -47,7 +47,7 @@ function CustomerModal({ customer, onClose, onSaved }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 'min(420px, 92vw)', padding: 28 }}>
+      <div className="card" style={{ position: 'relative', width: 'min(420px, 92vw)', maxHeight: '92vh', overflowY: 'auto', padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <strong style={{ fontSize: 17 }}>{isNew ? '+ לקוח חדש' : 'עריכת לקוח'}</strong>
           <button className="btn-ghost" onClick={onClose} style={{ padding: '2px 8px', fontSize: 18 }}>✕</button>
@@ -117,20 +117,22 @@ export default function Customers() {
   );
 
   const renderRow = (customer, dimmed) => (
-    <tr key={customer._id} style={dimmed ? { opacity: 0.4 } : undefined}>
+    <tr key={customer._id} style={dimmed ? { opacity: 0.4 } : undefined} onClick={() => setModal(customer)} className="product-row">
       <td>
         {customer.name}
         {customer.isVip && <span className="badge warning" style={{ marginInlineStart: 6 }}>VIP</span>}
       </td>
       <td>{customer.phone}</td>
-      <td>{customer.email || '—'}</td>
-      <td>{customer.loyaltyPoints || 0}</td>
-      <td>
+      <td className="col-hide-mobile">{customer.email || '—'}</td>
+      <td className="col-hide-mobile">{customer.loyaltyPoints || 0}</td>
+      <td className="col-hide-mobile">
         {customer.outstandingDebt > 0
           ? <span className="badge danger">₪ {customer.outstandingDebt}</span>
           : '—'}
       </td>
-      <td><button className="btn-ghost" onClick={() => setModal(customer)}>{t('common.edit')}</button></td>
+      <td className="col-hide-mobile" onClick={(e) => e.stopPropagation()}>
+        <button className="btn-ghost" onClick={() => setModal(customer)}>{t('common.edit')}</button>
+      </td>
     </tr>
   );
 
@@ -156,10 +158,10 @@ export default function Customers() {
             <tr>
               <th>{t('common.name')}</th>
               <th>{t('common.phone')}</th>
-              <th>{t('common.email')}</th>
-              <th>{t('customers.loyalty')}</th>
-              <th>{t('customers.debt')}</th>
-              <th>{t('common.actions')}</th>
+              <th className="col-hide-mobile">{t('common.email')}</th>
+              <th className="col-hide-mobile">{t('customers.loyalty')}</th>
+              <th className="col-hide-mobile">{t('customers.debt')}</th>
+              <th className="col-hide-mobile">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>

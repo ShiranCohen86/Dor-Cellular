@@ -8,6 +8,7 @@ import {
 } from '../store/slices/publicSlice.js';
 import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
 import { selectLanguage, toggleLanguage } from '../store/slices/uiSlice.js';
+import { selectTheme, setTheme } from '../store/slices/settingsSlice.js';
 import { createOrder } from '../api/orders.api.js';
 import { SkeletonCard } from '../components/Skeleton.jsx';
 import { selectStoreWhatsApp } from '../store/slices/settingsSlice.js';
@@ -72,6 +73,7 @@ export default function Storefront() {
   const currentLanguage = useSelector(selectLanguage);
 
   const storeWhatsApp = useSelector(selectStoreWhatsApp);
+  const currentTheme  = useSelector(selectTheme);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategoryId, setActiveCategoryId] = useState('');
@@ -183,7 +185,17 @@ export default function Storefront() {
       <header className="shop-nav">
         <div className="shop-nav__brand"><Link to="/">{t('app.name')}</Link></div>
         <div className="shop-nav__actions">
-          <button className="btn-ghost" onClick={() => dispatch(toggleLanguage())}>
+          {/* Theme toggle — visible to everyone */}
+          <button
+            className="btn-ghost"
+            onClick={() => dispatch(setTheme(currentTheme === 'light' ? 'dark' : 'light'))}
+            style={{ fontSize: 16, padding: '6px 9px' }}
+            title={currentTheme === 'light' ? 'מצב לילה' : 'מצב יום'}
+          >
+            {currentTheme === 'light' ? '🌙' : '☀️'}
+          </button>
+
+          <button className="btn-ghost shop-nav__lang" onClick={() => dispatch(toggleLanguage())}>
             {currentLanguage === 'he' ? 'EN' : 'עב'}
           </button>
 
@@ -193,7 +205,7 @@ export default function Storefront() {
             className={cartBounce ? 'cart-bounce' : ''}
             style={{ position: 'relative', background: 'var(--brand-primary)', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
           >
-            🛒 עגלה
+            🛒 <span className="shop-nav__cart-label">עגלה</span>
             {cartCount > 0 && (
               <span style={{ position: 'absolute', top: -6, right: -6, background: '#dc2626', color: '#fff', borderRadius: '50%', width: 20, height: 20, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {cartCount}
@@ -203,9 +215,10 @@ export default function Storefront() {
 
           {currentUser ? (
             <>
+              {/* Profile link — hidden on mobile to avoid overflow */}
               <Link to="/profile" className="btn-ghost shop-nav__link">{t('nav.profile')}</Link>
               <Link to="/dashboard" className="btn-ghost">{t('nav.dashboard')}</Link>
-              <button className="btn-secondary" onClick={handleLogout}>{t('nav.logout')}</button>
+              <button className="btn-secondary shop-nav__logout" onClick={handleLogout}>{t('nav.logout')}</button>
             </>
           ) : (
             <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>

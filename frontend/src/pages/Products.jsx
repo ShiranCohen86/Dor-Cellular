@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import {
   loadProductsIfStale, loadProducts,
   invalidateProductsCache,
@@ -155,6 +156,7 @@ function CsvImportModal({ onClose, onImported }) {
 
 function ProductModal({ product, categories, onClose, onSaved }) {
   const isNew = !product._id;
+  const imgInputId = 'product-img-upload';
   const [form, setForm] = useState({
     name:        product.name             || '',
     brand:       product.brand            || '',
@@ -170,7 +172,6 @@ function ProductModal({ product, categories, onClose, onSaved }) {
   const [imgLoading, setImgLoading]     = useState(false);
   const [saving, setSaving]             = useState(false);
   const [error, setError]               = useState(null);
-  const fileRef = useRef();
 
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
@@ -192,7 +193,7 @@ function ProductModal({ product, categories, onClose, onSaved }) {
     setError(null);
     const payload = {
       ...form,
-      salePrice: Number(form.salePrice),
+      salePrice: form.salePrice !== '' ? Number(form.salePrice) : undefined,
       storageGB: form.storageGB ? Number(form.storageGB) : undefined,
       images:    imagePreview ? [imagePreview] : [],
     };
@@ -207,9 +208,9 @@ function ProductModal({ product, categories, onClose, onSaved }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
-      <div className="card" style={{ position: 'relative', width: 'min(480px, 92vw)', maxHeight: '92vh', overflowY: 'auto', padding: '24px 28px' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 500, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '16px 12px' }}>
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
+      <div className="card" style={{ position: 'relative', width: 'min(480px, 100%)', padding: '24px 20px', marginTop: 'auto', marginBottom: 'auto' }}>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
           <strong style={{ fontSize: 17 }}>
@@ -219,16 +220,22 @@ function ProductModal({ product, categories, onClose, onSaved }) {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Image upload */}
+          {/* Image upload — using <label> for reliable mobile tap */}
           <div style={{ marginBottom: 20 }}>
             <label style={lbl}>תמונת מוצר</label>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
-            <div
-              onClick={() => fileRef.current.click()}
+            <input
+              id={imgInputId}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleImageChange}
+            />
+            <label
+              htmlFor={imgInputId}
               style={{
                 border: '2px dashed var(--border)', borderRadius: 10, cursor: 'pointer',
-                height: 130, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--surface-2)', overflow: 'hidden',
+                height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'var(--surface-2)', overflow: 'hidden', display: 'flex',
               }}
             >
               {imgLoading && <span className="muted">טוען...</span>}
@@ -241,7 +248,7 @@ function ProductModal({ product, categories, onClose, onSaved }) {
                   <div style={{ fontSize: 13, marginTop: 5 }}>לחץ להעלאת תמונה</div>
                 </div>
               )}
-            </div>
+            </label>
             {imagePreview && (
               <button type="button" className="btn-ghost" onClick={() => setImagePreview(null)} style={{ fontSize: 12, marginTop: 6, padding: '3px 10px' }}>
                 ✕ הסר תמונה
@@ -249,33 +256,34 @@ function ProductModal({ product, categories, onClose, onSaved }) {
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          {/* Responsive 2-col grid that collapses to 1-col on narrow screens */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={lbl}>שם המוצר *</label>
               <input value={form.name} onChange={set('name')} required style={inp} />
             </div>
             <div>
-              <label style={lbl}>מותג *</label>
-              <input value={form.brand} onChange={set('brand')} required style={inp} />
+              <label style={lbl}>מותג</label>
+              <input value={form.brand} onChange={set('brand')} style={inp} />
             </div>
             <div>
               <label style={lbl}>דגם</label>
               <input value={form.model} onChange={set('model')} style={inp} />
             </div>
             <div>
-              <label style={lbl}>מחיר (₪) *</label>
-              <input type="number" min="0" step="0.01" value={form.salePrice} onChange={set('salePrice')} required style={inp} />
+              <label style={lbl}>מחיר (₪)</label>
+              <input type="number" min="0" step="0.01" value={form.salePrice} onChange={set('salePrice')} style={inp} />
             </div>
             <div>
-              <label style={lbl}>קטגוריה *</label>
-              <select value={form.categoryId} onChange={set('categoryId')} required style={inp}>
+              <label style={lbl}>קטגוריה</label>
+              <select value={form.categoryId} onChange={set('categoryId')} style={inp}>
                 <option value="">-- בחר --</option>
                 {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
               </select>
             </div>
             <div>
-              <label style={lbl}>SKU *</label>
-              <input value={form.sku} onChange={set('sku')} required style={inp} />
+              <label style={lbl}>SKU</label>
+              <input value={form.sku} onChange={set('sku')} style={inp} />
             </div>
             <div>
               <label style={lbl}>צבע</label>
@@ -311,6 +319,7 @@ const inp = { width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px 
 export default function Products() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const productList   = useSelector(selectAllProducts);
   const loadingStatus = useSelector(selectProductsStatus);
   const categories    = useSelector(selectAllCategories);
@@ -321,6 +330,11 @@ export default function Products() {
 
   useEffect(() => { dispatch(loadProductsIfStale()); }, [dispatch]);
   useEffect(() => { dispatch(loadCategoriesIfStale()); }, [dispatch]);
+
+  // Open "new product" modal when navigated with ?new=1
+  useEffect(() => {
+    if (searchParams.get('new') === '1') setModal(EMPTY_FORM);
+  }, [searchParams]);
 
   const { matched, rest } = useMemo(
     () => splitByQuery(productList, searchQuery, PRODUCT_FIELDS),
@@ -338,14 +352,19 @@ export default function Products() {
   }
 
   const renderRow = (product, dimmed) => (
-    <tr key={product._id} style={dimmed ? { opacity: 0.4 } : undefined}>
-      <td>{product.sku}</td>
+    <tr
+      key={product._id}
+      style={dimmed ? { opacity: 0.4 } : undefined}
+      className="product-row"
+      onClick={() => setModal(product)}
+    >
+      <td className="col-hide-mobile">{product.sku || '—'}</td>
       <td>{product.name}</td>
-      <td>{product.brand}{product.model ? ` ${product.model}` : ''}</td>
-      <td>₪{Number(product.salePrice).toLocaleString('he-IL')}</td>
-      <td style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <td className="col-hide-mobile">{product.brand}{product.model ? ` ${product.model}` : ''}</td>
+      <td>₪{Number(product.salePrice || 0).toLocaleString('he-IL')}</td>
+      <td className="col-actions col-hide-mobile" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         <button className="btn-ghost" onClick={() => setModal(product)}>{t('common.edit')}</button>
-        <button className="btn-ghost" onClick={() => duplicateProduct(product)} title="שכפל מוצר">⧉ שכפל</button>
+        <button className="btn-ghost" onClick={() => duplicateProduct(product)} title="שכפל מוצר">⧉</button>
       </td>
     </tr>
   );
@@ -371,11 +390,11 @@ export default function Products() {
         <table>
           <thead>
             <tr>
-              <th>{t('products.sku')}</th>
+              <th className="col-hide-mobile">{t('products.sku')}</th>
               <th>{t('common.name')}</th>
-              <th>{t('products.brand')}</th>
+              <th className="col-hide-mobile">{t('products.brand')}</th>
               <th>{t('products.salePrice')}</th>
-              <th>{t('common.actions')}</th>
+              <th className="col-hide-mobile">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>

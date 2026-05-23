@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { loadRepairs, selectAllRepairs, invalidateRepairsCache } from '../store/slices/repairsSlice.js';
 import { createRepair, changeRepairStatus } from '../api/repairs.api.js';
 import { fetchCustomers } from '../api/customers.api.js';
@@ -20,26 +21,36 @@ function buildRepairWaLink(repair) {
   const clean = phone.replace(/\D/g, '');
   const intl = clean.startsWith('0') ? '972' + clean.slice(1) : clean;
   const name = repair.customerId?.name || 'לקוח';
-  const device = `${repair.deviceBrand || ''} ${repair.deviceModel || ''}`.trim();
+  const device = [repair.deviceBrand, repair.deviceModel].filter(Boolean).join(' ');
   const text = encodeURIComponent(`שלום ${name}! ה${device} שלך מוכן לאיסוף 📱\nנשמח לראותך — דור הסלולר`);
   return `https://wa.me/${intl}?text=${text}`;
 }
 
+const EMPTY_INTAKE = {
+  customerId: '', device: '', imei: '', faultDescription: '', estimatedCost: 0,
+};
+
+const lbl = { fontSize: 11.5, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '.4px', textTransform: 'uppercase', display: 'block', marginBottom: 5 };
+const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit', color: 'var(--text)', boxSizing: 'border-box' };
+
 export default function Repairs() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const repairList = useSelector(selectAllRepairs);
 
   const [statusFilter, setStatusFilter] = useState('');
   const [showIntakeForm, setShowIntakeForm] = useState(false);
-  const [intakeForm, setIntakeForm] = useState({
-    customerId: '', deviceBrand: '', deviceModel: '', imei: '',
-    faultDescription: '', estimatedCost: 0,
-  });
+  const [intakeForm, setIntakeForm] = useState(EMPTY_INTAKE);
   const [customerSearchQuery, setCustomerSearchQuery] = useState('');
   const [customerSearchResults, setCustomerSearchResults] = useState([]);
+  const [saving, setSaving] = useState(false);
 
-  /** Fetches the repair list — respecting the current status filter. */
+  // Open intake form when navigated with ?new=1
+  useEffect(() => {
+    if (searchParams.get('new') === '1') setShowIntakeForm(true);
+  }, [searchParams]);
+
   const reloadRepairList = () => {
     dispatch(invalidateRepairsCache());
     dispatch(loadRepairs(statusFilter ? { status: statusFilter } : {}));
@@ -47,25 +58,25 @@ export default function Repairs() {
 
   useEffect(reloadRepairList, [statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** Submits the intake form to create a new repair ticket. */
-  const handleIntakeSubmit = async (formEvent) => {
-    formEvent.preventDefault();
+  const handleIntakeSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
     try {
-      await createRepair(intakeForm);
+      const { device, ...rest } = intakeForm;
+      await createRepair({ ...rest, deviceModel: device, deviceBrand: '' });
       setShowIntakeForm(false);
-      setIntakeForm({
-        customerId: '', deviceBrand: '', deviceModel: '', imei: '',
-        faultDescription: '', estimatedCost: 0,
-      });
+      setIntakeForm(EMPTY_INTAKE);
       setCustomerSearchQuery('');
+      setCustomerSearchResults([]);
       reloadRepairList();
     } catch (err) {
       logError('repairs', 'create failed', err.message);
       alert(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  /** Moves a repair to a new status (and triggers SMS server-side for relevant ones). */
   const handleStatusChange = async (repairId, nextStatus) => {
     try {
       await changeRepairStatus(repairId, { status: nextStatus });
@@ -76,7 +87,6 @@ export default function Repairs() {
     }
   };
 
-  /** Looks up customers for the intake form's customer picker. */
   const handleCustomerLookup = async () => {
     if (!customerSearchQuery) return;
     try {
@@ -87,92 +97,131 @@ export default function Repairs() {
     }
   };
 
+  const setField = (field) => (e) => setIntakeForm((prev) => ({ ...prev, [field]: e.target.value }));
+
   return (
     <div className="page">
       <div className="toolbar">
-        <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">{t('common.status')}: —</option>
-          {REPAIR_STATUSES.map((status) => (
-            <option key={status} value={status}>{t(`repairs.${status}`)}</option>
+          {REPAIR_STATUSES.map((s) => (
+            <option key={s} value={s}>{t(`repairs.${s}`)}</option>
           ))}
         </select>
         <div className="spacer-flex" />
-        <button onClick={() => setShowIntakeForm(!showIntakeForm)}>{t('repairs.new')}</button>
+        <button onClick={() => setShowIntakeForm(true)} disabled={showIntakeForm}>{t('repairs.new')}</button>
       </div>
 
       {showIntakeForm && (
-        <form className="card" onSubmit={handleIntakeSubmit}>
-          <h3 style={{ marginTop: 0 }}>{t('repairs.new')}</h3>
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('pos.customer')}</label>
-              <div className="row">
-                <input
-                  value={customerSearchQuery}
-                  onChange={(event) => setCustomerSearchQuery(event.target.value)}
-                  placeholder={t('common.search')}
-                  style={{ flex: 1 }}
-                />
-                <button type="button" onClick={handleCustomerLookup}>{t('common.search')}</button>
-              </div>
-              {customerSearchResults.map((customer) => (
-                <div
-                  key={customer._id}
-                  className="row"
-                  style={{ padding: 4, cursor: 'pointer' }}
-                  onClick={() => {
-                    setIntakeForm({ ...intakeForm, customerId: customer._id });
-                    setCustomerSearchResults([]);
-                    setCustomerSearchQuery(customer.name);
-                  }}
-                >
-                  <strong>{customer.name}</strong><span className="muted">{customer.phone}</span>
-                </div>
-              ))}
-            </div>
-            <div className="form-group">
-              <label>{t('repairs.deviceBrand')}</label>
-              <input
-                value={intakeForm.deviceBrand}
-                onChange={(event) => setIntakeForm({ ...intakeForm, deviceBrand: event.target.value })}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t('repairs.deviceModel')}</label>
-              <input
-                value={intakeForm.deviceModel}
-                onChange={(event) => setIntakeForm({ ...intakeForm, deviceModel: event.target.value })}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>IMEI</label>
-              <input
-                value={intakeForm.imei}
-                onChange={(event) => setIntakeForm({ ...intakeForm, imei: event.target.value })}
-              />
-            </div>
-            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label>{t('repairs.fault')}</label>
-              <textarea
-                value={intakeForm.faultDescription}
-                onChange={(event) => setIntakeForm({ ...intakeForm, faultDescription: event.target.value })}
-                rows={3}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>{t('repairs.estimatedCost')}</label>
-              <input
-                type="number"
-                value={intakeForm.estimatedCost}
-                onChange={(event) => setIntakeForm({ ...intakeForm, estimatedCost: event.target.value })}
-              />
-            </div>
+        <div className="card" style={{ padding: '20px 20px 24px' }}>
+          {/* Header with X close button */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <strong style={{ fontSize: 16 }}>{t('repairs.new')}</strong>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => { setShowIntakeForm(false); setIntakeForm(EMPTY_INTAKE); setCustomerSearchQuery(''); setCustomerSearchResults([]); }}
+              style={{ padding: '2px 8px', fontSize: 18 }}
+            >✕</button>
           </div>
-          <button type="submit" disabled={!intakeForm.customerId}>{t('common.save')}</button>
-        </form>
+
+          <form onSubmit={handleIntakeSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+
+              {/* Customer picker */}
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={lbl}>{t('pos.customer')}</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    value={customerSearchQuery}
+                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCustomerLookup())}
+                    placeholder="חפש לפי שם או טלפון"
+                    style={{ ...inp, flex: 1 }}
+                  />
+                  <button type="button" onClick={handleCustomerLookup} className="btn-secondary" style={{ whiteSpace: 'nowrap' }}>{t('common.search')}</button>
+                </div>
+                {customerSearchResults.length > 0 && (
+                  <div style={{ border: '1px solid var(--border)', borderRadius: 8, marginTop: 4, overflow: 'hidden', background: 'var(--surface)' }}>
+                    {customerSearchResults.map((c) => (
+                      <div
+                        key={c._id}
+                        style={{ padding: '9px 14px', cursor: 'pointer', display: 'flex', gap: 10, borderBottom: '1px solid var(--border)', alignItems: 'center' }}
+                        onClick={() => {
+                          setIntakeForm((prev) => ({ ...prev, customerId: c._id }));
+                          setCustomerSearchResults([]);
+                          setCustomerSearchQuery(c.name);
+                        }}
+                      >
+                        <strong>{c.name}</strong>
+                        <span className="muted" style={{ fontSize: 12 }}>{c.phone}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {intakeForm.customerId && (
+                  <div style={{ marginTop: 4, fontSize: 12, color: 'var(--success, #34d399)' }}>✓ לקוח נבחר</div>
+                )}
+              </div>
+
+              {/* Merged device field */}
+              <div>
+                <label style={lbl}>{t('repairs.device')} (מותג + דגם)</label>
+                <input
+                  value={intakeForm.device}
+                  onChange={setField('device')}
+                  placeholder="לדוגמה: Samsung Galaxy A54"
+                  required
+                  style={inp}
+                />
+              </div>
+
+              <div>
+                <label style={lbl}>IMEI</label>
+                <input
+                  value={intakeForm.imei}
+                  onChange={setField('imei')}
+                  style={inp}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={lbl}>{t('repairs.fault')}</label>
+                <textarea
+                  value={intakeForm.faultDescription}
+                  onChange={setField('faultDescription')}
+                  rows={3}
+                  required
+                  style={{ ...inp, resize: 'vertical' }}
+                />
+              </div>
+
+              <div>
+                <label style={lbl}>{t('repairs.estimatedCost')}</label>
+                <input
+                  type="number"
+                  value={intakeForm.estimatedCost}
+                  onChange={setField('estimatedCost')}
+                  style={inp}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+              <button type="submit" disabled={saving || !intakeForm.customerId} style={{ flex: 1, padding: '11px 0', fontWeight: 700 }}>
+                {saving ? 'שומר...' : t('common.save')}
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => { setShowIntakeForm(false); setIntakeForm(EMPTY_INTAKE); setCustomerSearchQuery(''); setCustomerSearchResults([]); }}
+                style={{ padding: '11px 20px' }}
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
       <div className="table-wrap">
@@ -181,10 +230,10 @@ export default function Repairs() {
             <tr>
               <th>{t('repairs.ticket')}</th>
               <th>{t('repairs.device')}</th>
-              <th>IMEI</th>
-              <th>{t('pos.customer')}</th>
+              <th className="col-hide-mobile">IMEI</th>
+              <th className="col-hide-mobile">{t('pos.customer')}</th>
               <th>{t('common.status')}</th>
-              <th>{t('repairs.estimatedCost')}</th>
+              <th className="col-hide-mobile">{t('repairs.estimatedCost')}</th>
               <th>{t('common.actions')}</th>
             </tr>
           </thead>
@@ -194,20 +243,21 @@ export default function Repairs() {
             ) : repairList.map((repair) => (
               <tr key={repair._id}>
                 <td>{repair.ticketNumber}</td>
-                <td>{repair.deviceBrand} {repair.deviceModel}</td>
-                <td>{repair.imei || '—'}</td>
-                <td>{repair.customerId?.name || '—'}</td>
+                <td>{[repair.deviceBrand, repair.deviceModel].filter(Boolean).join(' ')}</td>
+                <td className="col-hide-mobile">{repair.imei || '—'}</td>
+                <td className="col-hide-mobile">{repair.customerId?.name || '—'}</td>
                 <td><span className="badge info">{t(`repairs.${repair.status}`)}</span></td>
-                <td>₪ {repair.estimatedCost || 0}</td>
+                <td className="col-hide-mobile">₪ {repair.estimatedCost || 0}</td>
                 <td style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                   <select
                     key={`${repair._id}-${repair.status}`}
-                    onChange={(event) => handleStatusChange(repair._id, event.target.value)}
+                    onChange={(e) => handleStatusChange(repair._id, e.target.value)}
                     defaultValue=""
+                    style={{ fontSize: 12, padding: '5px 8px' }}
                   >
                     <option value="" disabled>{t('repairs.changeStatus')}</option>
-                    {REPAIR_STATUSES.map((status) => (
-                      <option key={status} value={status}>{t(`repairs.${status}`)}</option>
+                    {REPAIR_STATUSES.map((s) => (
+                      <option key={s} value={s}>{t(`repairs.${s}`)}</option>
                     ))}
                   </select>
                   {repair.status === 'ready' && buildRepairWaLink(repair) && (
@@ -218,7 +268,7 @@ export default function Repairs() {
                       className="wa-btn"
                       style={{ fontSize: 12, padding: '5px 10px' }}
                     >
-                      📱 שלח הודעה ללקוח
+                      📱 WhatsApp
                     </a>
                   )}
                 </td>

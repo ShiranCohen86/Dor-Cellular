@@ -648,9 +648,10 @@ table {
 
   .main { padding: 14px; }
 
-  // Tables — horizontal scroll instead of breaking layout
-  .table-wrap { overflow-x: auto; }
-  table { min-width: 480px; }
+  // Tables — no horizontal scroll; hide non-essential columns instead
+  .table-wrap { overflow-x: hidden; }
+  table { min-width: unset; }
+  .col-hide-mobile { display: none; }
 
   // POS — single column stack
   .pos { grid-template-columns: 1fr; height: auto; }
@@ -909,9 +910,15 @@ table {
     &__tag { font-size: 12px; padding: 5px 12px; }
     &__contact { gap: 6px; font-size: 12px; }
   }
-  .shop-nav { padding: 10px 14px; }
+  .shop-nav { padding: 10px 12px; gap: 6px; }
   .product-catalog { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
   .shop-main { padding: 16px; }
+
+  // Collapse less-important nav items on small screens
+  .shop-nav__link    { display: none; }   // hide "האזור האישי"
+  .shop-nav__lang    { display: none; }   // hide language toggle (less critical)
+  .shop-nav__cart-label { display: none; } // cart shows icon only
+  .shop-nav__logout  { font-size: 12px; padding: 6px 10px; } // shrink logout
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────
@@ -1005,6 +1012,13 @@ table {
   }
 
   &:hover &__tooltip { opacity: 1; }
+}
+
+// ── Clickable table rows ──────────────────────────────────────────────────────
+
+tbody tr.product-row {
+  cursor: pointer;
+  &:hover td { background: var(--surface-3); }
 }
 
 // ── Page layout helpers ───────────────────────────────────────────────────────

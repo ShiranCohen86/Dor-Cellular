@@ -74,8 +74,8 @@ export default function Dashboard() {
           <p className="page-header__sub">הנה מה שמחכה לך היום</p>
         </div>
         <div className="page-header__actions">
-          <button onClick={() => navigate('/products')} style={{ fontSize: 14 }}>+ הוסף מוצר</button>
-          <button className="btn-secondary" onClick={() => navigate('/repairs')} style={{ fontSize: 14 }}>+ תיקון חדש</button>
+          <button onClick={() => navigate('/products?new=1')} style={{ fontSize: 14 }}>+ הוסף מוצר</button>
+          <button className="btn-secondary" onClick={() => navigate('/repairs?new=1')} style={{ fontSize: 14 }}>+ תיקון חדש</button>
         </div>
       </div>
 
