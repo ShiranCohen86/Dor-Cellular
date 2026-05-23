@@ -4,7 +4,8 @@ import { fetchAllUsers, registerEmployeeUser, updateUser } from '../api/auth.api
 import { logError } from '../api/logger.js';
 
 const ROLES = ['admin', 'employee'];
-const ROLE_LABEL = { admin: 'מנהל', employee: 'עובד', manager: 'מנהל', salesperson: 'מוכר', technician: 'טכנאי' };
+const ALL_FILTER_ROLES = ['admin', 'employee', 'customer'];
+const ROLE_LABEL = { admin: 'מנהל', employee: 'עובד', customer: 'לקוח', manager: 'מנהל', salesperson: 'מוכר', technician: 'טכנאי' };
 
 const lbl = { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 };
 const inp = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-2)', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' };
@@ -139,7 +140,7 @@ export default function UsersPage() {
       <div className="toolbar" style={{ marginBottom: 16 }}>
         <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} style={{ minWidth: 140 }}>
           <option value="">כל התפקידים</option>
-          {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+          {ALL_FILTER_ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
         </select>
         <div className="spacer-flex" />
         <button onClick={() => setShowNewForm(true)} disabled={showNewForm}>+ הוסף עובד</button>
