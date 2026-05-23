@@ -751,7 +751,6 @@ table {
 
   &__brand { font-size: 21px; font-weight: 800; letter-spacing: -.4px; color: var(--brand-accent); a { color: inherit; text-decoration: none; } }
   &__actions { display: flex; align-items: center; gap: 8px; }
-  &__mobile-only { display: none; }
   &__link {
     padding: 7px 12px; border-radius: $radius; color: var(--text-muted); font-size: 13px; font-weight: 500;
     transition: background .18s ease, color .18s ease;
@@ -924,12 +923,9 @@ table {
   .shop-main { padding: 16px; }
 
   // Collapse less-important nav items on small screens
-  .shop-nav__link         { display: none; }  // hide "האזור האישי"
-  .shop-nav__lang         { display: none; }  // hide language toggle
-  .shop-nav__cart-label   { display: none; }  // cart shows icon only
-  .shop-nav__desktop-text { display: none; }  // hide full text on admin btns
-  .shop-nav__mobile-only  { display: inline; } // show icon-only version
-  .shop-nav__logout       { font-size: 13px; padding: 6px 10px; }
+  .shop-nav__lang       { display: none; }   // hide language toggle
+  .shop-nav__cart-label { display: none; }   // cart shows icon only
+  .shop-nav__logout     { font-size: 13px; padding: 6px 10px; }
 }
 
 // ── Skeleton Loaders ────────────────────────────────────────────────────────

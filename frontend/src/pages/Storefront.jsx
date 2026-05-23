@@ -215,17 +215,14 @@ export default function Storefront() {
 
           {currentUser ? (
             <>
-              {/* Profile link — hidden on mobile to avoid overflow */}
-              <Link to="/profile" className="btn-ghost shop-nav__link">{t('nav.profile')}</Link>
-              {/* Dashboard — full text on desktop, icon only on mobile */}
-              <Link to="/dashboard" className="btn-ghost">
-                <span className="shop-nav__desktop-text">{t('nav.dashboard')}</span>
-                <span className="shop-nav__mobile-only">⊞</span>
+              {/* Single entry point: dashboard for staff, profile for customers */}
+              <Link
+                to={currentUser.role === 'customer' ? '/profile' : '/dashboard'}
+                className="btn-ghost"
+              >
+                {t('nav.profile')}
               </Link>
-              <button className="btn-secondary shop-nav__logout" onClick={handleLogout}>
-                <span className="shop-nav__desktop-text">{t('nav.logout')}</span>
-                <span className="shop-nav__mobile-only">✕</span>
-              </button>
+              <button className="btn-secondary shop-nav__logout" onClick={handleLogout}>{t('nav.logout')}</button>
             </>
           ) : (
             <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
