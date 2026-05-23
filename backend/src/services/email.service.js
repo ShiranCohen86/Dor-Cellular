@@ -31,7 +31,9 @@ async function getOwnerEmail() {
 async function sendNewOrderEmail(order, customerName, customerPhone) {
   const t = getTransporter();
   const ownerEmail = await getOwnerEmail();
-  if (!t || !ownerEmail) return;
+  console.log('[email] SMTP ready:', !!t, '| ownerEmail:', ownerEmail || '(empty)');
+  if (!t) { console.error('[email] transporter is null — SMTP_HOST/USER/PASS missing?', { host: env.SMTP_HOST, user: env.SMTP_USER, hasPass: !!env.SMTP_PASS }); return; }
+  if (!ownerEmail) { console.error('[email] ownerEmail is empty — set it in Settings or OWNER_EMAIL env'); return; }
 
   const itemLines = (order.items || [])
     .map((i) => `• ${i.name} ×${i.quantity}  — ₪${i.unitPrice}`)
