@@ -6,12 +6,11 @@ import {
   loadPublicProductsIfStale, loadPublicCategories,
   selectPublicProducts, selectPublicCategories, selectPublicStatus,
 } from '../store/slices/publicSlice.js';
-import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
-import { selectLanguage, toggleLanguage } from '../store/slices/uiSlice.js';
-import { selectTheme, setTheme } from '../store/slices/settingsSlice.js';
+import { selectCurrentUser } from '../store/slices/authSlice.js';
 import { createOrder } from '../api/orders.api.js';
 import { SkeletonCard } from '../components/Skeleton.jsx';
 import { selectStoreWhatsApp } from '../store/slices/settingsSlice.js';
+import TopBar from '../components/TopBar.jsx';
 
 const CATEGORY_ORDER = ['smartphone', 'tablet', 'charger', 'case', 'screen_protector', 'sim', 'esim', 'accessory', 'repair_part'];
 
@@ -70,10 +69,7 @@ export default function Storefront() {
   const categories = useSelector(selectPublicCategories);
   const loadStatus = useSelector(selectPublicStatus);
   const currentUser = useSelector(selectCurrentUser);
-  const currentLanguage = useSelector(selectLanguage);
-
   const storeWhatsApp = useSelector(selectStoreWhatsApp);
-  const currentTheme  = useSelector(selectTheme);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategoryId, setActiveCategoryId] = useState('');
@@ -177,58 +173,16 @@ export default function Storefront() {
   }, [products, activeCategoryId]);
 
   const distinctBrands = useMemo(() => new Set(products.map((p) => p.brand)).size, [products]);
-  const handleLogout = () => dispatch(logoutUser());
 
   return (
     <div className="shop">
       {/* ── Navbar ── */}
-      <header className="shop-nav">
-        <div className="shop-nav__brand"><Link to="/">{t('app.name')}</Link></div>
-        <div className="shop-nav__actions">
-          {/* Theme toggle — visible to everyone */}
-          <button
-            className="btn-ghost"
-            onClick={() => dispatch(setTheme(currentTheme === 'light' ? 'dark' : 'light'))}
-            style={{ fontSize: 16, padding: '6px 9px' }}
-            title={currentTheme === 'light' ? 'מצב לילה' : 'מצב יום'}
-          >
-            {currentTheme === 'light' ? '🌙' : '☀️'}
-          </button>
-
-          <button className="btn-ghost shop-nav__lang" onClick={() => dispatch(toggleLanguage())}>
-            {currentLanguage === 'he' ? 'EN' : 'עב'}
-          </button>
-
-          {/* Cart button */}
-          <button
-            onClick={() => setCartOpen(true)}
-            className={cartBounce ? 'cart-bounce' : ''}
-            style={{ position: 'relative', background: 'var(--brand-primary)', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 14px', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
-          >
-            🛒 <span className="shop-nav__cart-label">עגלה</span>
-            {cartCount > 0 && (
-              <span style={{ position: 'absolute', top: -6, right: -6, background: '#dc2626', color: '#fff', borderRadius: '50%', width: 20, height: 20, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {cartCount}
-              </span>
-            )}
-          </button>
-
-          {currentUser ? (
-            <>
-              {/* Single entry point: dashboard for staff, profile for customers */}
-              <Link
-                to={currentUser.role === 'customer' ? '/profile' : '/dashboard'}
-                className="btn-ghost"
-              >
-                {t('nav.profile')}
-              </Link>
-              <button className="btn-secondary shop-nav__logout" onClick={handleLogout}>{t('nav.logout')}</button>
-            </>
-          ) : (
-            <Link to="/login" className="btn-ghost">{t('auth.login')}</Link>
-          )}
-        </div>
-      </header>
+      <TopBar
+        mode="shop"
+        cartCount={cartCount}
+        cartBounce={cartBounce}
+        onCartOpen={() => setCartOpen(true)}
+      />
 
       {/* ── Hero ── */}
       <section className="shop-hero">

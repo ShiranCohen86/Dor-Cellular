@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, logoutUser } from '../store/slices/authSlice.js';
-import { selectLanguage, toggleLanguage, pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
+import { pushToast, dismissToast, selectToasts } from '../store/slices/uiSlice.js';
 import { selectTheme, selectCustomColors, setTheme } from '../store/slices/settingsSlice.js';
+import TopBar from './TopBar.jsx';
 
 
 
@@ -43,7 +44,6 @@ export default function Layout() {
   const dispatch = useDispatch();
   const location = useLocation();
   const currentUser = useSelector(selectCurrentUser);
-  const currentLanguage = useSelector(selectLanguage);
   const activeToasts = useSelector(selectToasts);
   const currentTheme = useSelector(selectTheme);
   const customColors = useSelector(selectCustomColors);
@@ -67,7 +67,6 @@ export default function Layout() {
   }, [currentTheme, customColors]);
 
   const activePageKey = NAVIGATION_ITEMS.find((item) => item.path === location.pathname)?.translationKey || 'dashboard';
-  const handleLogoutClick = () => dispatch(logoutUser());
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = () => setSidebarOpen(false);
@@ -119,32 +118,11 @@ export default function Layout() {
         </aside>
       </div>
 
-      <header className="navbar">
-        <div className="navbar-start">
-          <button className="btn-ghost navbar-hamburger" onClick={() => setSidebarOpen((o) => !o)}>☰</button>
-          <div className="title">{t(`nav.${activePageKey}`)}</div>
-          <Link to="/" className="btn-ghost" style={{ fontSize: 13 }}>{t('nav.shop')}</Link>
-        </div>
-        <div className="navbar-end">
-          <button
-            className="btn-ghost"
-            onClick={() => dispatch(setTheme(currentTheme === 'light' ? 'dark' : 'light'))}
-            style={{ fontSize: 16, padding: '6px 10px' }}
-            title={currentTheme === 'light' ? 'מצב לילה' : 'מצב יום'}
-          >
-            {currentTheme === 'light' ? '🌙' : '☀️'}
-          </button>
-          <button className="btn-ghost" onClick={() => dispatch(toggleLanguage())} style={{ fontSize: 13, padding: '6px 10px' }}>
-            {currentLanguage === 'he' ? 'EN' : 'עב'}
-          </button>
-          <Link to="/profile" className="navbar-user" style={{ textDecoration: 'none' }}>
-            <div className="navbar-user__avatar" style={{ background: userAvatarColor }}>
-              {userInitials}
-            </div>
-            <span className="navbar-user__name" style={{ fontSize: 17, fontWeight: 700 }}>{currentUser?.name}</span>
-          </Link>
-        </div>
-      </header>
+      <TopBar
+        mode="admin"
+        pageTitle={t(`nav.${activePageKey}`)}
+        onHamburger={() => setSidebarOpen((o) => !o)}
+      />
 
       <main className="main">
         <Outlet />

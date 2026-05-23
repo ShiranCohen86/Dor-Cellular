@@ -148,7 +148,7 @@ const PRODUCTS_RAW = [
 
 async function main() {
   console.log('Connecting to Atlas…');
-  await mongoose.connect(MONGO_URI, { dbName: 'dor-cellular' });
+  await mongoose.connect(MONGO_URI);
   console.log('Connected.');
 
   // 1. Upsert categories and build slug→_id map
