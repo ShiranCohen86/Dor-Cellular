@@ -8,6 +8,7 @@ import {
 } from '../store/slices/publicSlice.js';
 import { selectCurrentUser } from '../store/slices/authSlice.js';
 import { createOrder } from '../api/orders.api.js';
+import { invalidateOrdersCache } from '../store/slices/ordersSlice.js';
 import { SkeletonCard } from '../components/Skeleton.jsx';
 import { selectStoreWhatsApp } from '../store/slices/settingsSlice.js';
 import TopBar from '../components/TopBar.jsx';
@@ -131,6 +132,7 @@ export default function Storefront() {
       setOrderDone(result);
       setCart([]);
       setCheckoutOpen(false);
+      dispatch(invalidateOrdersCache());
     } catch (err) {
       setOrderError(err.message || 'שגיאה ביצירת ההזמנה');
     } finally {
