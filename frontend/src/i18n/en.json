@@ -58,6 +58,7 @@
     "name": "Name",
     "phone": "Phone",
     "email": "Email",
+    "address": "Address",
     "total": "Total",
     "quantity": "Qty",
     "price": "Price",

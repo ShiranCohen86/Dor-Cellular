@@ -19,6 +19,7 @@ const UserSchema = new mongoose.Schema(
     name:     { type: String, required: true, trim: true },
     email:    { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     phone:    { type: String, trim: true },
+    address:  { type: String, trim: true },
     // null for Google-only accounts that have never set a password
     passwordHash:         { type: String, select: false },
     googleId:             { type: String, sparse: true, index: true },

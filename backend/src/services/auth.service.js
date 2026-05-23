@@ -223,7 +223,7 @@ async function getProfile(userId) {
 }
 
 async function updateProfile(userId, patch) {
-  const allowed = ['name', 'phone'];
+  const allowed = ['name', 'phone', 'address'];
   const update = {};
   for (const k of allowed) if (patch[k] !== undefined) update[k] = patch[k];
   const user = await User.findByIdAndUpdate(userId, update, { new: true });

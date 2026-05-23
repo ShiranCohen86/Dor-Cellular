@@ -11,7 +11,6 @@ exports.register = {
     phone:    Joi.string().allow(''),
     address:  Joi.string().allow(''),
     role:     Joi.string().valid('admin', 'manager', 'salesperson', 'technician', 'employee'),
-    branchId: Joi.string().hex().length(24),
   }),
 };
 
@@ -45,7 +44,7 @@ exports.changePassword = {
 };
 
 exports.updateProfile = {
-  body: Joi.object({ name: Joi.string().min(2).max(80), phone: Joi.string().allow('') }),
+  body: Joi.object({ name: Joi.string().min(2).max(80), phone: Joi.string().allow(''), address: Joi.string().allow('') }),
 };
 
 exports.updateUser = {

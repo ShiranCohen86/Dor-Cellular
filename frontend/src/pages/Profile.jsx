@@ -19,8 +19,9 @@ export default function Profile() {
   const currentUser = useSelector(selectCurrentUser);
 
   const [profileForm, setProfileForm] = useState({
-    name: currentUser?.name || '',
-    phone: currentUser?.phone || '',
+    name:    currentUser?.name    || '',
+    phone:   currentUser?.phone   || '',
+    address: currentUser?.address || '',
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -79,7 +80,6 @@ export default function Profile() {
         <div className="kpi-grid">
           <div><div className="muted">{t('common.email')}</div><div><strong>{currentUser.email}</strong></div></div>
           <div><div className="muted">{t('users.role')}</div><div><span className="badge info">{t(`roles.${currentUser.role}`)}</span></div></div>
-          <div><div className="muted">{t('branches.title')}</div><div>{currentUser.branchId?.name || '—'}</div></div>
           <div><div className="muted">{t('profile.lastLogin')}</div><div>{currentUser.lastLogin ? new Date(currentUser.lastLogin).toLocaleString() : '—'}</div></div>
         </div>
       </div>
@@ -100,6 +100,14 @@ export default function Profile() {
             <input
               value={profileForm.phone}
               onChange={(event) => setProfileForm({ ...profileForm, phone: event.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <label>{t('common.address')}</label>
+            <input
+              value={profileForm.address}
+              onChange={(event) => setProfileForm({ ...profileForm, address: event.target.value })}
+              placeholder="רחוב, עיר"
             />
           </div>
         </div>

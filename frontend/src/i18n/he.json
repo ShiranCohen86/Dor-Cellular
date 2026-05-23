@@ -58,6 +58,7 @@
     "name": "שם",
     "phone": "טלפון",
     "email": "אימייל",
+    "address": "כתובת",
     "total": "סה״כ",
     "quantity": "כמות",
     "price": "מחיר",

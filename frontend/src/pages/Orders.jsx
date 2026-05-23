@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadOrdersIfStale, selectAllOrders } from '../store/slices/ordersSlice.js';
+import { selectCurrentUser } from '../store/slices/authSlice.js';
 import { buildWaLink } from '../utils/whatsapp.js';
 import EmptyState from '../components/ui/EmptyState.jsx';
 
@@ -15,17 +16,24 @@ function saveHandled(set) {
   localStorage.setItem(HANDLED_KEY, JSON.stringify([...set]));
 }
 
-const FILTERS = [
+const BASE_FILTERS = [
   { key: 'new',     label: 'חדשות' },
   { key: 'handled', label: 'טופלו' },
   { key: 'all',     label: 'הכל' },
 ];
 
 export default function Orders() {
-  const dispatch = useDispatch();
-  const orders   = useSelector(selectAllOrders);
+  const dispatch     = useDispatch();
+  const orders       = useSelector(selectAllOrders);
+  const currentUser  = useSelector(selectCurrentUser);
   const [filter,  setFilter]  = useState('new');
   const [handled, setHandled] = useState(loadHandled);
+
+  // Show "my orders" tab for staff users who also have a customer record
+  const showMyOrders = currentUser?.role !== 'customer' && !!currentUser?.customerId;
+  const FILTERS = showMyOrders
+    ? [...BASE_FILTERS, { key: 'mine', label: 'ההזמנות שלי' }]
+    : BASE_FILTERS;
 
   useEffect(() => { dispatch(loadOrdersIfStale()); }, [dispatch]);
 
@@ -42,10 +50,14 @@ export default function Orders() {
   const newCount  = orders.filter((o) => !isHandled(o)).length;
 
   const visible = useMemo(() => {
-    if (filter === 'new')     return orders.filter((o) => !isHandled(o));
-    if (filter === 'handled') return orders.filter((o) =>  isHandled(o));
-    return orders;
-  }, [orders, handled, filter]); // eslint-disable-line react-hooks/exhaustive-deps
+    let list = orders;
+    if (filter === 'mine') {
+      const myId = String(currentUser?.customerId);
+      list = orders.filter((o) => String(o.customerId?._id ?? o.customerId) === myId);
+    } else if (filter === 'new')     { list = orders.filter((o) => !isHandled(o)); }
+    else if (filter === 'handled')   { list = orders.filter((o) =>  isHandled(o)); }
+    return list;
+  }, [orders, handled, filter, currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const emptyMsg = filter === 'new' ? 'אין הזמנות חדשות 🎉' : 'אין הזמנות להציג';
 
