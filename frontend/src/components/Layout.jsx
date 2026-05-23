@@ -111,7 +111,7 @@ export default function Layout() {
                 <div className="sidebar-user__role">{t(`roles.${currentUser?.role}`)}</div>
               </div>
             </div>
-            <button className="btn-secondary" onClick={handleLogoutClick} style={{ width: '100%', fontSize: 12 }}>
+            <button className="btn-secondary"  style={{ width: '100%', fontSize: 12 }}>
               {t('nav.logout')}
             </button>
           </div>
