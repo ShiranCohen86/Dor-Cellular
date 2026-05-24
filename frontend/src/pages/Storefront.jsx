@@ -207,6 +207,16 @@ export default function Storefront() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Keep --vvh in sync with the visual viewport so hero-drop never hides under the keyboard
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => document.documentElement.style.setProperty('--vvh', `${vv.height}px`);
+    update();
+    vv.addEventListener('resize', update);
+    return () => vv.removeEventListener('resize', update);
+  }, []);
+
   // Close hero dropdown + overflow dropdowns on outside click
   useEffect(() => {
     function onOutside(e) {
@@ -377,7 +387,11 @@ export default function Storefront() {
             <input
               value={heroSearch}
               onChange={(e) => { setHeroSearch(e.target.value); setHeroDrop(true); }}
-              onFocus={() => { if (heroSearch) setHeroDrop(true); }}
+              onFocus={() => {
+                if (heroSearch) setHeroDrop(true);
+                // Scroll input to top of visible area so keyboard doesn't cover results
+                setTimeout(() => heroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+              }}
               placeholder={t('shop.searchPlaceholder')}
             />
             {heroDrop && heroSuggestions.length > 0 && (
