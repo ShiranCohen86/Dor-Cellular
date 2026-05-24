@@ -159,7 +159,7 @@ export default function Login() {
         e.preventDefault();
         try {
           const result = await dispatch(loginUser({ email: emailInput, password: passwordInput }));
-          if (!result.error) navigate('/dashboard');
+          if (!result.error) navigate(searchParams.get('redirect') || '/dashboard');
         } catch { /* error in Redux state */ }
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
