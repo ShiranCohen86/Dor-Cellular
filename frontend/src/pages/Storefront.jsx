@@ -254,8 +254,10 @@ export default function Storefront() {
         p.brand?.toLowerCase().includes(q) ||
         p.model?.toLowerCase().includes(q)
       )
-      .slice(0, 7);
+      .slice(0, 15);
   }, [heroSearch, products]);
+
+  const isSearching = heroSearch.length > 0;
 
   // Scroll so hero search input is near top when suggestions appear
   useEffect(() => {
@@ -374,7 +376,7 @@ export default function Storefront() {
       />
 
       {/* ── Hero ── */}
-      <section className="shop-hero">
+      <section className={`shop-hero${isSearching ? ' shop-hero--searching' : ''}`}>
         <div className="shop-hero__inner">
           <div className="shop-hero__tags">
             <span className="shop-hero__tag">📱 {t('shop.tagPhones')}</span>
@@ -395,28 +397,56 @@ export default function Storefront() {
               placeholder={t('shop.searchPlaceholder')}
             />
             {heroDrop && heroSuggestions.length > 0 && (
-              <div className="hero-drop">
-                {heroSuggestions.map((p) => (
-                  <button
-                    key={p._id}
-                    className="hero-drop__item"
-                    onMouseDown={() => { setQuickView(p); setHeroDrop(false); setHeroSearch(''); }}
-                  >
-                    {p.images?.[0]
-                      ? <img src={p.images[0]} alt="" className="hero-drop__img" />
-                      : <span className="hero-drop__img hero-drop__img--empty">📦</span>
-                    }
-                    <div className="hero-drop__info">
-                      <span className="hero-drop__name">{p.name}</span>
-                      {(p.brand || p.model) && (
-                        <span className="hero-drop__sub">{[p.brand, p.model].filter(Boolean).join(' · ')}</span>
+              <div className={`hero-drop${isSearching ? ' hero-drop--full' : ''}`}>
+                <div className="hero-drop__results">
+                  {heroSuggestions.map((p) => (
+                    <button
+                      key={p._id}
+                      className="hero-drop__item"
+                      onMouseDown={() => { setQuickView(p); setHeroDrop(false); setHeroSearch(''); }}
+                    >
+                      {p.images?.[0]
+                        ? <img src={p.images[0]} alt="" className="hero-drop__img" />
+                        : <span className="hero-drop__img hero-drop__img--empty">📦</span>
+                      }
+                      <div className="hero-drop__info">
+                        <span className="hero-drop__name">{p.name}</span>
+                        {(p.brand || p.model) && (
+                          <span className="hero-drop__sub">{[p.brand, p.model].filter(Boolean).join(' · ')}</span>
+                        )}
+                      </div>
+                      {p.salePrice > 0 && (
+                        <span className="hero-drop__price">₪{p.salePrice.toLocaleString()}</span>
                       )}
-                    </div>
-                    {p.salePrice > 0 && (
-                      <span className="hero-drop__price">₪{p.salePrice.toLocaleString()}</span>
+                    </button>
+                  ))}
+                </div>
+                {isSearching && (
+                  <div className="hero-drop__chips">
+                    <button
+                      className={`chip${activeCategoryId === '' && activeTag === '' ? ' chip--active' : ''}`}
+                      onMouseDown={() => { setActiveCategoryId(''); setActiveTag(''); setHeroSearch(''); setHeroDrop(false); }}
+                    >
+                      {t('shop.all')}
+                    </button>
+                    {visibleCategories.map(cat => (
+                      <button key={cat._id}
+                        className={`chip${activeCategoryId === cat._id ? ' chip--active' : ''}`}
+                        onMouseDown={() => { setActiveCategoryId(cat._id); setActiveTag(''); setHeroSearch(''); setHeroDrop(false); }}
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                    {overflowCategories.length > 0 && (
+                      <button
+                        className={`chip${overflowHasActive ? ' chip--active' : ''}`}
+                        onMouseDown={() => setShowCategoryMore(s => !s)}
+                      >
+                        ···
+                      </button>
                     )}
-                  </button>
-                ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
