@@ -132,7 +132,7 @@ export default function TopBar({
               </button>
               <Link
                 to={currentUser ? profileTarget : '/login'}
-                className="btn-ghost"
+                className="btn-ghost shop-nav__hide-mobile"
                 style={{ padding: '6px 10px', fontSize: 13 }}
               >
                 {t('nav.profile')}
