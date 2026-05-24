@@ -90,7 +90,7 @@ export default function Layout() {
         )}
         <div style={{
           position: 'fixed', top: 0,
-          insetInlineEnd: customerMenuOpen ? 0 : '-260px',
+          insetInlineStart: customerMenuOpen ? 0 : '-260px',
           width: 240, height: '100dvh',
           background: 'var(--sidebar-bg)', zIndex: 499,
           transition: 'inset-inline-end .25s ease',

@@ -41,16 +41,19 @@ export default function TopBar({
     <header className={isAdmin ? 'navbar' : 'shop-nav'}>
       {/* ── Brand / Start ── */}
       <div className={isAdmin ? 'navbar-start' : 'shop-nav__brand'}>
-        {(isAdmin || onHamburger) && (
-          <button className="btn-ghost navbar-hamburger" onClick={onHamburger} aria-label="תפריט">
-            ☰
-          </button>
-        )}
-        <div className="shop-nav__brand">
-          <Link to="/">{t('app.name')}</Link>
-        </div>
-        {isAdmin && pageTitle && (
-          <span className="navbar-page-title">{pageTitle}</span>
+        {isAdmin ? (
+          <>
+            <button className="btn-ghost navbar-hamburger" onClick={onHamburger} aria-label="תפריט">☰</button>
+            <div className="shop-nav__brand"><Link to="/">{t('app.name')}</Link></div>
+            {pageTitle && <span className="navbar-page-title">{pageTitle}</span>}
+          </>
+        ) : (
+          <>
+            {onHamburger && (
+              <button className="btn-ghost navbar-hamburger" onClick={onHamburger} aria-label="תפריט">☰</button>
+            )}
+            <Link to="/">{t('app.name')}</Link>
+          </>
         )}
       </div>
 
