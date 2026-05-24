@@ -1204,7 +1204,8 @@ table {
   .shop-main { padding: 16px; }
 
   // Collapse less-important nav items on small screens
-  .shop-nav__hide-mobile     { display: none; }
+  a.shop-nav__hide-mobile,
+  button.shop-nav__hide-mobile { display: none; }
   .shop-nav__cart-label      { display: none; }
   .shop-nav__cart-mobile-hide { display: none; }
 

@@ -70,7 +70,6 @@ export default function Layout() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = () => setSidebarOpen(false);
-  const [customerMenuOpen, setCustomerMenuOpen] = useState(false);
 
   const userInitials = useMemo(() => initials(currentUser?.name), [currentUser?.name]);
   const userAvatarColor = useMemo(() => avatarColor(currentUser?.name), [currentUser?.name]);
@@ -82,49 +81,46 @@ export default function Layout() {
   });
 
   if (currentUser?.role === 'customer') {
+    const customerNavItems = [
+      { path: '/',        translationKey: 'home',    icon: '🏠' },
+      { path: '/orders',  translationKey: 'orders',  icon: '◈' },
+      { path: '/profile', translationKey: 'profile', icon: '○' },
+    ];
     return (
-      <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
-        {customerMenuOpen && (
-          <div onClick={() => setCustomerMenuOpen(false)}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)', zIndex: 498 }} />
-        )}
-        <div style={{
-          position: 'fixed', top: 0,
-          insetInlineStart: customerMenuOpen ? 0 : '-260px',
-          width: 240, height: '100dvh',
-          background: 'var(--sidebar-bg)', zIndex: 499,
-          transition: 'inset-inline-end .25s ease',
-          display: 'flex', flexDirection: 'column', padding: '24px 0',
-        }}>
-          <div style={{ padding: '0 20px 20px', borderBottom: '1px solid rgba(255,255,255,.1)',
-            fontWeight: 700, fontSize: 16, color: 'var(--sidebar-text)' }}>
-            {currentUser?.name}
-          </div>
-          <nav style={{ flex: 1, padding: '12px 0' }}>
-            {[
-              { to: '/',        label: 'חנות',   icon: '🏠' },
-              { to: '/orders',  label: 'הזמנות', icon: '📦' },
-              { to: '/profile', label: 'פרופיל', icon: '👤' },
-            ].map(item => (
-              <Link key={item.to} to={item.to}
-                onClick={() => setCustomerMenuOpen(false)}
-                style={{ display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 20px', color: 'var(--sidebar-text)',
-                  textDecoration: 'none', fontSize: 15, fontWeight: 500 }}>
-                {item.icon} {item.label}
-              </Link>
-            ))}
-          </nav>
-          <button
-            onClick={() => { dispatch(logoutUser()); setCustomerMenuOpen(false); }}
-            style={{ margin: '0 16px', padding: 10, background: 'none',
-              border: '1px solid rgba(255,255,255,.2)', borderRadius: 8,
-              color: 'var(--sidebar-text)', cursor: 'pointer', fontSize: 14 }}>
-            {t('nav.logout')}
-          </button>
+      <div className="layout">
+        <div className={`sidebar-host${sidebarOpen ? ' sidebar-host--open' : ''}`}>
+          <div
+            className={`sidebar-overlay${sidebarOpen ? ' sidebar-overlay--visible' : ''}`}
+            onClick={closeSidebar}
+          />
+          <aside className={`sidebar${sidebarOpen ? ' sidebar--open' : ''}`}>
+            <Link to="/" className="brand" style={{ textDecoration: 'none' }}>{t('app.name')}</Link>
+            <nav>
+              {customerNavItems.map(item => (
+                <NavLink key={item.path} to={item.path} onClick={closeSidebar}>
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="label">{t(`nav.${item.translationKey}`)}</span>
+                </NavLink>
+              ))}
+            </nav>
+            <div className="sidebar-user">
+              <div className="sidebar-user__info">
+                <div className="sidebar-user__avatar" style={{ background: userAvatarColor }}>
+                  {userInitials}
+                </div>
+                <div>
+                  <div className="sidebar-user__name">{currentUser?.name}</div>
+                  <div className="sidebar-user__role">{t(`roles.${currentUser?.role}`)}</div>
+                </div>
+              </div>
+              <button className="btn-secondary" onClick={() => dispatch(logoutUser())} style={{ width: '100%', fontSize: 12 }}>
+                {t('nav.logout')}
+              </button>
+            </div>
+          </aside>
         </div>
         <TopBar mode="shop" cartCount={0} onCartOpen={() => {}}
-          onHamburger={() => setCustomerMenuOpen(o => !o)} />
+          onHamburger={() => setSidebarOpen(o => !o)} />
         <main style={{ flex: 1, padding: '20px 16px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
           <Outlet />
         </main>
