@@ -158,8 +158,8 @@ export default function Login() {
       <form className="login-card" onSubmit={isRegister ? handleSignup : async (e) => {
         e.preventDefault();
         try {
-          const result = await dispatch(loginUser({ email: emailInput, password: passwordInput }));
-          if (!result.error) navigate(searchParams.get('redirect') || '/dashboard');
+          await dispatch(loginUser({ email: emailInput, password: passwordInput }));
+          // redirect is handled by the currentUser useEffect above — one navigate call only
         } catch { /* error in Redux state */ }
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
