@@ -1155,10 +1155,10 @@ table {
   @media (max-width: 700px) {
     display: flex;
     position: fixed; bottom: 0; inset-inline-start: 0; inset-inline-end: 0; z-index: 200;
-    background: rgba(8,5,0,.97);
+    background: var(--surface-2);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(249,115,22,.18);
+    border-top: 1px solid var(--border);
     padding: 6px 0 max(10px, env(safe-area-inset-bottom, 10px));
 
     @media all and (display-mode: standalone) {
@@ -1204,7 +1204,6 @@ table {
   .shop-main { padding: 16px; }
 
   // Collapse less-important nav items on small screens
-  .shop-nav__lang            { display: none; }
   .shop-nav__hide-mobile     { display: none; }
   .shop-nav__cart-label      { display: none; }
   .shop-nav__cart-mobile-hide { display: none; }

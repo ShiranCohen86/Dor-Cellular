@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser, selectCurrentUser } from '../store/slices/authSlice.js';
+import { selectCurrentUser } from '../store/slices/authSlice.js';
 import { selectLanguage, toggleLanguage } from '../store/slices/uiSlice.js';
 import { selectTheme, setTheme } from '../store/slices/settingsSlice.js';
 
@@ -29,7 +29,6 @@ export default function TopBar({
   const currentTheme = useSelector(selectTheme);
 
   const isAdmin = mode === 'admin';
-  const handleLogout = () => dispatch(logoutUser());
   const handleTheme = () => dispatch(setTheme(currentTheme === 'light' ? 'dark' : 'light'));
 
   // In admin area "personal area" goes to profile (they're already in the admin section).
@@ -42,7 +41,7 @@ export default function TopBar({
     <header className={isAdmin ? 'navbar' : 'shop-nav'}>
       {/* ── Brand / Start ── */}
       <div className={isAdmin ? 'navbar-start' : 'shop-nav__brand'}>
-        {isAdmin && (
+        {(isAdmin || onHamburger) && (
           <button className="btn-ghost navbar-hamburger" onClick={onHamburger} aria-label="תפריט">
             ☰
           </button>
@@ -124,7 +123,7 @@ export default function TopBar({
                 {currentTheme === 'light' ? '🌙' : '☀️'}
               </button>
               <button
-                className="btn-ghost"
+                className="btn-ghost shop-nav__hide-mobile"
                 onClick={() => dispatch(toggleLanguage())}
                 style={{ fontSize: 13, padding: '6px 10px' }}
               >

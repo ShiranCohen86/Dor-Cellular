@@ -90,6 +90,20 @@ export default function Storefront() {
   const selectsMoreRef  = useRef(null);
   const [quickView, setQuickView] = useState(null);
   const [navMenuOpen, setNavMenuOpen] = useState(false);
+  const navMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!navMenuOpen) return;
+    const handler = (e) => {
+      if (navMenuRef.current && !navMenuRef.current.contains(e.target)) setNavMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('touchstart', handler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('touchstart', handler);
+    };
+  }, [navMenuOpen]);
   const [cartBounce, setCartBounce] = useState(false);
   const [addedIds, setAddedIds] = useState({});
 
@@ -393,7 +407,7 @@ export default function Storefront() {
             )}
           </div>
           <div className="shop-hero__contact">
-            <span className="shop-hero__contact-item" style={{ position: 'relative' }}>
+            <span className="shop-hero__contact-item" style={{ position: 'relative' }} ref={navMenuRef}>
                 <button
                   onClick={() => setNavMenuOpen(v => !v)}
                   style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer',
