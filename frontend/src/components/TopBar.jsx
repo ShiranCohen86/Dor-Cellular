@@ -126,7 +126,7 @@ export default function TopBar({
                 {currentTheme === 'light' ? '🌙' : '☀️'}
               </button>
               <button
-                className="btn-ghost shop-nav__hide-mobile"
+                className="btn-ghost"
                 onClick={() => dispatch(toggleLanguage())}
                 style={{ fontSize: 13, padding: '6px 10px' }}
               >
