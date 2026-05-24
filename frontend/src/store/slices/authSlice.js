@@ -5,7 +5,7 @@
  * Tokens are mirrored to localStorage for the axios interceptor to read.
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginRequest, logoutRequest, fetchCurrentUser, updateCurrentUser, googleLogin } from '../../api/auth.api.js';
+import { loginRequest, logoutRequest, fetchCurrentUser, updateCurrentUser, googleLogin, signupRequest } from '../../api/auth.api.js';
 import { logError, logInfo } from '../../api/logger.js';
 
 const initialState = {
@@ -65,6 +65,19 @@ export const googleLoginUser = createAsyncThunk('auth/googleLogin', async (idTok
   }
 });
 
+/** Registers a new customer account and stores the tokens. */
+export const signupUser = createAsyncThunk('auth/signup', async (formData, { rejectWithValue }) => {
+  try {
+    const result = await signupRequest(formData);
+    localStorage.setItem('token', result.accessToken);
+    localStorage.setItem('refreshToken', result.refreshToken);
+    logInfo('auth', 'signed up as', result.user.email);
+    return result.user;
+  } catch (err) {
+    return rejectWithValue(err.message || 'שגיאה בהרשמה');
+  }
+});
+
 /** Updates the current user's profile (name, phone). */
 export const updateProfile = createAsyncThunk('auth/updateProfile', async (patch, { rejectWithValue }) => {
   try {
@@ -118,6 +131,16 @@ const authSlice = createSlice({
       .addCase(googleLoginUser.rejected, (state, action) => {
         state.status = 'failed';
         state.errorMessage = action.payload || 'Google sign-in failed';
+      })
+      // signup
+      .addCase(signupUser.pending, (state) => { state.status = 'loading'; state.errorMessage = null; })
+      .addCase(signupUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.currentUser = action.payload;
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.errorMessage = action.payload || 'Registration failed';
       })
       // updateProfile
       .addCase(updateProfile.fulfilled, (state, action) => {

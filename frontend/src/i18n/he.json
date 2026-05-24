@@ -28,7 +28,15 @@
     "wrongCredentials": "אימייל או סיסמה שגויים",
 
     "backToShop": "← חזרה לחנות",
-    "orEmail": "או עם אימייל"
+    "orEmail": "או עם אימייל",
+    "register": "הרשמה",
+    "signUp": "הירשם",
+    "noAccount": "אין לך חשבון?",
+    "hasAccount": "יש לך חשבון?",
+    "signIn2": "התחבר",
+    "fullName": "שם מלא",
+    "phone": "טלפון (אופציונלי)",
+    "emailTaken": "כתובת האימייל כבר בשימוש"
   },
   "shop": {
     "heroTitle": "דור הסלולר",

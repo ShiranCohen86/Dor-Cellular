@@ -28,7 +28,15 @@
     "wrongCredentials": "Invalid email or password",
 
     "backToShop": "← Back to shop",
-    "orEmail": "or with email"
+    "orEmail": "or with email",
+    "register": "Register",
+    "signUp": "Sign Up",
+    "noAccount": "No account?",
+    "hasAccount": "Have an account?",
+    "signIn2": "Sign In",
+    "fullName": "Full name",
+    "phone": "Phone (optional)",
+    "emailTaken": "Email already in use"
   },
   "shop": {
     "heroTitle": "דור הסלולר",

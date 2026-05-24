@@ -129,7 +129,15 @@ async function googleAuth({ idToken, userAgent, ip }) {
   } else {
     let linkedCustomer = await Customer.findOne({ email: email.toLowerCase() }).lean();
     if (!linkedCustomer) {
-      linkedCustomer = await Customer.create({ name: name || email.split('@')[0], email: email.toLowerCase() }).catch(() => null);
+      try {
+        linkedCustomer = await Customer.create({ name: name || email.split('@')[0], email: email.toLowerCase() });
+      } catch (err) {
+        if (err.code === 11000) {
+          linkedCustomer = await Customer.findOne({ email: email.toLowerCase() }).lean() ?? null;
+        } else {
+          logger.warn('googleAuth: customer create failed', { email, err: err.message });
+        }
+      }
     }
     user = new User({
       name: name || email.split('@')[0],
@@ -150,6 +158,49 @@ async function googleAuth({ idToken, userAgent, ip }) {
 
   AuditLog.create({ userId: user._id, action: 'auth.login', ip, userAgent, meta: { email: user.email, name: user.name, role: user.role, via: 'google' } }).catch(() => {});
 
+  return { user: user.toJSON(), accessToken, refreshToken };
+}
+
+// ── Public signup ──────────────────────────────────────────────────────────
+
+async function signup({ name, email, password, phone, userAgent, ip }) {
+  const existing = await User.findOne({ email: email.toLowerCase() });
+  if (existing) throw ApiError.badRequest('כתובת האימייל כבר בשימוש');
+
+  const trimmedPhone = (phone || '').trim() || undefined;
+  const user = new User({
+    name: name.trim(),
+    email: email.toLowerCase(),
+    phone: trimmedPhone,
+    role: 'customer',
+    isActive: true,
+  });
+  await user.setPassword(password);
+  await user.save();
+
+  let customer = trimmedPhone ? await Customer.findOne({ phone: trimmedPhone }) : null;
+  if (!customer) customer = await Customer.findOne({ email: email.toLowerCase() });
+  if (!customer) {
+    const data = { name: name.trim(), email: email.toLowerCase() };
+    if (trimmedPhone) data.phone = trimmedPhone;
+    try {
+      customer = await Customer.create(data);
+    } catch (err) {
+      if (err.code === 11000) {
+        customer = await Customer.findOne({ email: email.toLowerCase() });
+      } else {
+        logger.warn('signup: could not create customer', { email, err: err.message });
+      }
+    }
+  }
+  if (customer) { user.customerId = customer._id; await user.save(); }
+
+  const { accessToken, refreshToken, jtiHash } = signTokens(user);
+  pushSession(user, { jtiHash, userAgent, ip });
+  user.lastLogin = new Date();
+  await user.save();
+
+  AuditLog.create({ userId: user._id, action: 'auth.user.registered', meta: { email, name, via: 'email' } }).catch(() => {});
   return { user: user.toJSON(), accessToken, refreshToken };
 }
 
@@ -348,6 +399,7 @@ module.exports = {
   register,
   login,
   googleAuth,
+  signup,
   refresh,
   requestPasswordReset,
   resetPassword,

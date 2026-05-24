@@ -22,6 +22,18 @@ exports.login = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
+exports.signup = asyncHandler(async (req, res) => {
+  const result = await authService.signup({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    phone: req.body.phone,
+    userAgent: req.headers['user-agent'] || '',
+    ip: clientIp(req),
+  });
+  res.status(201).json(result);
+});
+
 exports.googleAuth = asyncHandler(async (req, res) => {
   const result = await authService.googleAuth({
     idToken: req.body.idToken,

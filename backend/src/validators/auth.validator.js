@@ -14,6 +14,15 @@ exports.register = {
   }),
 };
 
+exports.signup = {
+  body: Joi.object({
+    name:     Joi.string().trim().min(2).max(80).required(),
+    email:    email.required(),
+    password: Joi.string().min(6).max(128).required(),
+    phone:    Joi.string().trim().max(20).allow('', null).optional(),
+  }),
+};
+
 exports.login = {
   body: Joi.object({
     email:    email.required(),

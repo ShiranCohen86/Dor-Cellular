@@ -98,3 +98,11 @@ export function updateUser(userId, patch) {
 export function googleLogin(idToken) {
   return safeRequest(httpClient.post('/auth/google', { idToken }));
 }
+
+/**
+ * POST /auth/signup — public self-registration for customers.
+ * @param {{name:string, email:string, password:string, phone?:string}} data
+ */
+export function signupRequest(data) {
+  return safeRequest(httpClient.post('/auth/signup', data));
+}
